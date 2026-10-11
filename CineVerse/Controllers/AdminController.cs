@@ -225,12 +225,38 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             return View(lichchieus);
         }
 
+        [HttpGet]
+        public JsonResult GetRoomsByCinema(string maRap)
+        {
+            var rooms = cinemaService.GetAllRooms(maRap)
+                .Select(r => new {
+                    maPhong = r.MA_PHONG.Trim(),
+                    tenPhong = r.TEN_PHONG,
+                    tenRap = r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP : ""
+                })
+                .ToList();
+            return Json(rooms, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult ThemLichChieu()
         {
             ViewBag.Title = "Thêm Lịch chiếu";
             ViewBag.MA_PHIM = new SelectList(movieService.GetAllMovies(), "MA_PHIM", "TEN_PHIM");
-            ViewBag.MA_PHONG = new SelectList(cinemaService.GetAllRooms(), "MA_PHONG", "TEN_PHONG");
-            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots(), "MA_KHUNGGIO", "GIOBATDAU");
+            ViewBag.Cinemas = cinemaService.GetAllCinemas();
+            ViewBag.MA_RAP = new SelectList(cinemaService.GetAllCinemas(), "MA_RAP", "TEN_RAP");
+
+            var allRooms = cinemaService.GetAllRooms();
+            ViewBag.DanhSachPhong = allRooms;
+            ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
+                MA_PHONG = r.MA_PHONG.Trim(),
+                TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
+            }), "MA_PHONG", "TEN_PHONG");
+
+            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
+                MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
+                GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
+            }), "MA_KHUNGGIO", "GIOBATDAU");
+
             return View();
         }
 
@@ -251,8 +277,21 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 }
             }
             ViewBag.MA_PHIM = new SelectList(movieService.GetAllMovies(), "MA_PHIM", "TEN_PHIM", lichChieu.MA_PHIM);
-            ViewBag.MA_PHONG = new SelectList(cinemaService.GetAllRooms(), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG);
-            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots(), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO);
+            ViewBag.Cinemas = cinemaService.GetAllCinemas();
+            ViewBag.MA_RAP = new SelectList(cinemaService.GetAllCinemas(), "MA_RAP", "TEN_RAP");
+
+            var allRooms = cinemaService.GetAllRooms();
+            ViewBag.DanhSachPhong = allRooms;
+            ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
+                MA_PHONG = r.MA_PHONG.Trim(),
+                TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
+            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG?.Trim());
+
+            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
+                MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
+                GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
+            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO?.Trim());
+
             return View(lichChieu);
         }
 
@@ -263,8 +302,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             if (lichChieu == null) return HttpNotFound();
 
             ViewBag.MA_PHIM = new SelectList(movieService.GetAllMovies(), "MA_PHIM", "TEN_PHIM", lichChieu.MA_PHIM);
-            ViewBag.MA_PHONG = new SelectList(cinemaService.GetAllRooms(), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG);
-            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots(), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO);
+
+            var room = cinemaService.GetRoomById(lichChieu.MA_PHONG);
+            string currentRap = room?.MA_RAP?.Trim();
+            ViewBag.SelectedRap = currentRap;
+            ViewBag.Cinemas = cinemaService.GetAllCinemas();
+            ViewBag.MA_RAP = new SelectList(cinemaService.GetAllCinemas(), "MA_RAP", "TEN_RAP", currentRap);
+
+            var allRooms = cinemaService.GetAllRooms();
+            ViewBag.DanhSachPhong = allRooms;
+            ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
+                MA_PHONG = r.MA_PHONG.Trim(),
+                TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
+            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG.Trim());
+
+            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
+                MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
+                GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
+            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO.Trim());
+
             return View(lichChieu);
         }
 
@@ -284,8 +340,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 }
             }
             ViewBag.MA_PHIM = new SelectList(movieService.GetAllMovies(), "MA_PHIM", "TEN_PHIM", lichChieu.MA_PHIM);
-            ViewBag.MA_PHONG = new SelectList(cinemaService.GetAllRooms(), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG);
-            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots(), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO);
+
+            var room = cinemaService.GetRoomById(lichChieu.MA_PHONG);
+            string currentRap = room?.MA_RAP?.Trim();
+            ViewBag.SelectedRap = currentRap;
+            ViewBag.Cinemas = cinemaService.GetAllCinemas();
+            ViewBag.MA_RAP = new SelectList(cinemaService.GetAllCinemas(), "MA_RAP", "TEN_RAP", currentRap);
+
+            var allRooms = cinemaService.GetAllRooms();
+            ViewBag.DanhSachPhong = allRooms;
+            ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
+                MA_PHONG = r.MA_PHONG.Trim(),
+                TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
+            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG?.Trim());
+
+            ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
+                MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
+                GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
+            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO?.Trim());
+
             return View(lichChieu);
         }
 

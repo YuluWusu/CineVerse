@@ -1,17 +1,17 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DoAn_QuanLyVeXemPhimTrucTiep")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("CineVerse")]
+[assembly: AssemblyDescription("CinéVerse - Hệ thống Quản lý và Đặt vé xem phim trực tiếp")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DoAn_QuanLyVeXemPhimTrucTiep")]
-[assembly: AssemblyCopyright("Copyright ©  2026")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("CinéVerse Team")]
+[assembly: AssemblyProduct("CinéVerse - Cinema Management System")]
+[assembly: AssemblyCopyright("Copyright © 2026 CinéVerse")]
+[assembly: AssemblyTrademark("CinéVerse")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible

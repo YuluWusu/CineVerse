@@ -90,7 +90,15 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             decimal tongTienSauGiam = prices.Item3;
 
             // Xử lý đặt vé
-            bookingService.ProcessBooking(khachHang, lichChieu, gheList, khuyenMai, soTienGiam);
+            try
+            {
+                bookingService.ProcessBooking(khachHang, lichChieu, gheList, khuyenMai, soTienGiam);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Có lỗi xảy ra trong quá trình đặt vé: " + ex.Message;
+                return RedirectToAction("ChonGhe", new { maLichChieu = maLichChieu });
+            }
 
             TempData["TongTienGoc"] = tongTienGoc;
             TempData["SoTienGiam"] = soTienGiam;

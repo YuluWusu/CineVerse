@@ -22,18 +22,23 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
         public KHACHHANG GetOrCreateCustomer(string hoTen, string soDienThoai, string email)
         {
-            var khachHang = db.KHACHHANGs.FirstOrDefault(k => k.SDT == soDienThoai);
+            string sdt = soDienThoai?.Trim() ?? "";
+            var khachHang = db.KHACHHANGs.FirstOrDefault(k => k.SDT.Trim() == sdt);
             if (khachHang == null)
             {
                 var allKhIds = db.KHACHHANGs.Select(k => k.MA_KHACH).ToList();
                 int maxKhId = 0;
                 foreach (var id in allKhIds)
                 {
-                    if (!string.IsNullOrEmpty(id) && id.StartsWith("KH"))
+                    if (!string.IsNullOrEmpty(id))
                     {
-                        if (int.TryParse(id.Substring(2), out int currentId))
+                        string trimmed = id.Trim();
+                        if (trimmed.StartsWith("KH"))
                         {
-                            if (currentId > maxKhId) maxKhId = currentId;
+                            if (int.TryParse(trimmed.Substring(2), out int currentId))
+                            {
+                                if (currentId > maxKhId) maxKhId = currentId;
+                            }
                         }
                     }
                 }
@@ -42,9 +47,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 khachHang = new KHACHHANG
                 {
                     MA_KHACH = newMaKhach,
-                    HOTEN = hoTen,
-                    SDT = soDienThoai,
-                    EMAIL = email,
+                    HOTEN = string.IsNullOrWhiteSpace(hoTen) ? "Khách vãng lai" : hoTen.Trim(),
+                    SDT = sdt,
+                    EMAIL = string.IsNullOrWhiteSpace(email) ? (sdt + "@cineverse.vn") : email.Trim(),
+                    MATKHAU = "123456",
                     VAITRO = "KhachHang",
                     NGAYTAO = DateTime.Now
                 };
@@ -56,12 +62,16 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
         public KHACHHANG GetCustomerByPhone(string phone)
         {
-            return db.KHACHHANGs.FirstOrDefault(k => k.SDT == phone);
+            if (string.IsNullOrEmpty(phone)) return null;
+            string trimmed = phone.Trim();
+            return db.KHACHHANGs.FirstOrDefault(k => k.SDT.Trim() == trimmed);
         }
 
         public KHACHHANG GetCustomerById(string id)
         {
-            return db.KHACHHANGs.FirstOrDefault(k => k.MA_KHACH == id);
+            if (string.IsNullOrEmpty(id)) return null;
+            string trimmed = id.Trim();
+            return db.KHACHHANGs.FirstOrDefault(k => k.MA_KHACH.Trim() == trimmed);
         }
 
         public List<VE> GetBookingHistory(string maKhach)
@@ -119,11 +129,15 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             int maxDhId = 0;
             foreach (var id in allDhIds)
             {
-                if (!string.IsNullOrEmpty(id) && id.StartsWith("DH"))
+                if (!string.IsNullOrEmpty(id))
                 {
-                    if (int.TryParse(id.Substring(2), out int currentId))
+                    string trimmed = id.Trim();
+                    if (trimmed.StartsWith("DH"))
                     {
-                        if (currentId > maxDhId) maxDhId = currentId;
+                        if (int.TryParse(trimmed.Substring(2), out int currentId))
+                        {
+                            if (currentId > maxDhId) maxDhId = currentId;
+                        }
                     }
                 }
             }
@@ -131,19 +145,23 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
             decimal tongTienGoc = gheList.Sum(g => g.LOAIGHE.GIATVE + (lichChieu.GIATVE_PHUTROI ?? 0));
             decimal tongTienSauGiam = tongTienGoc - soTienGiam;
+            if (tongTienSauGiam < 0) tongTienSauGiam = 0;
+
+            string maKhach = khachHang.MA_KHACH.Trim();
+            string maLichChieu = lichChieu.MA_LICHCHIEU.Trim();
 
             DONHANG donHang = new DONHANG
             {
                 MA_DONHANG = maDonHang,
-                MA_KHACH = khachHang.MA_KHACH,
-                MA_LICHCHIEU = lichChieu.MA_LICHCHIEU,
-                MA_KM = khuyenMai?.MA_KM,
+                MA_KHACH = maKhach,
+                MA_LICHCHIEU = maLichChieu,
+                MA_KM = !string.IsNullOrEmpty(khuyenMai?.MA_KM) ? khuyenMai.MA_KM.Trim() : null,
                 NGAYDAT = DateTime.Now,
                 TIENVE = tongTienGoc,
                 TIENMONAN = 0,
                 TIENGIAM = soTienGiam,
                 TONGTIEN = tongTienSauGiam,
-                TRANGTHAI = "Đã thanh toán"
+                TRANGTHAI = "DaThanhToan"
             };
             db.DONHANGs.Add(donHang);
 
@@ -152,11 +170,15 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             int maxVeId = 0;
             foreach (var id in allVeIds)
             {
-                if (!string.IsNullOrEmpty(id) && id.StartsWith("VE"))
+                if (!string.IsNullOrEmpty(id))
                 {
-                    if (int.TryParse(id.Substring(2), out int currentId))
+                    string trimmed = id.Trim();
+                    if (trimmed.StartsWith("VE"))
                     {
-                        if (currentId > maxVeId) maxVeId = currentId;
+                        if (int.TryParse(trimmed.Substring(2), out int currentId))
+                        {
+                            if (currentId > maxVeId) maxVeId = currentId;
+                        }
                     }
                 }
             }
@@ -171,24 +193,41 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 {
                     MA_VE = maVeMoi,
                     MA_DONHANG = maDonHang,
-                    MA_LICHCHIEU = lichChieu.MA_LICHCHIEU,
-                    MA_GHE = ghe.MA_GHE,
+                    MA_LICHCHIEU = maLichChieu,
+                    MA_GHE = ghe.MA_GHE.Trim(),
                     DONGIA = giaGhe,
-                    TRANGTHAI = "Đã đặt"
+                    TRANGTHAI = "Đã thanh toán"
                 };
                 db.VEs.Add(veMoi);
             }
 
-            if (khuyenMai != null)
+            if (khuyenMai != null && !string.IsNullOrEmpty(khuyenMai.MA_KM))
             {
-                var km = db.KHUYENMAIs.Find(khuyenMai.MA_KM);
+                string kmId = khuyenMai.MA_KM.Trim();
+                var km = db.KHUYENMAIs.FirstOrDefault(k => k.MA_KM.Trim() == kmId);
                 if (km != null)
                 {
-                    km.SO_LUOT_DADUNG++;
+                    km.SO_LUOT_DADUNG = (km.SO_LUOT_DADUNG) + 1;
                 }
             }
 
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                var errorMessages = ex.EntityValidationErrors
+                    .SelectMany(x => x.ValidationErrors)
+                    .Select(x => x.PropertyName + ": " + x.ErrorMessage);
+                var fullErrorMessage = string.Join("; ", errorMessages);
+                throw new Exception("Lỗi xác thực dữ liệu: " + fullErrorMessage, ex);
+            }
+            catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.InnerException ?? ex.InnerException ?? ex;
+                throw new Exception("Lỗi lưu cơ sở dữ liệu: " + inner.Message, ex);
+            }
         }
     }
 }

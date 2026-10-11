@@ -10,14 +10,32 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
     {
         // GET: Movies
         QL_VEPHIM2Entities data = new QL_VEPHIM2Entities();
-        public ActionResult DanhSachPhim(string trangthai = "Đang chiếu")
+        public ActionResult DanhSachPhim(string trangthai = null, string search = null)
         {
-            var phims = data.PHIMs
-                .Where(p => p.TRANGTHAI == trangthai)
-                .AsQueryable();
-            ViewBag.DanhSachPhim = phims.ToList();
-            ViewBag.TrangThai = trangthai;
+            var query = data.PHIMs.AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string kw = search.Trim();
+                query = query.Where(p => p.TEN_PHIM.Contains(kw)
+                                      || (p.DAO_DIEN != null && p.DAO_DIEN.Contains(kw))
+                                      || (p.DIEN_VIEN != null && p.DIEN_VIEN.Contains(kw))
+                                      || p.THELOAIs.Any(t => t.TEN_THELOAI.Contains(kw)));
+                ViewBag.Search = kw;
+            }
+
+            if (!string.IsNullOrEmpty(trangthai))
+            {
+                query = query.Where(p => p.TRANGTHAI == trangthai);
+                ViewBag.TrangThai = trangthai;
+            }
+            else if (string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p => p.TRANGTHAI == "Đang chiếu");
+                ViewBag.TrangThai = "Đang chiếu";
+            }
+
+            ViewBag.DanhSachPhim = query.OrderByDescending(p => p.NGAYKHOICHIEU).ToList();
             return View();
         }
         public ActionResult ChiTietPhim(string id)

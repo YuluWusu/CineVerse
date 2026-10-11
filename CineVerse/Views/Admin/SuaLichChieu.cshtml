@@ -1,0 +1,135 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-pencil-square"></i> Sửa lịch chiếu
+                </div>
+            </div>
+            
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger" style="margin: 20px; background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="adm-card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.HiddenFor(model => model.MA_LICHCHIEU)
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Chọn Phim <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            @Html.DropDownList("MA_PHIM", null, htmlAttributes: new { @class = "adm-select", @required="required" })
+                        </div>
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Chọn Rạp Chiếu <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            <select id="selectRap" class="adm-select">
+                                <option value="">-- Tất cả rạp chiếu --</option>
+                                @if (ViewBag.Cinemas != null)
+                                {
+                                    string selRap = ViewBag.SelectedRap as string;
+                                    foreach (var rap in (IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.RAPCHIEU>)ViewBag.Cinemas)
+                                    {
+                                        string rId = rap.MA_RAP.Trim();
+                                        <option value="@rId" @(rId == selRap ? "selected" : "")>@rap.TEN_RAP</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Chọn Phòng Chiếu <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            <select name="MA_PHONG" id="selectPhong" class="adm-select" required>
+                                <option value="">-- Chọn phòng chiếu --</option>
+                                @if (ViewBag.DanhSachPhong != null)
+                                {
+                                    string currentPhong = Model.MA_PHONG?.Trim();
+                                    foreach (var phong in (IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.PHONGCHIEU>)ViewBag.DanhSachPhong)
+                                    {
+                                        string rapName = phong.RAPCHIEU != null ? phong.RAPCHIEU.TEN_RAP : "";
+                                        string pId = phong.MA_PHONG.Trim();
+                                        <option value="@pId" data-rap="@phong.MA_RAP.Trim()" @(pId == currentPhong ? "selected" : "")>
+                                            @(string.IsNullOrEmpty(rapName) ? "" : rapName + " - ")@phong.TEN_PHONG
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Ngày Chiếu <span class="req">*</span></label>
+                        <input type="date" name="NGAYCHIEU" class="adm-input" value="@Model.NGAYCHIEU.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Khung Giờ <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            @Html.DropDownList("MA_KHUNGGIO", null, htmlAttributes: new { @class = "adm-select", @required="required" })
+                        </div>
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Giá phụ trội (VNĐ)</label>
+                        @Html.EditorFor(model => model.GIATVE_PHUTROI, new { htmlAttributes = new { @class = "adm-input", @type="number", @min="0" } })
+                    </div>
+
+                    <div style="margin-top: 30px; display:flex; gap: 10px;">
+                        <button type="submit" class="btn-adm-primary"><i class="bi bi-check-circle"></i> Cập nhật</button>
+                        <a href="/Admin/QuanLyLichChieu" class="btn-adm-ghost"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var selectRap = document.getElementById('selectRap');
+            var selectPhong = document.getElementById('selectPhong');
+            if (!selectRap || !selectPhong) return;
+
+            var allOptions = Array.from(selectPhong.querySelectorAll('option[data-rap]'));
+
+            selectRap.addEventListener('change', function() {
+                var selectedRap = this.value;
+                var currentVal = selectPhong.value;
+
+                selectPhong.innerHTML = '<option value="">-- Chọn phòng chiếu --</option>';
+
+                var matched = 0;
+                allOptions.forEach(function(opt) {
+                    if (!selectedRap || opt.getAttribute('data-rap') === selectedRap) {
+                        selectPhong.appendChild(opt.cloneNode(true));
+                        matched++;
+                    }
+                });
+
+                if (matched === 0) {
+                    var emptyOpt = document.createElement('option');
+                    emptyOpt.value = '';
+                    emptyOpt.textContent = '(Rạp này chưa có phòng chiếu)';
+                    emptyOpt.disabled = true;
+                    selectPhong.appendChild(emptyOpt);
+                } else {
+                    selectPhong.value = currentVal;
+                }
+            });
+        });
+    </script>
+}

@@ -391,10 +391,10 @@
                 <li><a href="/Home/GioiThieu" class="@(ViewData["ActivePage"]?.ToString() == "About" ? "active" : "")">Giới thiệu</a></li>
             </ul>
 
-            <div class="cv-search">
+            <form action="/Movies/DanhSachPhim" method="get" class="cv-search" style="margin: 0 0 0 auto;">
                 <i class="bi bi-search"></i>
-                <input type="text" placeholder="Tìm tên phim..." />
-            </div>
+                <input type="text" name="search" value="@Request.QueryString["search"]" placeholder="Tìm tên phim, diễn viên..." autocomplete="off" />
+            </form>
 
             <div class="cv-nav-actions">
                 @if (Session["KhachHang"] != null)

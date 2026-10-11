@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Danh Sách Phim";
     Layout = "~/Views/Shared/_Khung.cshtml";
 }
@@ -352,13 +352,33 @@
         @{
             var phims = ViewBag.DanhSachPhim as List<PHIM>;
             var trangThai = ViewBag.TrangThai as string ?? "Đang chiếu";
+            var searchKeyword = ViewBag.Search as string;
+        }
+
+        @if (!string.IsNullOrEmpty(searchKeyword))
+        {
+            <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 14px 20px; border-radius: 8px;">
+                <div>
+                    <span style="color: var(--text-muted);">Kết quả tìm kiếm cho: </span>
+                    <strong style="color: var(--accent); font-size: 16px;">"@searchKeyword"</strong>
+                    <span style="color: var(--text-muted); margin-left: 8px;">(@(phims?.Count ?? 0) phim)</span>
+                </div>
+                <a href="@Url.Action("DanhSachPhim", "Movies")" class="btn-ghost" style="padding: 6px 14px; font-size: 13px; text-decoration: none;">
+                    <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                </a>
+            </div>
         }
 
         @if (phims == null || phims.Count == 0)
         {
             <div class="empty-state">
                 <i class="bi bi-film"></i>
-                <h3>Chưa có phim nào</h3>
+                <h3>@(string.IsNullOrEmpty(searchKeyword) ? "Chưa có phim nào" : "Không tìm thấy phim phù hợp")</h3>
+                @if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    <p style="color: var(--text-muted); margin-top: 8px;">Không có kết quả nào khớp với từ khóa "<strong>@searchKeyword</strong>". Vui lòng thử lại với từ khóa khác.</p>
+                    <a href="@Url.Action("DanhSachPhim", "Movies")" class="btn-gold" style="display:inline-block; margin-top: 16px; padding: 8px 20px; text-decoration: none; border-radius: 6px;">Xem tất cả phim</a>
+                }
             </div>
         }
         else
