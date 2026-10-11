@@ -1,0 +1,432 @@
+﻿@{
+    ViewBag.Title = "Danh Sách Phim";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+}
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models;
+
+@section Styles {
+    <style>
+        .filter-tabs-wrap {
+            background: var(--bg-deep);
+            border-bottom: 1px solid var(--border);
+            padding: 32px 0 0;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .filter-tab {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 40px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            text-decoration: none;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+
+            .filter-tab:hover {
+                color: var(--text-primary);
+            }
+
+            .filter-tab.active {
+                color: var(--accent);
+                border-bottom-color: var(--accent);
+            }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+            .status-dot.dang {
+                background: #4be87c;
+                box-shadow: 0 0 6px #4be87c88;
+            }
+
+            .status-dot.sap {
+                background: var(--accent);
+                box-shadow: 0 0 6px rgba(232,184,75,.5);
+            }
+
+            .status-dot.xong {
+                background: var(--text-muted);
+            }
+
+        .movies-page {
+            padding: 40px 0 60px;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+            gap: 22px;
+        }
+
+        .movie-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform .25s, border-color .25s, box-shadow .25s;
+            cursor: pointer;
+            animation: fadeUp .4s ease both;
+        }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .movie-card:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .movie-card:nth-child(2) {
+            animation-delay: .08s
+        }
+
+        .movie-card:nth-child(3) {
+            animation-delay: .12s
+        }
+
+        .movie-card:nth-child(4) {
+            animation-delay: .16s
+        }
+
+        .movie-card:nth-child(5) {
+            animation-delay: .20s
+        }
+
+        .movie-card:nth-child(6) {
+            animation-delay: .24s
+        }
+
+        .movie-card:nth-child(7) {
+            animation-delay: .28s
+        }
+
+        .movie-card:nth-child(8) {
+            animation-delay: .32s
+        }
+
+        .movie-card:hover {
+            transform: translateY(-7px);
+            border-color: rgba(232,184,75,.3);
+            box-shadow: 0 16px 48px rgba(0,0,0,.5);
+        }
+
+        .movie-poster {
+            position: relative;
+            aspect-ratio: 2/3;
+            overflow: hidden;
+        }
+
+            .movie-poster img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform .45s;
+            }
+
+        .movie-card:hover .movie-poster img {
+            transform: scale(1.07);
+        }
+
+        .poster-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(9,9,15,.9) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-card:hover .poster-overlay {
+            opacity: 1;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #000;
+            transform: scale(.75);
+            transition: transform .25s;
+        }
+
+        .movie-card:hover .play-btn {
+            transform: scale(1);
+        }
+
+        .badge-wrap {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .badge-age {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-p {
+            background: #4be87c;
+            color: #000;
+        }
+
+        .badge-t13 {
+            background: #e8b84b;
+            color: #000;
+        }
+
+        .badge-t16 {
+            background: #e87c4b;
+            color: #fff;
+        }
+
+        .badge-t18 {
+            background: #e84b4b;
+            color: #fff;
+        }
+
+        .movie-info {
+            padding: 14px 14px 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height:140px;
+        }
+
+        .movie-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            height:2.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .movie-meta {
+            flex: 1;
+            align-items: center;
+            justify-content:space-between;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+
+        .movie-genre {
+            font-size: 11px;
+            color: var(--text-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 110px;
+        }
+
+        .movie-dur {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .btn-dat-ve {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            border: 1px solid rgba(232,184,75,.35);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .2s;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            margin-top: auto;
+        }
+
+            .btn-dat-ve:hover {
+                background: var(--accent);
+                color: #000;
+                border-color: var(--accent);
+            }
+
+            .btn-dat-ve.disabled {
+                border-color: rgba(255,255,255,.1);
+                color: var(--text-muted);
+                cursor: default;
+                pointer-events: none;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+            .empty-state i {
+                font-size: 56px;
+                margin-bottom: 16px;
+                display: block;
+                opacity: .3;
+            }
+
+            .empty-state h3 {
+                font-size: 18px;
+                color: var(--text-primary);
+                margin-bottom: 8px;
+            }
+
+        @@media (max-width: 767px) {
+            .filter-tab {
+                padding: 12px 18px;
+                font-size: 13px;
+            }
+
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+                gap: 14px;
+            }
+        }
+    </style>
+}
+
+<div class="filter-tabs-wrap">
+    <div class="filter-tabs">
+        <a href="@Url.Action("DanhSachPhim", "Movies", new { trangthai = "Đang chiếu" })"
+           class="filter-tab @(ViewBag.TrangThai == "Đang chiếu" ? "active" : "")">
+            <span class="status-dot dang"></span> Đang chiếu
+        </a>
+        <a href="@Url.Action("DanhSachPhim", "Movies", new { trangthai = "Sắp chiếu" })"
+           class="filter-tab @(ViewBag.TrangThai == "Sắp chiếu" ? "active" : "")">
+            <span class="status-dot sap"></span> Sắp chiếu
+        </a>
+        <a href="@Url.Action("DanhSachPhim", "Movies", new { trangthai = "Ngừng chiếu" })"
+           class="filter-tab @(ViewBag.TrangThai == "Ngừng chiếu" ? "active" : "")">
+            <span class="status-dot xong"></span> Đã kết thúc
+        </a>
+    </div>
+</div>
+
+<div class="movies-page">
+    <div class="container">
+        @{
+            var phims = ViewBag.DanhSachPhim as List<PHIM>;
+            var trangThai = ViewBag.TrangThai as string ?? "Đang chiếu";
+        }
+
+        @if (phims == null || phims.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="bi bi-film"></i>
+                <h3>Chưa có phim nào</h3>
+            </div>
+        }
+        else
+        {
+            <div class="movies-grid">
+                @foreach (var phim in phims)
+                {
+                    var theloais = phim.THELOAIs?.Select(t => t.TEN_THELOAI).ToList() ?? new List<string>();
+                    var badgeClass = phim.GIOI_HAN_TUOI?.ToLower().Replace(" ", "") ?? "p";
+
+                    <div class="movie-card"
+                         onclick="location.href='@Url.Action("ChiTietPhim", "Movies", new { id = phim.MA_PHIM })'">
+                        <div class="movie-poster">
+                            <img src="~/Content/HinhAnh/@phim.POSTER"
+                                 onerror="this.src='https://placehold.co/300x450/1a0a2e/ffffff?text=No+Image'"
+                                 alt="@phim.TEN_PHIM" />
+                            <div class="poster-overlay">
+                                <div class="play-btn"><i class="bi bi-play-fill"></i></div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(phim.GIOI_HAN_TUOI))
+                            {
+                                <div class="badge-wrap">
+                                    <span class="badge-age badge-@badgeClass">@phim.GIOI_HAN_TUOI</span>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="movie-info">
+                            <div class="movie-title">@phim.TEN_PHIM</div>
+                            <div class="movie-meta">
+                                <span class="movie-genre">
+                                    @(theloais.Any() ? string.Join(", ", theloais) : "—")
+                                </span>
+                                @if (phim.THOILUONG.HasValue)
+                                {
+                                    <span class="movie-dur">
+                                        <i class="bi bi-clock" style="font-size:10px"></i>
+                                        @phim.THOILUONG phút
+                                    </span>
+                                }
+                            </div>
+
+                            @if (trangThai == "Đang chiếu")
+                            {
+                                <a href="@Url.Action("ChiTietPhim", "Movies", new { id = phim.MA_PHIM })"
+                                @*<a href="@Url.Action("ChonGhe", "Booking", new { phimId = phim.MA_PHIM })"*@
+                                   class="btn-dat-ve" onclick="event.stopPropagation()">
+                                    <i class="bi bi-ticket-perforated"></i> Đặt vé
+                                </a>
+                            }
+                            else if (trangThai == "Sắp chiếu")
+                            {
+                                <a href="@Url.Action("ChiTietPhim", "Movies", new { id = phim.MA_PHIM })"
+                                   class="btn-dat-ve" onclick="event.stopPropagation()">
+                                    <i class="bi bi-bell"></i>
+                                    @(phim.NGAYKHOICHIEU.HasValue
+                                        ? "Ra mắt " + phim.NGAYKHOICHIEU.Value.ToString("dd/MM")
+                                        : "Xem chi tiết")
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="btn-dat-ve disabled">Đã kết thúc</span>
+                            }
+                            </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

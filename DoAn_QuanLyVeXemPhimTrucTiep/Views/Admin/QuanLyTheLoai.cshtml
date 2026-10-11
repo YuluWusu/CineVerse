@@ -1,0 +1,113 @@
+﻿@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.THELOAI>
+@{
+    ViewBag.Title = "Quản lý Thể loại phim";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-tags"></i> Danh sách thể loại phim
+        </div>
+        <a href="/Admin/ThemTheLoai" class="btn-adm-primary">
+            <i class="bi bi-plus-lg"></i> Thêm thể loại
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" style="margin:20px; background:rgba(75,232,124,.15); color:var(--green); border:1px solid var(--green); border-radius:8px; padding:12px 16px;">
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" style="margin:20px; background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px; padding:12px 16px;">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã thể loại</th>
+                        <th>Tên thể loại</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model.OrderBy(t => t.TEN_THELOAI))
+                        {
+                            <tr>
+                                <td><span style="font-family:monospace; color:var(--accent)">@item.MA_THELOAI</span></td>
+                                <td><strong>@item.TEN_THELOAI</strong></td>
+                                <td style="text-align:right">
+                                    <a href="/Admin/SuaTheLoai/@item.MA_THELOAI" class="btn-icon edit" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form action="/Admin/XoaTheLoai" method="post" style="display:inline;" onsubmit="return confirm('Xóa thể loại @item.TEN_THELOAI?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.MA_THELOAI" />
+                                        <button type="submit" class="btn-icon del" title="Xóa">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                <td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" style="text-align:center; padding:40px; color:var(--text-muted)">
+                                <i class="bi bi-tags" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
+                                Chưa có thể loại nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all .2s;
+        margin: 0 2px;
+        text-decoration: none;
+    }
+
+        .btn-icon.edit {
+            background: rgba(75,139,232,.15);
+            color: var(--blue);
+        }
+
+            .btn-icon.edit:hover {
+                background: var(--blue);
+                color: #fff;
+            }
+
+        .btn-icon.del {
+            background: rgba(232,75,75,.15);
+            color: var(--red);
+        }
+
+            .btn-icon.del:hover {
+                background: var(--red);
+                color: #fff;
+            }
+</style>

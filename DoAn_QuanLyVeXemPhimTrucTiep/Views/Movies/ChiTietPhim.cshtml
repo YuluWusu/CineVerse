@@ -1,0 +1,850 @@
+@{
+    ViewBag.Title = "Chi tiết phim";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+}
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM
+
+@section Styles {
+    <style>
+       
+        .detail-backdrop {
+            position: relative;
+            width: 100%;
+            min-height: 520px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .backdrop-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+            .backdrop-bg img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                filter: brightness(.22) blur(3px);
+                transform: scale(1.05);
+            }
+
+        .backdrop-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient( 90deg, rgba(9,9,15,.95) 0%, rgba(9,9,15,.75) 45%, rgba(9,9,15,.3) 100% );
+        }
+
+        .backdrop-gradient-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            background: linear-gradient(0deg, rgba(9,9,15,1) 0%, transparent 100%);
+        }
+
+        .detail-main {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 56px 0 48px;
+        }
+
+        .detail-inner {
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        .detail-poster {
+            flex-shrink: 0;
+            width: 240px;
+        }
+
+        .poster-img-wrap {
+            width: 240px;
+            aspect-ratio: 2/3;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid rgba(232,184,75,.25);
+            position: relative;
+        }
+
+            .poster-img-wrap img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform .4s;
+            }
+
+            .poster-img-wrap:hover img {
+                transform: scale(1.04);
+            }
+
+        .poster-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(9,9,15,.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity .3s;
+            cursor: pointer;
+        }
+
+        .poster-img-wrap:hover .poster-overlay {
+            opacity: 1;
+        }
+
+        .play-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #000;
+            transition: transform .2s;
+        }
+
+            .play-icon:hover {
+                transform: scale(1.1);
+            }
+
+        .poster-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-book-now {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            padding: 13px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+            .btn-book-now:hover {
+                background: var(--accent-dim);
+                color: #000;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(232,184,75,.3);
+            }
+
+        .btn-trailer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255,255,255,.07);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.13);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+            .btn-trailer:hover {
+                background: rgba(255,255,255,.13);
+                color: var(--accent);
+                border-color: var(--accent);
+            }
+
+        .status-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+            .status-badge.sap {
+                background: rgba(232,184,75,.1);
+                border: 1px solid rgba(232,184,75,.25);
+            }
+
+            .status-badge.xong {
+                background: rgba(255,255,255,.05);
+                border: 1px solid rgba(255,255,255,.1);
+            }
+
+            .status-badge i {
+                font-size: 22px;
+            }
+
+            .status-badge.sap i {
+                color: var(--accent);
+            }
+
+            .status-badge.xong i {
+                color: var(--text-muted);
+            }
+
+            .status-badge span {
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+            .status-badge.sap span {
+                color: var(--accent);
+            }
+
+            .status-badge.xong span {
+                color: var(--text-muted);
+            }
+
+            .status-badge small {
+                font-size: 11px;
+                color: var(--text-muted);
+            }
+
+        .detail-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .detail-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+            .detail-breadcrumb a {
+                color: var(--text-muted);
+                transition: color .2s;
+            }
+
+                .detail-breadcrumb a:hover {
+                    color: var(--accent);
+                }
+
+        .age-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        .badge-p {
+            background: #2ecc71;
+            color: #000;
+        }
+
+        .badge-t13 {
+            background: #f1c40f;
+            color: #000;
+        }
+
+        .badge-t16 {
+            background: #e67e22;
+            color: #fff;
+        }
+
+        .badge-t18 {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .detail-title {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 4vw, 50px);
+            letter-spacing: 2px;
+            line-height: 1.05;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .detail-stats {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .stat-item i {
+                font-size: 16px;
+                color: var(--accent);
+            }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-unit {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .detail-rows {
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .detail-label {
+            width: 100px;
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .detail-value {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .genre-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .genre-tag {
+            background: rgba(232,184,75,.1);
+            border: 1px solid rgba(232,184,75,.2);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            transition: all .2s;
+        }
+
+            .genre-tag:hover {
+                background: var(--accent);
+                color: #000;
+            }
+
+        .status-inline {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .status-inline.dang {
+                color: #4be87c;
+            }
+
+            .status-inline.sap {
+                color: var(--accent);
+            }
+
+            .status-inline.xong {
+                color: var(--text-muted);
+            }
+
+        .detail-desc {
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-top: 4px;
+        }
+
+            .detail-desc h6 {
+                font-family: var(--font-display);
+                font-size: 15px;
+                letter-spacing: 1px;
+                color: var(--accent);
+                margin-bottom: 10px;
+            }
+
+            .detail-desc p {
+                font-size: 14px;
+                color: var(--text-muted);
+                line-height: 1.85;
+                margin: 0;
+            }
+
+        .schedule-section {
+            padding: 48px 0 60px;
+            background: var(--bg-void);
+        }
+
+        .section-title-cv {
+            font-family: var(--font-display);
+            font-size: 28px;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+            .section-title-cv span {
+                color: var(--accent);
+            }
+
+        .date-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+            margin-bottom: 28px;
+        }
+
+            .date-strip::-webkit-scrollbar {
+                display: none;
+            }
+
+        .date-btn {
+            flex-shrink: 0;
+            width: 64px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            display: block;
+        }
+
+            .date-btn.active {
+                background: var(--accent);
+                border-color: var(--accent);
+            }
+
+            .date-btn .day-name {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                display: block;
+            }
+
+            .date-btn .day-num {
+                font-family: var(--font-display);
+                font-size: 22px;
+                color: var(--text-primary);
+                line-height: 1;
+                display: block;
+            }
+
+            .date-btn .month {
+                font-size: 10px;
+                color: var(--text-muted);
+                display: block;
+            }
+
+            .date-btn.active .day-name,
+            .date-btn.active .month {
+                color: rgba(0,0,0,.65);
+            }
+
+            .date-btn.active .day-num {
+                color: #000;
+            }
+
+        .showtime-group {
+            margin-bottom: 28px;
+        }
+
+        .showtime-group-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .showtime-group-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+
+        .showtime-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .showtime-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            display: block;
+        }
+
+            .showtime-btn:hover {
+                border-color: rgba(232,184,75,.4);
+                background: rgba(232,184,75,.06);
+            }
+
+            .showtime-btn.sold-out {
+                opacity: .4;
+                pointer-events: none;
+            }
+
+        .showtime-time {
+            font-family: var(--font-display);
+            font-size: 20px;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            display: block;
+        }
+
+        .showtime-type {
+            font-size: 10px;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .showtime-seats {
+            font-size: 10px;
+            color: #4be87c;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .showtime-btn.few-left .showtime-seats {
+            color: var(--accent);
+        }
+
+        .showtime-btn.sold-out .showtime-seats {
+            color: var(--red, #e84b4b);
+        }
+
+        @@media (max-width: 767px) {
+            .detail-inner {
+                flex-direction: column;
+                align-items: center;
+                gap: 28px;
+            }
+
+            .detail-poster {
+                width: 180px;
+            }
+
+            .poster-img-wrap {
+                width: 180px;
+            }
+
+            .poster-actions {
+                flex-direction: row;
+            }
+
+            .detail-info {
+                width: 100%;
+            }
+
+            .detail-title {
+                font-size: 26px;
+            }
+        }
+    </style>
+}
+
+@{
+    string ageClass = "badge-p";
+    string ageLimit = Model.GIOI_HAN_TUOI?.ToUpper() ?? "";
+    if (ageLimit == "T13") { ageClass = "badge-t13"; }
+    else if (ageLimit == "T16") { ageClass = "badge-t16"; }
+    else if (ageLimit == "T18") { ageClass = "badge-t18"; }
+}
+
+
+<div class="detail-backdrop">
+    
+    <div class="backdrop-bg">
+        <img src="~/Content/HinhAnh/@Model.POSTER"
+             onerror="this.src='https://placehold.co/1400x600/0a0a1a/111?text='"
+             alt="" />
+    </div>
+    <div class="backdrop-gradient"></div>
+    <div class="backdrop-gradient-bottom"></div>
+
+    
+    <div class="detail-main">
+        <div class="container">
+            <div class="detail-inner">
+
+                
+                <div class="detail-poster">
+                    <div class="poster-img-wrap">
+                        <img src="~/Content/HinhAnh/@Model.POSTER"
+                             onerror="this.src='https://placehold.co/240x360/1a1a28/555?text=No+Image'"
+                             alt="@Model.TEN_PHIM" />
+                        <div class="poster-overlay">
+                            <div class="play-icon"><i class="bi bi-play-fill"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="poster-actions">
+                        @if (Model.TRANGTHAI == "Đang chiếu")
+                        {
+                            <a href="javascript:void(0)" onclick="cuonXuongLichChieu()" class="btn-book-now">
+                                <i class="bi bi-ticket-perforated-fill"></i> Đặt vé ngay
+                            </a>
+                            <button class="btn-trailer" onclick="cuonXuongLichChieu()">
+                                <i class="bi bi-calendar3"></i> Xem lịch chiếu
+                            </button>
+                        }
+                        else if (Model.TRANGTHAI == "Sắp chiếu")
+                        {
+                            <div class="status-badge sap">
+                                <i class="bi bi-hourglass-top"></i>
+                                <span>SẮP RA MẮT</span>
+                                <small>
+                                    @(Model.NGAYKHOICHIEU.HasValue
+                                        ? "Khởi chiếu: " + Model.NGAYKHOICHIEU.Value.ToString("dd/MM/yyyy")
+                                        : "Đang cập nhật...")
+                                </small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="status-badge xong">
+                                <i class="bi bi-stop-circle"></i>
+                                <span>ĐÃ KẾT THÚC</span>
+                                <small>Cảm ơn bạn đã quan tâm</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- THÔNG TIN -->
+                <div class="detail-info">
+                    <div class="detail-breadcrumb">
+                        <a href="/">Trang chủ</a>
+                        <i class="bi bi-chevron-right" style="font-size:10px"></i>
+                        <a href="/Movies/DanhSachPhim">Phim</a>
+                        <i class="bi bi-chevron-right" style="font-size:10px"></i>
+                        <span>Chi tiết</span>
+                    </div>
+
+                    <div class="age-badge @ageClass">@Model.GIOI_HAN_TUOI</div>
+
+                    <h1 class="detail-title">@Model.TEN_PHIM</h1>
+
+                    <!-- Stats -->
+                    <div class="detail-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-clock"></i>
+                            <span class="stat-value">@Model.THOILUONG</span>
+                            <span class="stat-unit">phút</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-calendar3"></i>
+                            <span class="stat-value">
+                                @(Model.NGAYKHOICHIEU.HasValue
+                                    ? Model.NGAYKHOICHIEU.Value.ToString("dd/MM/yyyy")
+                                    : "Sắp cập nhật")
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-circle-fill" style="font-size:10px; color:
+                                @(Model.TRANGTHAI == "Đang chiếu" ? "#4be87c" :
+                                  Model.TRANGTHAI == "Sắp chiếu"  ? "var(--accent)" : "var(--text-muted)")"></i>
+                            <span class="stat-value">@Model.TRANGTHAI</span>
+                        </div>
+                    </div>
+
+                    <!-- Chi tiết -->
+                    <div class="detail-rows">
+                        <div class="detail-row">
+                            <span class="detail-label">Thể loại</span>
+                            <div class="detail-value">
+                                <div class="genre-tags">
+                                    @foreach (var tl in Model.THELOAIs)
+                                    {
+                                        <span class="genre-tag">@tl.TEN_THELOAI</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.DAO_DIEN))
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">Đạo diễn</span>
+                                <span class="detail-value">@Model.DAO_DIEN</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.DIEN_VIEN))
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">Diễn viên</span>
+                                <span class="detail-value">@Model.DIEN_VIEN</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Mô tả -->
+                    @if (!string.IsNullOrEmpty(Model.MOTA))
+                    {
+                        <div class="detail-desc">
+                            <h6><i class="bi bi-card-text me-2"></i>Nội dung phim</h6>
+                            <p>@Model.MOTA</p>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LỊCH CHIẾU (chỉ hiện khi đang chiếu) -->
+@if (Model.TRANGTHAI == "Đang chiếu")
+{
+    var lichChieus = ViewBag.LichChieu as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU>;
+    
+    <div class="schedule-section" id="lich-chieu">
+        <div class="container">
+            <h2 class="section-title-cv">LỊCH <span>CHIẾU</span></h2>
+            
+            @if (lichChieus != null && lichChieus.Any())
+            {
+                var groupedByDate = lichChieus.GroupBy(l => l.NGAYCHIEU.Date).ToList();
+                
+                <div class="date-strip">
+                    @foreach (var group in groupedByDate)
+                    {
+                        var isFirst = group == groupedByDate.First();
+                        <button class="date-btn @(isFirst ? "active" : "")" data-target="date-@group.Key.ToString("yyyyMMdd")">
+                            <span class="day-name">@group.Key.ToString("dddd", new System.Globalization.CultureInfo("vi-VN"))</span>
+                            <span class="day-num">@group.Key.ToString("dd")</span>
+                            <span class="month">Th @group.Key.ToString("MM")</span>
+                        </button>
+                    }
+                </div>
+
+                <div class="showtimes-content">
+                    @foreach (var group in groupedByDate)
+                    {
+                        var isFirst = group == groupedByDate.First();
+                        <div class="showtime-date-panel" id="date-@group.Key.ToString("yyyyMMdd")" style="display: @(isFirst ? "block" : "none")">
+                            
+                            @{
+                                var groupedByCinema = group.GroupBy(l => l.PHONGCHIEU.RAPCHIEU).ToList();
+                            }
+                            
+                            @foreach (var cinemaGroup in groupedByCinema)
+                            {
+                                <div class="showtime-group">
+                                    <div class="showtime-group-label">@(cinemaGroup.Key?.TEN_RAP ?? "Rạp")</div>
+                                    <div class="showtime-grid">
+                                        @foreach (var lc in cinemaGroup)
+                                        {
+                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU" class="showtime-btn">
+                                                <span class="showtime-time">@lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</span>
+                                                <span class="showtime-type">@lc.PHONGCHIEU.TEN_PHONG</span>
+                                                @if(lc.GIATVE_PHUTROI > 0)
+                                                {
+                                                    <span class="showtime-type" style="color:var(--accent);">+@String.Format("{0:0,0}", lc.GIATVE_PHUTROI)đ</span>
+                                                }
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p style="color: var(--text-muted)">Hiện chưa có lịch chiếu cho phim này.</p>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function cuonXuongLichChieu() {
+            var el = document.getElementById('lich-chieu');
+            if(el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert("Phim hiện chưa có lịch chiếu.");
+            }
+        }
+
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                
+                document.querySelectorAll('.showtime-date-panel').forEach(p => p.style.display = 'none');
+                
+                
+                var targetId = this.getAttribute('data-target');
+                var targetPanel = document.getElementById(targetId);
+                if(targetPanel) {
+                    targetPanel.style.display = 'block';
+                }
+            });
+        });
+    </script>
+}

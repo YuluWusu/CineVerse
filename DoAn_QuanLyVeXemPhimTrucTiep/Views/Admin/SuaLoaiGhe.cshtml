@@ -1,0 +1,42 @@
+﻿@model DoAn_QuanLyVeXemPhimTrucTiep.Models.LOAIGHE
+@{
+    ViewBag.Title = "Sửa Loại ghế";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title"><i class="bi bi-pencil-square"></i> Cập nhật loại ghế</div>
+            </div>
+            <div class="adm-card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.MA_LOAIGHE)
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "margin-bottom:15px" })
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Mã loại ghế</label>
+                        <input type="text" class="adm-input" value="@Model.MA_LOAIGHE" disabled />
+                    </div>
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Tên loại ghế <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.TEN_LOAIGHE, new { @class = "adm-input", required = "required" })
+                        @Html.ValidationMessageFor(m => m.TEN_LOAIGHE, "", new { @class = "text-danger", style = "font-size:12px" })
+                    </div>
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Giá vé (VNĐ) <span class="req">*</span></label>
+                        @Html.TextBoxFor(m => m.GIATVE, new { @class = "adm-input", type = "number", min = "0", step = "1000", required = "required" })
+                        @Html.ValidationMessageFor(m => m.GIATVE, "", new { @class = "text-danger", style = "font-size:12px" })
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn-adm-primary"><i class="bi bi-check-circle"></i> Cập nhật</button>
+                        <a href="@Url.Action("QuanLyLoaiGhe")" class="btn-adm-ghost">Quay lại</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

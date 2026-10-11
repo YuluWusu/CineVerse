@@ -1,0 +1,42 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.RAPCHIEU
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-pencil-square"></i> Cập nhật thông tin rạp
+                </div>
+            </div>
+            <div class="adm-card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.HiddenFor(model => model.MA_RAP)
+                    
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Mã Rạp</label>
+                        <input type="text" class="adm-input" value="@Model.MA_RAP" disabled style="opacity:0.6" />
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Tên Rạp <span class="req">*</span></label>
+                        @Html.EditorFor(model => model.TEN_RAP, new { htmlAttributes = new { @class = "adm-input", @required="required" } })
+                    </div>
+                    
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Địa chỉ <span class="req">*</span></label>
+                        @Html.TextAreaFor(model => model.DIA_CHI, new { @class = "adm-textarea", @rows = "3", @required="required" })
+                    </div>
+
+                    <div style="margin-top: 30px; display:flex; gap: 10px;">
+                        <button type="submit" class="btn-adm-primary"><i class="bi bi-check-circle"></i> Cập nhật</button>
+                        <a href="/Admin/QuanLyRap" class="btn-adm-ghost"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

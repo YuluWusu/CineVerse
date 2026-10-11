@@ -1,0 +1,60 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.RAPCHIEU>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-building"></i> Danh sách Rạp chiếu
+        </div>
+        <a href="/Admin/ThemRap" class="btn-adm-primary">
+            <i class="bi bi-plus-lg"></i> Thêm rạp mới
+        </a>
+    </div>
+    
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" style="margin: 20px; background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã Rạp</th>
+                        <th>Tên Rạp</th>
+                        <th>Địa chỉ</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span style="font-family:monospace;font-size:12px;color:var(--accent)">@item.MA_RAP</span></td>
+                            <td><strong>@item.TEN_RAP</strong></td>
+                            <td>@item.DIACHI</td>
+                            <td style="text-align:right">
+                                <a href="/Admin/QuanLyPhong?idRap=@item.MA_RAP" class="btn-adm-ghost" style="margin-right:8px" title="Xem phòng chiếu">
+                                    <i class="bi bi-door-open"></i> Phòng
+                                </a>
+                                <a href="/Admin/SuaRap/@item.MA_RAP" class="btn-icon edit" title="Sửa">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <form action="/Admin/XoaRap/@item.MA_RAP" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa rạp này?');">
+                                    <button type="submit" class="btn-icon del" title="Xóa">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

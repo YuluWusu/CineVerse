@@ -1,0 +1,382 @@
+@{
+    ViewBag.Title = "Chọn ghế ngồi";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+    var lichChieu = ViewBag.LichChieu as DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU;
+    var gheDaDat = ViewBag.GheDaDat as List<string>;
+}
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.GHE>
+
+@section Styles {
+    <style>
+        .booking-container {
+            padding: 40px 0 80px;
+            background: var(--bg-void);
+            min-height: 80vh;
+        }
+
+        .booking-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .booking-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+        }
+
+        .movie-info {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .movie-info strong {
+            color: var(--accent);
+        }
+
+        /* Màn hình */
+        .screen-area {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .screen {
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 100%);
+            border-top: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+            box-shadow: 0 -15px 30px rgba(255,255,255,0.1);
+            position: relative;
+            margin: 0 auto 20px;
+            max-width: 800px;
+        }
+        
+        .screen-text {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Sơ đồ ghế */
+        .seats-map {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .seat-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px 8px 4px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            color: #fff;
+        }
+
+        /* Loại ghế: Thường */
+        .seat.type-thuong {
+            background: #2b2b36;
+            border: 1px solid #454555;
+        }
+        
+        /* Loại ghế: VIP */
+        .seat.type-vip {
+            background: rgba(232,184,75,0.1);
+            border: 1px solid rgba(232,184,75,0.4);
+            color: var(--accent);
+        }
+
+        .seat:hover:not(.booked) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .seat.selected {
+            background: #4be87c;
+            border-color: #4be87c;
+            color: #000;
+        }
+
+        .seat.booked {
+            background: #333;
+            border-color: #222;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        /* Legend */
+        .seat-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* Bottom bar */
+        .booking-bottom-bar {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 20px 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        }
+
+        .bottom-bar-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-info h4 {
+            margin: 0 0 5px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .summary-info p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        #selected-seats-list {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .total-price-box {
+            text-align: right;
+            margin-right: 20px;
+        }
+
+        .total-price-box span {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .total-price {
+            font-family: var(--font-display);
+            font-size: 24px;
+            color: #4be87c;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .btn-continue {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-continue:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
+        .btn-continue:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .d-flex-align {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+}
+
+<div class="booking-container">
+    <div class="container">
+        <div class="booking-header">
+            <h1 class="booking-title">CHỌN GHẾ NGỒI</h1>
+            <div class="movie-info">
+                Phim: <strong>@lichChieu.PHIM.TEN_PHIM</strong> | 
+                Rạp: <strong>@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</strong> |
+                Suất chiếu: <strong>@lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") - @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</strong>
+            </div>
+        </div>
+
+        <div class="screen-area">
+            <div class="screen"></div>
+            <div class="screen-text">MÀN HÌNH CHÍNH</div>
+        </div>
+
+        <div class="seat-legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: #2b2b36; border: 1px solid #454555;"></div>
+                <span>Ghế thường</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: rgba(232,184,75,0.1); border: 1px solid rgba(232,184,75,0.4);"></div>
+                <span>Ghế VIP</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #4be87c;"></div>
+                <span>Đang chọn</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #333; border: 1px solid #222;"></div>
+                <span>Đã đặt</span>
+            </div>
+        </div>
+
+        <div class="seats-map">
+            @{
+                var groupedSeats = Model.OrderBy(g => g.SOGHE).GroupBy(g => g.SOGHE.Substring(0, 1)).ToList();
+            }
+            
+            @foreach (var group in groupedSeats)
+            {
+                <div class="seat-row">
+                    <div style="width: 20px; display:flex; align-items:center; justify-content:center; color: var(--text-muted); font-weight: bold; margin-right: 10px;">@group.Key</div>
+                    @foreach (var ghe in group)
+                    {
+                        bool isBooked = gheDaDat != null && gheDaDat.Contains(ghe.MA_GHE);
+                        string statusClass = isBooked ? "booked" : "";
+                        string typeClass = ghe.LOAIGHE.TEN_LOAIGHE.ToLower().Contains("vip") ? "type-vip" : "type-thuong";
+                        
+                        <div class="seat @typeClass @statusClass" 
+                             data-id="@ghe.MA_GHE" 
+                             data-name="@ghe.SOGHE" 
+                             data-price="@(ghe.LOAIGHE.GIATVE + (lichChieu.GIATVE_PHUTROI ?? 0))"
+                             onclick="toggleSeat(this)">
+                            @ghe.SOGHE
+                        </div>
+                    }
+                    <div style="width: 20px; display:flex; align-items:center; justify-content:center; color: var(--text-muted); font-weight: bold; margin-left: 10px;">@group.Key</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<form action="/Booking/ThanhToan" method="post" id="bookingForm">
+    <input type="hidden" name="maLichChieu" value="@lichChieu.MA_LICHCHIEU" />
+    <input type="hidden" name="selectedSeats" id="inputSelectedSeats" value="" />
+    
+    <div class="booking-bottom-bar">
+        <div class="container bottom-bar-inner">
+            <div class="summary-info">
+                <h4>Ghế đã chọn: <span id="selected-seats-list">Chưa chọn</span></h4>
+                <p>Số lượng: <span id="seat-count">0</span> vé</p>
+            </div>
+            
+            <div class="d-flex-align">
+                <div class="total-price-box">
+                    <span>Tổng tiền tạm tính</span>
+                    <h3 class="total-price"><span id="total-price-value">0</span>đ</h3>
+                </div>
+                <button type="submit" class="btn-continue" id="btnContinue" disabled>TIẾP TỤC</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        let selectedSeatsIds = [];
+        let selectedSeatsNames = [];
+        let totalPrice = 0;
+
+        function toggleSeat(element) {
+            if (element.classList.contains('booked')) return;
+
+            const seatId = element.getAttribute('data-id');
+            const seatName = element.getAttribute('data-name');
+            const seatPrice = parseFloat(element.getAttribute('data-price'));
+
+            if (element.classList.contains('selected')) {
+                // Bỏ chọn
+                element.classList.remove('selected');
+                selectedSeatsIds = selectedSeatsIds.filter(id => id !== seatId);
+                selectedSeatsNames = selectedSeatsNames.filter(name => name !== seatName);
+                totalPrice -= seatPrice;
+            } else {
+                // Giới hạn chọn tối đa 8 vé
+                if (selectedSeatsIds.length >= 8) {
+                    alert('Bạn chỉ có thể chọn tối đa 8 vé cho mỗi lần đặt!');
+                    return;
+                }
+                // Chọn
+                element.classList.add('selected');
+                selectedSeatsIds.push(seatId);
+                selectedSeatsNames.push(seatName);
+                totalPrice += seatPrice;
+            }
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            // Cập nhật text
+            const listEl = document.getElementById('selected-seats-list');
+            if (selectedSeatsNames.length > 0) {
+                listEl.textContent = selectedSeatsNames.join(', ');
+            } else {
+                listEl.textContent = 'Chưa chọn';
+            }
+
+            document.getElementById('seat-count').textContent = selectedSeatsIds.length;
+            
+            // Format tiền
+            const formattedPrice = new Intl.NumberFormat('vi-VN').format(totalPrice);
+            document.getElementById('total-price-value').textContent = formattedPrice;
+
+            // Update form input
+            document.getElementById('inputSelectedSeats').value = selectedSeatsIds.join(',');
+
+            // Enable/Disable nút
+            const btn = document.getElementById('btnContinue');
+            if (selectedSeatsIds.length > 0) {
+                btn.removeAttribute('disabled');
+            } else {
+                btn.setAttribute('disabled', 'disabled');
+            }
+        }
+    </script>
+}

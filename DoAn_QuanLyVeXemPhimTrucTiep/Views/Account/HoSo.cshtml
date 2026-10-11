@@ -1,0 +1,156 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.KHACHHANG
+@{
+    ViewBag.Title = "Hồ sơ của tôi";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+}
+
+@section Styles {
+    <style>
+        .profile-container {
+            padding: 80px 0;
+            background: var(--bg-void);
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .profile-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .profile-title span {
+            color: var(--accent);
+        }
+
+        .profile-info {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-history {
+            flex: 1;
+            background: var(--accent);
+            color: #000;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-history:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            flex: 1;
+            background: rgba(232, 75, 75, 0.1);
+            color: #e84b4b;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(232, 75, 75, 0.3);
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(232, 75, 75, 0.2);
+            color: #ff6b6b;
+        }
+    </style>
+}
+
+<div class="profile-container">
+    <div class="profile-card">
+        <h1 class="profile-title">HỒ <span>SƠ</span></h1>
+
+        <div class="profile-info">
+            <div class="info-row">
+                <span class="info-label">Mã thành viên</span>
+                <span class="info-value">@Model.MA_KHACH</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Họ và tên</span>
+                <span class="info-value">@Model.HOTEN</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Số điện thoại</span>
+                <span class="info-value">@Model.SDT</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">@(string.IsNullOrEmpty(Model.EMAIL) ? "Chưa cập nhật" : Model.EMAIL)</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">CCCD</span>
+                <span class="info-value">@(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật" : Model.CCCD)</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Hạng thành viên</span>
+                <span class="info-value" style="color: var(--accent);">@Model.VAITRO</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Ngày tham gia</span>
+                <span class="info-value">@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("dd/MM/yyyy") : "N/A")</span>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="/Booking/LichSuVe" class="btn-history"><i class="bi bi-clock-history me-2"></i>Lịch sử đặt vé</a>
+            <a href="/Account/DangXuat" class="btn-logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a>
+        </div>
+    </div>
+</div>

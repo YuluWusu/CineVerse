@@ -1,0 +1,94 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.VE>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card" style="margin-bottom: 20px;">
+    <div class="adm-card-body" style="padding: 15px 20px;">
+        <form method="get" action="/Admin/QuanLyVe" style="display:flex; gap: 15px; align-items:flex-end; flex-wrap:wrap;">
+            <div style="flex:1; min-width:200px;">
+                <label class="adm-form-label">SĐT Khách hàng</label>
+                <input type="text" name="searchSdt" value="@ViewBag.searchSdt" class="adm-input" placeholder="Nhập số điện thoại..." />
+            </div>
+            <div style="flex:1; min-width:200px;">
+                <label class="adm-form-label">Mã Lịch Chiếu</label>
+                <input type="text" name="searchMaLich" value="@ViewBag.searchMaLich" class="adm-input" placeholder="Nhập mã lịch chiếu..." />
+            </div>
+            <div>
+                <button type="submit" class="btn-adm-primary"><i class="bi bi-search"></i> Lọc dữ liệu</button>
+                <a href="/Admin/QuanLyVe" class="btn-adm-ghost"><i class="bi bi-x-circle"></i> Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-ticket-perforated"></i> Danh sách Vé đã đặt
+        </div>
+    </div>
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã Vé / Khách hàng</th>
+                        <th>Chi tiết Lịch chiếu</th>
+                        <th>Thông tin Ghế</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span style="font-family:monospace;font-size:12px;color:var(--accent)">@item.MA_VE</span><br/>
+                                <strong>@(item.DONHANG?.KHACHHANG?.HOTEN ?? "Khách lẻ")</strong><br/>
+                                <span style="font-size:11px;color:var(--text-muted)">@(item.DONHANG?.KHACHHANG?.SDT ?? "")</span>
+                            </td>
+                            <td>
+                                <strong style="color:var(--text-sec)">@item.LICHCHIEU.PHIM.TEN_PHIM</strong><br/>
+                                <span style="font-size:12px">@item.LICHCHIEU.PHONGCHIEU.TEN_PHONG</span><br/>
+                                <span style="font-size:11px;color:var(--text-muted)">LC: @item.MA_LICHCHIEU</span>
+                            </td>
+                            <td>
+                                <span style="background:rgba(255,255,255,.06);padding:3px 8px;border-radius:4px;font-size:12px;font-weight:bold">@item.GHE.SOGHE</span>
+                            </td>
+                            <td>@item.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><strong style="color:var(--accent)">@String.Format("{0:0,0}", item.DONGIA)đ</strong></td>
+                            <td>
+                                @if(item.TRANGTHAI == "Đã đặt" || item.TRANGTHAI == "Đã thanh toán") {
+                                    <span class="adm-badge dang">@item.TRANGTHAI</span>
+                                } else {
+                                    <span class="adm-badge red">@item.TRANGTHAI</span>
+                                }
+                            </td>
+                            <td style="text-align:right">
+                                <form action="/Admin/CapNhatTrangThaiVe" method="post" style="display:inline; margin-right:5px;">
+                                    <input type="hidden" name="id" value="@item.MA_VE" />
+                                    <select name="status" class="adm-select" style="width: auto; padding: 5px; font-size:11px;" onchange="this.form.submit()">
+                                        <option value="Đã đặt" @(item.TRANGTHAI == "Đã đặt" ? "selected" : "")>Đã đặt</option>
+                                        <option value="Đã hủy" @(item.TRANGTHAI == "Đã hủy" ? "selected" : "")>Đã hủy</option>
+                                        <option value="Đã thanh toán" @(item.TRANGTHAI == "Đã thanh toán" ? "selected" : "")>Đã thanh toán</option>
+                                    </select>
+                                </form>
+                                
+                                <form action="/Admin/XoaVe/@item.MA_VE" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vé này (Sẽ khôi phục lại chỗ trống)?');">
+                                    <button type="submit" class="btn-icon del" title="Xóa vé">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

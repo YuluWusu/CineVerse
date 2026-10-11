@@ -1,0 +1,548 @@
+﻿@{
+    ViewBag.Title = "Giới thiệu";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+    ViewData["ActivePage"] = "GioiThieu";
+}
+
+@section Styles {
+    <style>
+        .gt-hero {
+            position: relative;
+            padding: 100px 0 80px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+            .gt-hero::before {
+                content: '';
+                position: absolute;
+                top: -120px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(circle, rgba(232,184,75,.08) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+        .gt-hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(232,184,75,.12);
+            border: 1px solid rgba(232,184,75,.25);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .gt-hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(36px, 6vw, 72px);
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+            .gt-hero-title span {
+                color: var(--accent);
+            }
+
+        .gt-hero-desc {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 580px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* STATS */
+        .gt-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 60px 0;
+        }
+
+        .gt-stat {
+            background: var(--bg-card);
+            padding: 36px 24px;
+            text-align: center;
+            transition: background .2s;
+        }
+
+            .gt-stat:hover {
+                background: var(--bg-surface);
+            }
+
+        .gt-stat-num {
+            font-family: var(--font-display);
+            font-size: 48px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .gt-stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* SECTION CHUNG */
+        .gt-section {
+            padding: 60px 0;
+        }
+
+        .gt-section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .gt-section-title {
+            font-family: var(--font-display);
+            font-size: clamp(26px, 4vw, 42px);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+            .gt-section-title span {
+                color: var(--accent);
+            }
+
+        .gt-section-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.85;
+            max-width: 500px;
+        }
+
+        /* VỀ CHÚNG TÔI - layout 2 cột */
+        .gt-about {
+            display: flex;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .gt-about-text {
+            flex: 1;
+        }
+
+        .gt-about-visual {
+            flex-shrink: 0;
+            width: 400px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .gt-visual-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color .2s, transform .2s;
+        }
+
+            .gt-visual-card:hover {
+                border-color: rgba(232,184,75,.3);
+                transform: translateY(-3px);
+            }
+
+        .gt-visual-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(232,184,75,.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .gt-visual-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .gt-visual-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* TÍNH NĂNG */
+        .gt-features {
+            border-top: 1px solid var(--border);
+        }
+
+        .gt-features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .gt-feature {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            transition: all .25s;
+        }
+
+            .gt-feature:hover {
+                border-color: rgba(232,184,75,.3);
+                transform: translateY(-4px);
+                box-shadow: 0 12px 32px rgba(0,0,0,.3);
+            }
+
+        .gt-feature-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(232,184,75,.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .gt-feature h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .gt-feature p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* NHÓM */
+        .gt-team {
+            border-top: 1px solid var(--border);
+        }
+
+        .gt-team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .gt-member {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: all .25s;
+        }
+
+            .gt-member:hover {
+                border-color: rgba(232,184,75,.3);
+                transform: translateY(-4px);
+            }
+
+        .gt-member-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(232,184,75,.2), rgba(232,184,75,.05));
+            border: 2px solid rgba(232,184,75,.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 28px;
+            color: var(--accent);
+            margin: 0 auto 16px;
+        }
+            .gt-member-avatar img {
+                width: 110px;
+                height: 110px;
+                border-radius: 50%;
+            }
+        .gt-member-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .gt-member-role {
+            font-size: 16px;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .gt-member-tasks {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* CTA */
+        .gt-cta {
+            background: linear-gradient(135deg, #1a1025 0%, #0d1a2e 100%);
+            border: 1px solid rgba(232,184,75,.12);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .gt-cta::before {
+                content: '';
+                position: absolute;
+                top: -80px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 400px;
+                height: 400px;
+                background: radial-gradient(circle, rgba(232,184,75,.1) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+            .gt-cta h2 {
+                font-family: var(--font-display);
+                font-size: clamp(24px, 4vw, 40px);
+                letter-spacing: 2px;
+                margin-bottom: 12px;
+            }
+
+            .gt-cta p {
+                font-size: 15px;
+                color: var(--text-muted);
+                margin-bottom: 28px;
+            }
+
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            padding: 14px 36px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+            .btn-cta:hover {
+                background: var(--accent-dim);
+                color: #000;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 28px rgba(232,184,75,.3);
+            }
+
+        @@media (max-width: 991px) {
+            .gt-about {
+                flex-direction: column;
+            }
+
+            .gt-about-visual {
+                width: 100%;
+            }
+
+            .gt-features-grid, .gt-team-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .gt-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 575px) {
+            .gt-features-grid, .gt-team-grid, .gt-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .gt-cta {
+                padding: 36px 20px;
+            }
+        }
+    </style>
+}
+
+<div class="gt-hero">
+    <div class="container">
+        <div class="gt-hero-tag"><i class="bi bi-film" style="font-size:12px"></i> Về chúng tôi</div>
+        <h1 class="gt-hero-title">CINÉ<span>VERSE</span></h1>
+        <p class="gt-hero-desc">Hệ thống quản lý và đặt vé xem phim trực tuyến — nơi mang trải nghiệm điện ảnh đỉnh cao đến tận tay bạn, mọi lúc mọi nơi.</p>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="gt-stats">
+        <div class="gt-stat">
+            <div class="gt-stat-num">2+</div>
+            <div class="gt-stat-label">Rạp chiếu phim</div>
+        </div>
+        <div class="gt-stat">
+            <div class="gt-stat-num">10+</div>
+            <div class="gt-stat-label">Phim đang chiếu</div>
+        </div>
+        <div class="gt-stat">
+            <div class="gt-stat-num">3+</div>
+            <div class="gt-stat-label" style="margin-top:12px">Phòng chiếu</div>
+        </div>
+        <div class="gt-stat">
+            <div class="gt-stat-num">100+</div>
+            <div class="gt-stat-label">Khách hàng</div>
+        </div>
+    </div>
+
+    <section class="gt-section">
+        <div class="gt-about">
+            <div class="gt-about-text">
+                <div class="gt-section-label">Câu chuyện của chúng tôi</div>
+                <h2 class="gt-section-title">ĐẶT VÉ PHIM<br><span>CHƯA BAO GIỜ DỄ HƠN</span></h2>
+                <p class="gt-section-desc">
+                    CinéVerse ra đời từ đam mê điện ảnh và mong muốn mang lại trải nghiệm đặt vé thật sự tiện lợi cho khán giả Việt Nam.
+                    Không còn xếp hàng, không còn lo hết ghế — chỉ cần vài thao tác đơn giản là bạn đã có vé trong tay.
+                </p>
+                <p class="gt-section-desc" style="margin-top:16px">
+                    Được xây dựng bằng ASP.NET Core MVC, hệ thống hỗ trợ quản lý phim, phòng chiếu, lịch chiếu và đặt vé theo thời gian thực với giao diện hiện đại, thân thiện.
+                </p>
+            </div>
+            <div class="gt-about-visual">
+                <div class="gt-visual-card">
+                    <div class="gt-visual-icon"><i class="bi bi-phone"></i></div>
+                    <div class="gt-visual-title">Đặt vé online</div>
+                    <div class="gt-visual-desc">Chọn phim, ghế và thanh toán mọi lúc mọi nơi</div>
+                </div>
+                <div class="gt-visual-card">
+                    <div class="gt-visual-icon"><i class="bi bi-grid-3x3"></i></div>
+                    <div class="gt-visual-title">Chọn ghế trực quan</div>
+                    <div class="gt-visual-desc">Sơ đồ ghế thời gian thực, biết ngay ghế nào còn trống</div>
+                </div>
+                <div class="gt-visual-card">
+                    <div class="gt-visual-icon"><i class="bi bi-ticket-perforated"></i></div>
+                    <div class="gt-visual-title">Vé điện tử</div>
+                    <div class="gt-visual-desc">Nhận vé qua email, xuất trình khi vào rạp</div>
+                </div>
+                <div class="gt-visual-card">
+                    <div class="gt-visual-icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="gt-visual-title">An toàn & bảo mật</div>
+                    <div class="gt-visual-desc">Thông tin cá nhân được mã hóa và bảo vệ</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="gt-section gt-features">
+        <div class="gt-section-label">Tính năng nổi bật</div>
+        <h2 class="gt-section-title">TẤT CẢ NHỮNG GÌ<br>BẠN <span>CẦN</span></h2>
+        <div class="gt-features-grid">
+            <div class="gt-feature">
+                <div class="gt-feature-icon"><i class="bi bi-film"></i></div>
+                <h4>Phim phong phú</h4>
+                <p>Cập nhật liên tục các bộ phim mới nhất, từ bom tấn Hollywood đến phim Việt chất lượng cao.</p>
+            </div>
+            <div class="gt-feature">
+                <div class="gt-feature-icon"><i class="bi bi-calendar3"></i></div>
+                <h4>Lịch chiếu linh hoạt</h4>
+                <p>Nhiều suất chiếu trong ngày, từ sáng sớm đến khuya. Luôn có suất phù hợp với lịch của bạn.</p>
+            </div>
+            <div class="gt-feature">
+                <div class="gt-feature-icon"><i class="bi bi-cursor"></i></div>
+                <h4>Chọn ghế dễ dàng</h4>
+                <p>Sơ đồ ghế trực quan, phân loại ghế Thường, VIP, Đôi với giá vé rõ ràng minh bạch.</p>
+            </div>
+            <div class="gt-feature">
+                <div class="gt-feature-icon"><i class="bi bi-cup-hot"></i></div>
+                <h4>Đặt đồ ăn kèm</h4>
+                <p>Thêm bắp rang, nước uống và combo ưa thích ngay khi đặt vé, không cần xếp hàng tại quầy.</p>
+            </div>
+            <div class="gt-feature">
+                <div class="gt-feature-icon"><i class="bi bi-clock-history"></i></div>
+                <h4>Lịch sử đặt vé</h4>
+                <p>Xem lại toàn bộ vé đã đặt, theo dõi trạng thái và thông tin từng suất chiếu.</p>
+            </div>
+            <div class="gt-feature">
+                <div class="gt-feature-icon"><i class="bi bi-person-gear"></i></div>
+                <h4>Quản lý Admin</h4>
+                <p>Hệ thống quản trị mạnh mẽ để quản lý phim, phòng chiếu, suất chiếu và đơn đặt vé.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="gt-section gt-team">
+        <div class="gt-section-label">Nhóm phát triển</div>
+        <h2 class="gt-section-title">ĐỘI NGŨ <span>THỰC HIỆN</span></h2>
+        <div class="gt-team-grid">
+            <div class="gt-member">
+                <div class="gt-member-avatar">
+                    <img src="~/Content/ThanhVien/PhiLong.jpg" />
+                </div>
+                <div class="gt-member-name">Hoàng Xuân Phi Long</div>
+                <div class="gt-member-role">Nhóm trưởng · Front-end · Back-end  · Database</div>
+                <div class="gt-member-tasks">Trang chủ, Chi tiết phim, Danh sách phim, Lịch Chiếu, Giới thiệu, Đăng nhập, Đăng ký, Kết nối DataBase, Xây dựng hệ thống  điều hướng Master Layout</div>
+            </div>
+            <div class="gt-member">
+                <div class="gt-member-avatar">
+                    <img src="~/Content/ThanhVien/TrangTho.jpg" />
+                </div>
+                <div class="gt-member-name">Võ Thị Trang Thơ
+                </div>
+                <div class="gt-member-role">Front-end · Back-end đặt vé</div>
+                <div class="gt-member-tasks">Chọn ghế, Xác nhận vé, Lịch sử đặt vé</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<div class="container">
+    <div class="gt-cta">
+        @if (Session["KhachHang"] != null)
+        {
+            <h2>SẴN SÀNG XEM PHIM CHƯA?</h2>
+            <p>Nhanh nhanh đặt vé thôi nào.</p>
+            <a href="@Url.Action("TrangChu", "Home")" class="btn-cta">
+                <i class="bi bi-film"></i> Tới trang chủ
+            </a>
+        }
+        else
+        {
+            <h2>SẴN SÀNG XEM PHIM CHƯA?</h2>
+            <p>Đăng ký ngay hôm nay và trải nghiệm đặt vé thế hệ mới.</p>
+            <a href="@Url.Action("DangKy", "Account")" class="btn-cta">
+                <i class="bi bi-person-plus-fill"></i> Đăng ký miễn phí
+            </a>
+        }
+
+
+    </div>
+</div>

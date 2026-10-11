@@ -1,0 +1,88 @@
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var recentTickets = ViewBag.RecentTickets as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.VE>;
+}
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+    <div class="stat-card gold">
+        <div class="stat-label">Tổng doanh thu</div>
+        <div class="stat-value">@String.Format("{0:0,0}", ViewBag.TotalRevenue)</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">VNĐ</div>
+        <i class="bi bi-cash-coin stat-icon"></i>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-label">Vé bán ra</div>
+        <div class="stat-value">@ViewBag.TotalTickets</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">vé</div>
+        <i class="bi bi-ticket-perforated stat-icon"></i>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-label">Tổng số phim</div>
+        <div class="stat-value">@ViewBag.TotalMovies</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">bộ phim</div>
+        <i class="bi bi-film stat-icon"></i>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-label">Khách hàng</div>
+        <div class="stat-value">@ViewBag.TotalCustomers</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">tài khoản</div>
+        <i class="bi bi-people stat-icon"></i>
+    </div>
+</div>
+
+<!-- BẢNG VÉ GẦN NHẤT -->
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-clock-history"></i> Giao dịch đặt vé gần nhất
+        </div>
+        <a href="/Admin/QuanLyVe" class="btn-adm-ghost">
+            Xem tất cả <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã vé</th>
+                        <th>Khách hàng</th>
+                        <th>Phim</th>
+                        <th>Ghế</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (recentTickets != null && recentTickets.Count > 0)
+                    {
+                        foreach (var ve in recentTickets)
+                        {
+                            <tr>
+                                <td><span style="font-family:monospace;font-size:12px;color:var(--accent)">@ve.MA_VE</span></td>
+                                <td><strong>@(ve.DONHANG?.KHACHHANG?.HOTEN ?? "Khách lẻ")</strong></td>
+                                <td>@ve.LICHCHIEU.PHIM.TEN_PHIM</td>
+                                <td><span style="background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px;font-size:12px">@ve.GHE.SOGHE</span></td>
+                                <td>@ve.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td><strong style="color:var(--accent)">@String.Format("{0:0,0}", ve.DONGIA)đ</strong></td>
+                                <td><span class="adm-badge dang">@ve.TRANGTHAI</span></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">
+                                <i class="bi bi-inbox" style="font-size:28px;display:block;margin-bottom:8px;opacity:.4"></i>
+                                Chưa có giao dịch nào
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

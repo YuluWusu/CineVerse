@@ -1,0 +1,66 @@
+﻿@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.LOAIGHE>
+@{
+    ViewBag.Title = "Quản lý Loại Ghế";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Danh sách loại ghế
+        </div>
+        <a href="@Url.Action("ThemLoaiGhe")" class="btn-adm-primary">
+            <i class="bi bi-plus-lg"></i> Thêm loại ghế
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="adm-card-body" style="padding:0">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên loại ghế</th>
+                    <th>Giá vé</th>
+                    <th style="width:100px">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span class="mono">@item.MA_LOAIGHE</span></td>
+                            <td><strong>@item.TEN_LOAIGHE</strong></td>
+                            <td><strong class="text-accent">@String.Format("{0:0,0}", item.GIATVE)đ</strong></td>
+                            <td>
+                                <a  href="/Admin/SualoaiGhe/@item.MA_LOAIGHE" class="btn-icon edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="@Url.Action("XoaLoaiGhe", new { id = item.MA_LOAIGHE })" method="post" style="display:inline;" onsubmit="return confirm('Xóa?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-icon del"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">Chưa có dữ liệu</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

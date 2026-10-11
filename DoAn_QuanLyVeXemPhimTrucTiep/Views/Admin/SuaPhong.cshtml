@@ -1,0 +1,58 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.PHONGCHIEU
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-pencil-square"></i> Cập nhật thông tin phòng chiếu
+                </div>
+            </div>
+            <div class="adm-card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.HiddenFor(model => model.MA_PHONG)
+                    @Html.HiddenFor(model => model.SO_HANG)
+                    @Html.HiddenFor(model => model.SO_COT)
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Mã Phòng</label>
+                        <input type="text" class="adm-input" value="@Model.MA_PHONG" disabled style="opacity:0.6" />
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Chọn Rạp <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            @Html.DropDownList("MA_RAP", null, htmlAttributes: new { @class = "adm-select", @required="required" })
+                        </div>
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Tên Phòng <span class="req">*</span></label>
+                        @Html.EditorFor(model => model.TEN_PHONG, new { htmlAttributes = new { @class = "adm-input", @required="required" } })
+                    </div>
+                    
+                    <div style="display:flex; gap:15px; margin-bottom:20px;">
+                        <div class="adm-form-group" style="flex:1;">
+                            <label class="adm-form-label">Số hàng ghế</label>
+                            <input type="number" class="adm-input" value="@Model.SO_HANG" disabled style="opacity:0.6" />
+                        </div>
+                        <div class="adm-form-group" style="flex:1;">
+                            <label class="adm-form-label">Số cột ghế</label>
+                            <input type="number" class="adm-input" value="@Model.SO_COT" disabled style="opacity:0.6" />
+                        </div>
+                    </div>
+                    <p style="font-size:11px; color:var(--text-muted); margin-top:-10px; margin-bottom:20px;">Sơ đồ ghế đã được thiết lập, không thể sửa số lượng ghế.</p>
+
+                    <div style="margin-top: 30px; display:flex; gap: 10px;">
+                        <button type="submit" class="btn-adm-primary"><i class="bi bi-check-circle"></i> Cập nhật</button>
+                        <a href="/Admin/QuanLyPhong" class="btn-adm-ghost"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

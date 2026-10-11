@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title — CinéVerse Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #09090f;
+            --bg-deep: #0f0f1a;
+            --bg-surface: #13131e;
+            --bg-card: #181826;
+            --bg-hover: #1e1e2e;
+            --accent: #e8b84b;
+            --accent-dim: #c9972a;
+            --accent-glow: rgba(232,184,75,.15);
+            --green: #4be87c;
+            --red: #e84b4b;
+            --blue: #4b8be8;
+            --text-pri: #f0eff5;
+            --text-sec: #a09fb8;
+            --text-muted: #5e5d72;
+            --border: rgba(255,255,255,.07);
+            --sidebar-w: 240px;
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --radius: 10px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-void);
+            color: var(--text-pri);
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ===== SIDEBAR ===== */
+        #sidebar {
+            width: var(--sidebar-w);
+            background: var(--bg-deep);
+            border-right: 1px solid var(--border);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sb-brand {
+            height: 56px; /* giảm từ 64px */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sb-brand-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .sb-brand-name {
+            font-family: var(--font-display);
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: var(--text-pri);
+        }
+
+            .sb-brand-name span {
+                color: var(--accent);
+            }
+
+        .sb-brand-badge {
+            margin-left: auto;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(232,184,75,.15);
+            color: var(--accent);
+            border: 1px solid rgba(232,184,75,.25);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .sb-section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 10px 20px 4px; /* thu nhỏ từ 20px 20px 6px xuống 10px 20px 4px */
+        }
+
+        .sb-nav {
+            list-style: none;
+            padding: 0 10px;
+            flex: 1;
+        }
+
+            .sb-nav li {
+                margin-bottom: 2px;
+            }
+
+        .sb-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px; /* thu nhỏ từ 10px 12px xuống 6px 12px */
+            border-radius: 8px;
+            color: var(--text-sec);
+            font-size: 13px;
+            font-weight: 500;
+            transition: all .2s;
+        }
+
+            .sb-link i {
+                font-size: 16px;
+                width: 18px;
+                flex-shrink: 0;
+            }
+
+            .sb-link:hover {
+                background: var(--bg-hover);
+                color: var(--text-pri);
+            }
+
+            .sb-link.active {
+                background: rgba(232,184,75,.1);
+                color: var(--accent);
+            }
+
+                .sb-link.active i {
+                    color: var(--accent);
+                }
+
+        .sb-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 10px; /* thu nhỏ từ 10px 10px */
+        }
+
+        .sb-footer {
+            padding: 12px 20px; /* thu nhỏ từ 16px 20px */
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* ===== TOPBAR ===== */
+        #topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-w);
+            right: 0;
+            height: 56px; /* giảm từ 64px */
+            z-index: 100;
+            background: rgba(9,9,15,.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 16px;
+        }
+
+        .topbar-title {
+            font-family: var(--font-display);
+            font-size: 18px;
+            letter-spacing: 2px;
+            color: var(--text-pri);
+        }
+
+        .topbar-breadcrumb {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 4px;
+        }
+
+            .topbar-breadcrumb a {
+                color: var(--text-muted);
+                transition: color .2s;
+            }
+
+                .topbar-breadcrumb a:hover {
+                    color: var(--accent);
+                }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .topbar-view-site {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--border);
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 7px;
+            transition: all .2s;
+        }
+
+            .topbar-view-site:hover {
+                border-color: rgba(232,184,75,.3);
+                color: var(--accent);
+            }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 6px 14px 6px 8px;
+            border-radius: 8px;
+        }
+
+        .topbar-avatar {
+            width: 30px;
+            height: 30px;
+            background: rgba(232,184,75,.15);
+            border: 1px solid rgba(232,184,75,.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        .topbar-user-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .topbar-user-role {
+            font-size: 10px;
+            color: var(--accent);
+        }
+
+        /* ===== CONTENT ===== */
+        #main-content {
+            margin-left: var(--sidebar-w);
+            padding-top: 56px; /* điều chỉnh theo topbar */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-body {
+            padding: 28px;
+            flex: 1;
+        }
+
+        /* ===== ADMIN CARDS ===== */
+        .adm-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .adm-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,.02);
+        }
+
+        .adm-card-title {
+            font-family: var(--font-display);
+            font-size: 16px;
+            letter-spacing: 1.5px;
+            color: var(--text-pri);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .adm-card-title i {
+                color: var(--accent);
+                font-size: 15px;
+            }
+
+        .adm-card-body {
+            padding: 20px;
+        }
+
+        /* STAT CARDS */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform .2s, border-color .2s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                border-color: rgba(232,184,75,.2);
+            }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 3px;
+                height: 100%;
+            }
+
+            .stat-card.gold::before {
+                background: var(--accent);
+            }
+
+            .stat-card.green::before {
+                background: var(--green);
+            }
+
+            .stat-card.blue::before {
+                background: var(--blue);
+            }
+
+            .stat-card.red::before {
+                background: var(--red);
+            }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 32px;
+            letter-spacing: 1px;
+            color: var(--text-pri);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-card.gold .stat-value {
+            color: var(--accent);
+        }
+
+        .stat-card.green .stat-value {
+            color: var(--green);
+        }
+
+        .stat-card.blue .stat-value {
+            color: var(--blue);
+        }
+
+        .stat-card.red .stat-value {
+            color: var(--red);
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 40px;
+            opacity: .07;
+        }
+
+        .adm-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .adm-table thead tr {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .adm-table th {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                padding: 10px 14px;
+                text-align: left;
+            }
+
+            .adm-table td {
+                padding: 12px 14px;
+                border-bottom: 1px solid rgba(255,255,255,.03);
+                color: var(--text-sec);
+                vertical-align: middle;
+            }
+
+            .adm-table tbody tr:hover td {
+                background: rgba(255,255,255,.025);
+            }
+
+            .adm-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .adm-table strong {
+                color: var(--text-pri);
+            }
+
+        .adm-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .adm-badge::before {
+                content: '';
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+            }
+
+            .adm-badge.dang {
+                background: rgba(75,232,124,.12);
+                color: var(--green);
+            }
+
+                .adm-badge.dang::before {
+                    background: var(--green);
+                }
+
+            .adm-badge.sap {
+                background: rgba(232,184,75,.12);
+                color: var(--accent);
+            }
+
+                .adm-badge.sap::before {
+                    background: var(--accent);
+                }
+
+            .adm-badge.xong {
+                background: rgba(255,255,255,.06);
+                color: var(--text-muted);
+            }
+
+                .adm-badge.xong::before {
+                    background: var(--text-muted);
+                }
+
+        .btn-adm-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+            .btn-adm-primary:hover {
+                background: var(--accent-dim);
+                color: #000;
+                transform: translateY(-1px);
+            }
+
+        .btn-adm-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,.05);
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+            .btn-adm-ghost:hover {
+                background: rgba(255,255,255,.1);
+                color: var(--text-pri);
+            }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all .2s;
+        }
+
+            .btn-icon.edit {
+                background: rgba(75,139,232,.15);
+                color: var(--blue);
+            }
+
+                .btn-icon.edit:hover {
+                    background: var(--blue);
+                    color: #fff;
+                }
+
+            .btn-icon.del {
+                background: rgba(232,75,75,.15);
+                color: var(--red);
+            }
+
+                .btn-icon.del:hover {
+                    background: var(--red);
+                    color: #fff;
+                }
+
+        .adm-form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 7px;
+        }
+
+            .adm-form-label .req {
+                color: var(--red);
+            }
+
+        .adm-input, .adm-select, .adm-textarea {
+            width: 100%;
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 11px 14px;
+            color: var(--text-pri);
+            font-family: var(--font-body);
+            font-size: 13px;
+            outline: none;
+            transition: border-color .2s, background .2s;
+            appearance: none;
+        }
+
+            .adm-input:focus, .adm-select:focus, .adm-textarea:focus {
+                border-color: rgba(232,184,75,.45);
+                background: rgba(255,255,255,.07);
+            }
+
+            .adm-input::placeholder, .adm-textarea::placeholder {
+                color: var(--text-muted);
+            }
+
+            .adm-select option {
+                background: var(--bg-card);
+            }
+
+        .adm-select-wrap {
+            position: relative;
+        }
+
+            .adm-select-wrap::after {
+                content: '\F282';
+                font-family: 'bootstrap-icons';
+                position: absolute;
+                right: 13px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted);
+                pointer-events: none;
+                font-size: 12px;
+            }
+
+        .adm-file-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,.04);
+            border: 1px dashed rgba(255,255,255,.15);
+            border-radius: 9px;
+            color: var(--text-sec);
+            font-family: var(--font-body);
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+            .adm-file-input:hover {
+                border-color: rgba(232,184,75,.3);
+            }
+
+        .adm-form-group {
+            margin-bottom: 20px;
+        }
+
+        .poster-thumb {
+            width: 56px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .poster-preview-large {
+            height: 110px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        .adm-footer {
+            padding: 20px 28px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        @@media (max-width: 991px) {
+            .stat-grid {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+            #main-content {
+                margin-left: 0;
+            }
+
+            #topbar {
+                left: 0;
+            }
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    <nav id="sidebar">
+        <div class="sb-brand">
+            <div class="sb-brand-dot"></div>
+            <div class="sb-brand-name">Ciné<span>Verse</span></div>
+            <div class="sb-brand-badge">ADMIN</div>
+        </div>
+
+        <div class="sb-section-label">Tổng quan</div>
+        <ul class="sb-nav">
+            <li><a href="/Admin/Index" class="sb-link @(ViewBag.Title == "Dashboard" ? "active" : "")"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+        </ul>
+
+        <div class="sb-section-label">Nội dung</div>
+        <ul class="sb-nav">
+            <li><a href="/Admin/QuanLyPhim" class="sb-link @(ViewBag.Title == "Quản lý Phim" ? "active" : "")"><i class="bi bi-camera-reels"></i> Quản lý Phim</a></li>
+            <li><a href="/Admin/QuanLyLichChieu" class="sb-link @(ViewBag.Title == "Quản lý Lịch chiếu" ? "active" : "")"><i class="bi bi-calendar3"></i> Lịch chiếu</a></li>
+            <li><a href="/Admin/QuanLyKhungGio" class="sb-link @(ViewBag.Title == "Quản lý Khung Giờ Chiếu" ? "active" : "")"><i class="bi bi-clock"></i> Khung Giờ Chiếu</a></li>
+            <li><a href="/Admin/QuanLyVe" class="sb-link @(ViewBag.Title == "Quản lý Vé" ? "active" : "")"><i class="bi bi-ticket-perforated"></i> Quản lý Vé</a></li>
+            <li><a href="/Admin/QuanLyKhachHang" class="sb-link @(ViewBag.Title == "Quản lý Khách hàng" ? "active" : "")"><i class="bi bi-people"></i> Khách hàng</a></li>
+        </ul>
+
+        <div class="sb-section-label">Khuyến Mãi</div>
+        <ul class="sb-nav">
+            <li><a href="/Admin/QuanLyKhuyenMai" class="sb-link @(ViewBag.Title == "Quản lý Khuyến Mãi" ? "active" : "")"><i class="bi bi-tag-fill"></i> Mã Khuyến Mãi</a></li>
+        </ul>
+
+        <div class="sb-section-label">Cấu hình</div>
+        <ul class="sb-nav">
+            <li><a href="/Admin/QuanLyLoaiGhe" class="sb-link @(ViewBag.Title == "Quản lý Loại ghế" ? "active" : "")"><i class="bi bi-grid-3x3-gap-fill"></i> Loại ghế</a></li>
+            <li><a href="/Admin/QuanLyTheLoai" class="sb-link @(ViewBag.Title == "Quản lý Thể loại phim" ? "active" : "")"><i class="bi bi-tags"></i> Thể loại phim</a></li>
+        </ul>
+
+        <div class="sb-section-label">Cơ sở hạ tầng</div>
+        <ul class="sb-nav">
+            <li><a href="/Admin/QuanLyRap" class="sb-link @(ViewBag.Title == "Quản lý Rạp chiếu" ? "active" : "")"><i class="bi bi-building"></i> Rạp chiếu</a></li>
+            <li><a href="/Admin/QuanLyPhong" class="sb-link @(ViewBag.Title == "Quản lý Phòng chiếu" ? "active" : "")"><i class="bi bi-door-open"></i> Phòng chiếu</a></li>
+        </ul>
+
+        <ul class="sb-nav">
+            <li><a href="/" target="_blank" class="sb-link"><i class="bi bi-box-arrow-up-right"></i> Xem trang khách</a></li>
+        </ul>
+
+        <div class="sb-divider"></div>
+        <div class="sb-footer">
+            CinéVerse &copy; 2025 &nbsp;·&nbsp; Đồ án Web
+        </div>
+    </nav>
+
+    <div id="topbar">
+        <div>
+            <div class="topbar-title">@ViewBag.Title</div>
+            <div class="topbar-breadcrumb">
+                <a href="/Admin/Index">Admin</a>
+                <i class="bi bi-chevron-right" style="font-size:9px"></i>
+                <span>@ViewBag.Title</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-time" id="clock"></span>
+            <a href="/" target="_blank" class="topbar-view-site">
+                <i class="bi bi-eye"></i> Trang khách
+            </a>
+            <div class="topbar-user">
+                <div class="topbar-avatar"><i class="bi bi-person-fill"></i></div>
+                <div>
+                    <div class="topbar-user-name">Admin</div>
+                    <div class="topbar-user-role">Quản trị viên</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="page-body">
+            @RenderBody()
+        </div>
+        <div class="adm-footer">
+            <span>CinéVerse Admin Panel</span>
+            <span>Đồ án Lập trình Web — 2025</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function tick() {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        tick(); setInterval(tick, 1000);
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

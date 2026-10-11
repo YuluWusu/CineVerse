@@ -1,0 +1,103 @@
+@{
+    ViewBag.Title = "Quản lý Khung Giờ Chiếu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.KHUNGGIO>
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Quản lý Khung Giờ Chiếu</h1>
+        <p class="text-white mb-0">Quản lý các suất chiếu phim trong ngày</p>
+    </div>
+    <a href="/Admin/ThemKhungGio" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i> Thêm Khung Giờ
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-dark table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Mã Khung Giờ</th>
+                    <th>Giờ Bắt Đầu</th>
+                    <th>Giờ Kết Thúc</th>
+                    <th>Thời Lượng</th>
+                    <th>Số Lịch Chiếu</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-white">Chưa có khung giờ nào. <a href="/Admin/ThemKhungGio">Thêm ngay</a></td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var kg in Model)
+                    {
+                        var thoiLuong = kg.GIOKETTHUC - kg.GIOBATDAU;
+                        var soLich = kg.LICHCHIEUx?.Count ?? 0;
+                        <tr>
+                            <td><span class="badge bg-secondary">@kg.MA_KHUNGGIO</span></td>
+                            <td>
+                                <i class="bi bi-clock text-warning me-1"></i>
+                                <strong>@kg.GIOBATDAU.ToString(@"hh\:mm")</strong>
+                            </td>
+                            <td>
+                                <i class="bi bi-clock-history text-info me-1"></i>
+                                @kg.GIOKETTHUC.ToString(@"hh\:mm")
+                            </td>
+                            <td>
+                                <span class="badge bg-accent-subtle text-warning">
+                                    @((int)thoiLuong.TotalMinutes) phút
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-dark border">@soLich lịch chiếu</span>
+                            </td>
+                            <td class="text-end">
+                                <a href="/Admin/SuaKhungGio/@kg.MA_KHUNGGIO" class="btn btn-sm btn-outline-warning me-1">
+                                    <i class="bi bi-pencil"></i> Sửa
+                                </a>
+                                <form action="/Admin/XoaKhungGio" method="post" style="display:inline"
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa khung giờ này?')">
+                                    <input type="hidden" name="id" value="@kg.MA_KHUNGGIO" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
+    .table-dark { --bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,.04); }
+    .table-dark thead th { background: rgba(255,255,255,.03); color: var(--text-sec); font-weight: 500; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); padding: 14px 16px; }
+    .table-dark td { padding: 14px 16px; border-color: var(--border); vertical-align: middle; color: var(--text-pri); }
+    .page-title { font-family: var(--font-display); font-size: 28px; margin: 0; }
+    .bg-accent-subtle { background: rgba(232,184,75,.12) !important; }
+</style>

@@ -1,0 +1,112 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.KHACHHANG
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var lichSuVe = ViewBag.LichSuVe as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.VE>;
+}
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-person-badge"></i> Thông tin cá nhân
+                </div>
+            </div>
+            <div class="adm-card-body">
+                <div style="text-align:center; margin-bottom: 20px;">
+                    <div style="width: 80px; height: 80px; background: rgba(232,184,75,.15); border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent); margin: 0 auto 10px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <h4>@Model.HOTEN</h4>
+                    <span class="adm-badge @(Model.VAITRO == "Admin" ? "sap" : "xong")">@Model.VAITRO</span>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted); font-size: 12px;">Mã KH:</span>
+                        <strong style="color:var(--accent); font-family:monospace">@Model.MA_KHACH</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted); font-size: 12px;">Email:</span>
+                        <strong>@Model.EMAIL</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted); font-size: 12px;">SĐT:</span>
+                        <strong>@Model.SDT</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted); font-size: 12px;">CCCD:</span>
+                        <strong>@(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật" : Model.CCCD)</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted); font-size: 12px;">Ngày tạo:</span>
+                        <strong>@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("dd/MM/yyyy") : "—")</strong>
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px; text-align:center;">
+                    <a href="/Admin/QuanLyKhachHang" class="btn-adm-ghost" style="width:100%; justify-content:center;">
+                        <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-clock-history"></i> Lịch sử đặt vé (@(lichSuVe?.Count ?? 0) vé)
+                </div>
+            </div>
+            <div class="adm-card-body" style="padding:0">
+                <div style="overflow-x:auto">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Vé</th>
+                                <th>Phim</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (lichSuVe != null && lichSuVe.Count > 0)
+                            {
+                                foreach (var item in lichSuVe)
+                                {
+                                    <tr>
+                                        <td><span style="font-family:monospace;font-size:12px;color:var(--accent)">@item.MA_VE</span></td>
+                                        <td>
+                                            <strong>@item.LICHCHIEU.PHIM.TEN_PHIM</strong><br/>
+                                            <span style="font-size:11px;color:var(--text-muted)">LC: @item.MA_LICHCHIEU - Ghế: @item.GHE.SOGHE</span>
+                                        </td>
+                                        <td>@item.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td><strong style="color:var(--green)">@String.Format("{0:0,0}", item.DONGIA)đ</strong></td>
+                                        <td>
+                                            @if(item.TRANGTHAI == "Đã đặt" || item.TRANGTHAI == "Đã thanh toán") {
+                                                <span class="adm-badge dang">@item.TRANGTHAI</span>
+                                            } else {
+                                                <span class="adm-badge red">@item.TRANGTHAI</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">
+                                        Khách hàng này chưa có lịch sử đặt vé nào.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

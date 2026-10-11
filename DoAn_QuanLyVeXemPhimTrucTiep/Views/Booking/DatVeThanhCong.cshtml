@@ -1,0 +1,101 @@
+@{
+    ViewBag.Title = "Đặt vé thành công";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+}
+
+@section Styles {
+    <style>
+        .success-container {
+            padding: 80px 0;
+            background: var(--bg-void);
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            color: #4be87c;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-home {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .btn-movies {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-movies:hover {
+            background: var(--accent-dim);
+            color: #000;
+            transform: translateY(-2px);
+        }
+    </style>
+}
+
+<div class="success-container">
+    <div class="success-card">
+        <i class="bi bi-check-circle-fill success-icon"></i>
+        <h1 class="success-title">ĐẶT VÉ THÀNH CÔNG!</h1>
+        <p class="success-message">
+            Cảm ơn bạn đã đặt vé. Thông tin vé sẽ được gửi qua số điện thoại của bạn. <br/>
+            Vui lòng đến rạp trước 15 phút để nhận vé cứng.
+        </p>
+        <div class="action-buttons">
+            <a href="/" class="btn-home">Trang chủ</a>
+            <a href="/Movies/DanhSachPhim" class="btn-movies">Xem phim khác</a>
+        </div>
+    </div>
+</div>

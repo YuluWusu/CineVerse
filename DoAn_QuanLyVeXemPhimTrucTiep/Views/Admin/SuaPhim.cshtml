@@ -1,0 +1,125 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM
+@{
+    ViewBag.Title = "Sửa Thông Tin Phim";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div>
+    <div class="adm-card">
+        <div class="adm-card-header">
+            <div class="adm-card-title">
+                <i class="bi bi-pencil-square"></i> Chỉnh sửa:
+                <span style="color:var(--text-sec);font-family:var(--font-body);font-weight:500;font-size:14px;letter-spacing:0">
+                    @Model.TEN_PHIM
+                </span>
+            </div>
+            <a href="/Admin/QuanLyPhim" class="btn-adm-ghost">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+        <div class="adm-card-body">
+            <form action="/Admin/SuaPhim" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="MA_PHIM" value="@Model.MA_PHIM" />
+
+                <div style="display:grid;grid-template-columns:1fr auto auto;gap:16px;margin-bottom:20px">
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Tên phim <span class="req">*</span></label>
+                        <input type="text" name="TEN_PHIM" class="adm-input" value="@Model.TEN_PHIM" required />
+                    </div>
+                    <div class="adm-form-group" style="margin:0;width:130px">
+                        <label class="adm-form-label">Thời lượng <span class="req">*</span></label>
+                        <input type="number" name="THOILUONG" class="adm-input" value="@Model.THOILUONG" required />
+                    </div>
+                    <div class="adm-form-group" style="margin:0;width:160px">
+                        <label class="adm-form-label">Ngày khởi chiếu</label>
+                        <input type="date" name="NGAYKHOICHIEU" class="adm-input"
+                               value="@(Model.NGAYKHOICHIEU.HasValue ? Model.NGAYKHOICHIEU.Value.ToString("yyyy-MM-dd") : "")" />
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Đạo diễn</label>
+                        <input type="text" name="DAO_DIEN" class="adm-input" value="@Model.DAO_DIEN" />
+                    </div>
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Giới hạn tuổi</label>
+                        <div class="adm-select-wrap">
+                            <select name="GIOI_HAN_TUOI" class="adm-select">
+                                <option value="P" @(Model.GIOI_HAN_TUOI == "P" ? "selected" : "")>P — Phổ biến</option>
+                                <option value="T13" @(Model.GIOI_HAN_TUOI == "T13" ? "selected" : "")>T13 — Từ 13 tuổi</option>
+                                <option value="T16" @(Model.GIOI_HAN_TUOI == "T16" ? "selected" : "")>T16 — Từ 16 tuổi</option>
+                                <option value="T18" @(Model.GIOI_HAN_TUOI == "T18" ? "selected" : "")>T18 — Từ 18 tuổi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Diễn viên</label>
+                    <input type="text" name="DIEN_VIEN" class="adm-input" value="@Model.DIEN_VIEN" />
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Trạng thái</label>
+                        <div class="adm-select-wrap">
+                            <select name="TRANGTHAI" class="adm-select">
+                                <option value="Đang chiếu" @(Model.TRANGTHAI == "Đang chiếu" ? "selected" : "")>Đang chiếu</option>
+                                <option value="Sắp chiếu" @(Model.TRANGTHAI == "Sắp chiếu" ? "selected" : "")>Sắp chiếu</option>
+                                <option value="Ngừng chiếu" @(Model.TRANGTHAI == "Ngừng chiếu" ? "selected" : "")>Ngừng chiếu</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Đổi poster (bỏ trống để giữ nguyên)</label>
+                        <input type="file" name="fileUpload" accept="image/*" class="adm-file-input" id="posterInput" />
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.POSTER))
+                {
+                    <div class="adm-form-group" id="currentPosterWrap">
+                        <label class="adm-form-label">Poster hiện tại</label>
+                        <img src="~/Content/HinhAnh/@Model.POSTER"
+                             id="posterPreview"
+                             class="poster-preview-large"
+                             onerror="this.src='https://placehold.co/110x165/181826/555?text=?'"
+                             alt="Poster" />
+                    </div>
+                }
+                else
+                {
+                    <div id="currentPosterWrap" style="display:none" class="adm-form-group">
+                        <label class="adm-form-label">Xem trước poster mới</label>
+                        <img id="posterPreview" class="poster-preview-large" src="" alt="" />
+                    </div>
+                }
+
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Mô tả nội dung</label>
+                    <textarea name="MOTA" class="adm-textarea" rows="4">@Model.MOTA</textarea>
+                </div>
+
+                <div style="display:flex;gap:12px;margin-top:8px">
+                    <button type="submit" class="btn-adm-primary">
+                        <i class="bi bi-floppy"></i> Cập nhật
+                    </button>
+                    <a href="/Admin/QuanLyPhim" class="btn-adm-ghost">Hủy bỏ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>document.getElementById('posterInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const wrap = document.getElementById('currentPosterWrap');
+    const img  = document.getElementById('posterPreview');
+    img.src = URL.createObjectURL(file);
+    wrap.style.display = 'block';
+});</script>
+}

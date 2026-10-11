@@ -1,0 +1,92 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM>
+@{
+    ViewBag.Title = "Quản lý Phim";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-camera-reels"></i> Danh sách phim
+            <span style="font-family:var(--font-body);font-size:12px;color:var(--text-muted);font-weight:400;letter-spacing:0">
+                (@(Model?.Count ?? 0) bộ phim)
+            </span>
+        </div>
+        <a href="/Admin/ThemPhim" class="btn-adm-primary">
+            <i class="bi bi-plus-lg"></i> Thêm phim mới
+        </a>
+    </div>
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã phim</th>
+                        <th>Poster</th>
+                        <th>Tên phim</th>
+                        <th>Khởi chiếu</th>
+                        <th>Thời lượng</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align:center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var phim in Model)
+                        {
+                            <tr>
+                                <td><span style="font-family:monospace;font-size:12px;color:var(--text-muted)">@phim.MA_PHIM</span></td>
+                                <td>
+                                    <img src="~/Content/HinhAnh/@phim.POSTER"
+                                         class="poster-thumb"
+                                         onerror="this.src='https://placehold.co/56x80/181826/555?text=?'"
+                                         alt="@phim.TEN_PHIM" />
+                                </td>
+                                <td><strong>@phim.TEN_PHIM</strong></td>
+                                <td>@(phim.NGAYKHOICHIEU.HasValue ? phim.NGAYKHOICHIEU.Value.ToString("dd/MM/yyyy") : "—")</td>
+                                <td>
+                                    <span style="display:flex;align-items:center;gap:5px">
+                                        <i class="bi bi-clock" style="font-size:11px;color:var(--text-muted)"></i>
+                                        @phim.THOILUONG phút
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (phim.TRANGTHAI == "Đang chiếu")
+                                    {<span class="adm-badge dang">Đang chiếu</span> }
+                                    else if (phim.TRANGTHAI == "Sắp chiếu")
+                                    { <span class="adm-badge sap">Sắp chiếu</span> }
+                                    else
+                                    { <span class="adm-badge xong">Ngừng chiếu</span>}
+                                </td>
+                                <td style="text-align:center">
+                                    <div style="display:flex;gap:6px;justify-content:center">
+                                        <a href="/Admin/SuaPhim/@phim.MA_PHIM" class="btn-icon edit" title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form action="/Admin/XoaPhim/@phim.MA_PHIM" method="post" style="display:inline"
+                                              onsubmit="return confirm('Xóa phim «@phim.TEN_PHIM»?')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-icon del" title="Xóa">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align:center;padding:48px;color:var(--text-muted)">
+                                <i class="bi bi-film" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
+                                Chưa có dữ liệu phim
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

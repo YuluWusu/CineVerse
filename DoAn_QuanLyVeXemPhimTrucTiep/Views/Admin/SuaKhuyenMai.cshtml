@@ -1,0 +1,125 @@
+@{
+    ViewBag.Title = "Sửa Khuyến Mãi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.KHUYENMAI
+
+<div class="page-header mb-4">
+    <h1 class="page-title">Sửa Khuyến Mãi: @Model.TEN_KM</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/Admin/QuanLyKhuyenMai">Khuyến Mãi</a></li>
+            <li class="breadcrumb-item active">Sửa</li>
+        </ol>
+    </nav>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger"><i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]</div>
+}
+
+<div class="card" style="max-width: 680px;">
+    <div class="card-body p-4">
+        <form action="/Admin/SuaKhuyenMai/@Model.MA_KM" method="post">
+            <input type="hidden" name="MA_KM" value="@Model.MA_KM" />
+            <input type="hidden" name="SO_LUOT_DADUNG" value="@Model.SO_LUOT_DADUNG" />
+
+            <div class="mb-3">
+                <label class="form-label ">Mã Khuyến Mãi</label>
+                <input type="text" class="form-control admin-input" value="@Model.MA_KM" readonly />
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-12">
+                    <label class="form-label">Tên Khuyến Mãi <span class="text-danger">*</span></label>
+                    <input type="text" name="TEN_KM" class="form-control admin-input"
+                           value="@Model.TEN_KM" required maxlength="100" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Mã Code <span class="text-danger">*</span></label>
+                    <input type="text" name="MA_CODE" class="form-control admin-input"
+                           value="@Model.MA_CODE" required maxlength="20"
+                           style="text-transform:uppercase; font-weight:700; letter-spacing:.1em;" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Giảm Giá (%) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" name="GIAMGIA_PHANTRAM" class="form-control admin-input"
+                               min="1" max="100" value="@Model.GIAMGIA_PHANTRAM" required />
+                        <span class="input-group-text bg-dark text-white border-secondary">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Giảm Tối Đa (đ)</label>
+                    <input type="number" name="GIAMGIA_TOIDA" class="form-control admin-input"
+                           min="0" step="1000" value="@(Model.GIAMGIA_TOIDA.HasValue ? Model.GIAMGIA_TOIDA.Value.ToString() : "")"
+                           placeholder="Không giới hạn" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Số Lượt Tối Đa</label>
+                    <input type="number" name="SO_LUOT_TOIDA" class="form-control admin-input"
+                           min="1" value="@(Model.SO_LUOT_TOIDA.HasValue ? Model.SO_LUOT_TOIDA.Value.ToString() : "")"
+                           placeholder="Không giới hạn" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
+                    <input type="datetime-local" name="NGAYBATDAU" class="form-control admin-input" required
+                           value="@Model.NGAYBATDAU.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
+                    <input type="datetime-local" name="NGAYKETTHUC" class="form-control admin-input" required
+                           value="@Model.NGAYKETTHUC.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Trạng Thái</label>
+                <select name="TRANGTHAI" class="form-select admin-input">
+                    <option value="HoatDong" @(Model.TRANGTHAI == "HoatDong" ? "selected" : "")>Hoạt động</option>
+                    <option value="TamDung" @(Model.TRANGTHAI == "TamDung" ? "selected" : "")>Tạm dừng</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Mô Tả</label>
+                <textarea name="MOTA" class="form-control admin-input" rows="2" maxlength="200">@Model.MOTA</textarea>
+            </div>
+
+            <div class="info-row mb-4">
+                <i class="bi bi-info-circle text-white me-2"></i>
+                <span class="text-white small">Đã dùng: <strong>@Model.SO_LUOT_DADUNG</strong> lượt</span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-save me-1"></i> Lưu Thay Đổi
+                </button>
+                <a href="/Admin/QuanLyKhuyenMai" class="btn btn-outline-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
+    .page-title { font-family: var(--font-display); font-size: 28px; margin: 0 0 8px; }
+    .admin-input { background: rgba(255,255,255,.05) !important; border: 1px solid var(--border) !important; color: #fff !important; padding: 10px 14px; border-radius: 8px; }
+    .admin-input:focus { background: rgba(255,255,255,.08) !important; border-color: var(--accent) !important; outline: none; box-shadow: none !important; }
+    .admin-input[readonly] { opacity: .5; cursor: not-allowed; }
+    .form-label { color: var(--text-sec); font-size: 14px; margin-bottom: 8px; }
+    .breadcrumb-item a { color: var(--accent); }
+    .breadcrumb-item.active { color: var(--text-muted); }
+    .breadcrumb-item + .breadcrumb-item::before { color: var(--text-muted); }
+    option { background: #1e1e2e; color: #fff; }
+</style>

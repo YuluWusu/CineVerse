@@ -1,0 +1,189 @@
+@{
+    ViewBag.Title = "Quản lý Khuyến Mãi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.KHUYENMAI>
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Quản lý Khuyến Mãi</h1>
+        <p class="text-white mb-0">Tạo và quản lý mã giảm giá vé xem phim</p>
+    </div>
+    <a href="/Admin/ThemKhuyenMai" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i> Thêm Khuyến Mãi
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Thống kê nhanh -->
+<div class="row g-3 mb-4">
+    @{
+        var now = DateTime.Now;
+        int tongKM = Model?.Count ?? 0;
+        int dangHoatDong = Model?.Count(k => k.TRANGTHAI == "HoatDong" && k.NGAYBATDAU <= now && k.NGAYKETTHUC >= now) ?? 0;
+        int hetHan = Model?.Count(k => k.NGAYKETTHUC < now) ?? 0;
+        int tamDung = Model?.Count(k => k.TRANGTHAI == "TamDung") ?? 0;
+    }
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-primary"><i class="bi bi-tag-fill"></i></div>
+            <div class="stat-num">@tongKM</div>
+            <div class="stat-label">Tổng Khuyến Mãi</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-success"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="stat-num text-success">@dangHoatDong</div>
+            <div class="stat-label">Đang Hoạt Động</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-danger"><i class="bi bi-x-circle-fill"></i></div>
+            <div class="stat-num text-danger">@hetHan</div>
+            <div class="stat-label">Đã Hết Hạn</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-warning"><i class="bi bi-pause-circle-fill"></i></div>
+            <div class="stat-num text-warning">@tamDung</div>
+            <div class="stat-label">Tạm Dừng</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-dark table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Tên Khuyến Mãi</th>
+                    <th>Mã Code</th>
+                    <th>Giảm Giá</th>
+                    <th>Thời Hạn</th>
+                    <th>Lượt Dùng</th>
+                    <th>Trạng Thái</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-white">
+                            <i class="bi bi-tag" style="font-size:32px;opacity:.3;display:block;margin-bottom:12px;"></i>
+                            Chưa có khuyến mãi nào. <a href="/Admin/ThemKhuyenMai">Tạo ngay</a>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var km in Model)
+                    {
+                        bool isActive = km.TRANGTHAI == "HoatDong" && km.NGAYBATDAU <= now && km.NGAYKETTHUC >= now;
+                        bool isExpired = km.NGAYKETTHUC < now;
+                        bool isFull = km.SO_LUOT_TOIDA.HasValue && km.SO_LUOT_DADUNG >= km.SO_LUOT_TOIDA.Value;
+
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@km.TEN_KM</div>
+                                @if (!string.IsNullOrEmpty(km.MOTA))
+                                {
+                                    <div class="text-white small">@km.MOTA</div>
+                                }
+                            </td>
+                            <td>
+                                <span class="code-badge">@km.MA_CODE</span>
+                            </td>
+                            <td>
+                                <span class="text-warning fw-bold">@km.GIAMGIA_PHANTRAM%</span>
+                                @if (km.GIAMGIA_TOIDA.HasValue)
+                                {
+                                    <br /><span class="text-white small">tối đa @String.Format("{0:0,0}", km.GIAMGIA_TOIDA.Value)đ</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="small">@km.NGAYBATDAU.ToString("dd/MM/yyyy")</div>
+                                <div class="small text-white">→ @km.NGAYKETTHUC.ToString("dd/MM/yyyy")</div>
+                            </td>
+                            <td>
+                                @km.SO_LUOT_DADUNG / @(km.SO_LUOT_TOIDA.HasValue ? km.SO_LUOT_TOIDA.Value.ToString() : "∞")
+                                @if (isFull)
+                                {
+                                    <span class="badge bg-danger ms-1">Đầy</span>
+                                }
+                            </td>
+                            <td>
+                                @if (isExpired)
+                                {
+                                    <span class="badge status-expired">Hết hạn</span>
+                                }
+                                else if (km.TRANGTHAI == "TamDung")
+                                {
+                                    <span class="badge status-paused">Tạm dừng</span>
+                                }
+                                else if (isActive && !isFull)
+                                {
+                                    <span class="badge status-active">Hoạt động</span>
+                                }
+                                else if (km.NGAYBATDAU > now)
+                                {
+                                    <span class="badge status-pending">Chưa bắt đầu</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@km.TRANGTHAI</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a href="/Admin/SuaKhuyenMai/@km.MA_KM" class="btn btn-sm btn-outline-warning me-1">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="/Admin/XoaKhuyenMai" method="post" style="display:inline"
+                                      onsubmit="return confirm('Xóa khuyến mãi \"@km.TEN_KM\"?')">
+                                    <input type="hidden" name="id" value="@km.MA_KM" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
+    .page-title { font-family: var(--font-display); font-size: 28px; margin: 0; }
+    .table-dark { --bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,.04); }
+    .table-dark thead th { background: rgba(255,255,255,.03); color: var(--text-sec); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); padding: 14px 16px; }
+    .table-dark td { padding: 14px 16px; border-color: var(--border); vertical-align: middle; color: var(--text-pri); }
+    .code-badge { background: rgba(232,184,75,.15); border: 1px solid rgba(232,184,75,.4); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; letter-spacing: .08em; font-family: monospace; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 4px; }
+    .stat-icon { font-size: 22px; }
+    .stat-num { font-family: var(--font-display); font-size: 32px; line-height: 1; }
+    .stat-label { color: var(--text-sec); font-size: 13px; }
+    .status-active { background: rgba(75,232,124,.15); color: #4be87c; border: 1px solid rgba(75,232,124,.3); }
+    .status-expired { background: rgba(232,75,75,.15); color: #e84b4b; border: 1px solid rgba(232,75,75,.3); }
+    .status-paused { background: rgba(232,184,75,.15); color: var(--accent); border: 1px solid rgba(232,184,75,.3); }
+    .status-pending { background: rgba(75,139,232,.15); color: #4b8be8; border: 1px solid rgba(75,139,232,.3); }
+</style>

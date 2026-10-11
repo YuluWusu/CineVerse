@@ -1,0 +1,106 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM
+@{
+    ViewBag.Title = "Thêm Phim Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div>
+    <div class="adm-card">
+        <div class="adm-card-header">
+            <div class="adm-card-title">
+                <i class="bi bi-plus-circle"></i> Thông tin phim mới
+            </div>
+            <a href="/Admin/QuanLyPhim" class="btn-adm-ghost">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+        <div class="adm-card-body">
+            <form action="/Admin/ThemPhim" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div style="display:grid;grid-template-columns:1fr auto auto;gap:16px;margin-bottom:20px">
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Tên phim <span class="req">*</span></label>
+                        <input type="text" name="TEN_PHIM" class="adm-input" placeholder="Nhập tên phim..." required />
+                    </div>
+                    <div class="adm-form-group" style="margin:0;width:130px">
+                        <label class="adm-form-label">Thời lượng <span class="req">*</span></label>
+                        <input type="number" name="THOILUONG" class="adm-input" placeholder="phút" required />
+                    </div>
+                    <div class="adm-form-group" style="margin:0;width:160px">
+                        <label class="adm-form-label">Ngày khởi chiếu</label>
+                        <input type="date" name="NGAYKHOICHIEU" class="adm-input" />
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Đạo diễn</label>
+                        <input type="text" name="DAO_DIEN" class="adm-input" placeholder="Tên đạo diễn..." />
+                    </div>
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Giới hạn tuổi</label>
+                        <div class="adm-select-wrap">
+                            <select name="GIOI_HAN_TUOI" class="adm-select">
+                                <option value="P">P — Phổ biến</option>
+                                <option value="T13">T13 — Từ 13 tuổi</option>
+                                <option value="T16">T16 — Từ 16 tuổi</option>
+                                <option value="T18">T18 — Từ 18 tuổi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Diễn viên</label>
+                    <input type="text" name="DIEN_VIEN" class="adm-input" placeholder="Tên các diễn viên, cách nhau bằng dấu phẩy..." />
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Trạng thái</label>
+                        <div class="adm-select-wrap">
+                            <select name="TRANGTHAI" class="adm-select">
+                                <option value="Đang chiếu">Đang chiếu</option>
+                                <option value="Sắp chiếu">Sắp chiếu</option>
+                                <option value="Ngừng chiếu">Ngừng chiếu</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="adm-form-group" style="margin:0">
+                        <label class="adm-form-label">Poster phim</label>
+                        <input type="file" name="fileUpload" accept="image/*" class="adm-file-input" id="posterInput" />
+                    </div>
+                </div>
+
+                <div id="posterPreviewWrap" style="display:none;margin-bottom:20px">
+                    <label class="adm-form-label">Xem trước poster</label>
+                    <img id="posterPreview" class="poster-preview-large" src="" alt="Preview" />
+                </div>
+
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Mô tả nội dung</label>
+                    <textarea name="MOTA" class="adm-textarea" rows="4" placeholder="Viết mô tả ngắn về bộ phim..."></textarea>
+                </div>
+
+                <div style="display:flex;gap:12px;margin-top:8px">
+                    <button type="submit" class="btn-adm-primary">
+                        <i class="bi bi-floppy"></i> Lưu phim
+                    </button>
+                    <a href="/Admin/QuanLyPhim" class="btn-adm-ghost">Hủy bỏ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>document.getElementById('posterInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const wrap = document.getElementById('posterPreviewWrap');
+    const img  = document.getElementById('posterPreview');
+    img.src = URL.createObjectURL(file);
+    wrap.style.display = 'block';
+});</script>
+}

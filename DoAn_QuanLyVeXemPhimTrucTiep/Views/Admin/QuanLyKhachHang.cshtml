@@ -1,0 +1,76 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.KHACHHANG>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-people"></i> Danh sách Khách hàng
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" style="margin: 20px; background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã KH</th>
+                        <th>Họ Tên</th>
+                        <th>Liên hệ</th>
+                        <th>Ngày tạo</th>
+                        <th>Vai trò</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span style="font-family:monospace;font-size:12px;color:var(--accent)">@item.MA_KHACH</span></td>
+                            <td><strong>@item.HOTEN</strong></td>
+                            <td>
+                                <span style="font-size:12px">@item.SDT</span><br/>
+                                <span style="font-size:11px;color:var(--text-muted)">@item.EMAIL</span>
+                            </td>
+                            <td>@(item.NGAYTAO.HasValue ? item.NGAYTAO.Value.ToString("dd/MM/yyyy") : "—")</td>
+                            <td>
+                                @if(item.VAITRO == "Admin") {
+                                    <span class="adm-badge sap">@item.VAITRO</span>
+                                } else {
+                                    <span class="adm-badge xong">@item.VAITRO</span>
+                                }
+                            </td>
+                            <td style="text-align:right">
+                                <form action="/Admin/SuaQuyenKhachHang" method="post" style="display:inline; margin-right:5px;">
+                                    <input type="hidden" name="id" value="@item.MA_KHACH" />
+                                    <select name="vaiTro" class="adm-select" style="width: auto; padding: 5px; font-size:11px;" onchange="this.form.submit()">
+                                        <option value="KhachHang" @(item.VAITRO == "KhachHang" ? "selected" : "")>Khách hàng</option>
+                                        <option value="Admin" @(item.VAITRO == "Admin" ? "selected" : "")>Admin</option>
+                                    </select>
+                                </form>
+
+                                <a href="/Admin/ChiTietKhachHang/@item.MA_KHACH" class="btn-icon edit" title="Chi tiết & Lịch sử">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <form action="/Admin/XoaKhachHang/@item.MA_KHACH" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này không?');">
+                                    <button type="submit" class="btn-icon del" title="Xóa khách hàng">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

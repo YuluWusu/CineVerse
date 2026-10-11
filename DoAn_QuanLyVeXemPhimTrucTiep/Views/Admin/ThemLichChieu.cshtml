@@ -1,0 +1,65 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-plus-circle"></i> Thêm lịch chiếu mới
+                </div>
+            </div>
+            
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger" style="margin: 20px; background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="adm-card-body">
+                @using (Html.BeginForm())
+                {
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Chọn Phim <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            @Html.DropDownList("MA_PHIM", null, htmlAttributes: new { @class = "adm-select", @required="required" })
+                        </div>
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Chọn Phòng Chiếu <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            @Html.DropDownList("MA_PHONG", null, htmlAttributes: new { @class = "adm-select", @required="required" })
+                        </div>
+                    </div>
+                    
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Ngày Chiếu <span class="req">*</span></label>
+                        <input type="date" name="NGAYCHIEU" class="adm-input" required />
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Khung Giờ <span class="req">*</span></label>
+                        <div class="adm-select-wrap">
+                            @Html.DropDownList("MA_KHUNGGIO", null, htmlAttributes: new { @class = "adm-select", @required="required" })
+                        </div>
+                    </div>
+
+                    <div class="adm-form-group">
+                        <label class="adm-form-label">Giá phụ trội (VNĐ)</label>
+                        @Html.EditorFor(model => model.GIATVE_PHUTROI, new { htmlAttributes = new { @class = "adm-input", @type="number", @min="0", @value="0" } })
+                        <p style="font-size:11px; color:var(--text-muted); margin-top:5px;">Cộng thêm vào giá vé gốc (Ví dụ: 10000, 20000 hoặc để 0).</p>
+                    </div>
+
+                    <div style="margin-top: 30px; display:flex; gap: 10px;">
+                        <button type="submit" class="btn-adm-primary"><i class="bi bi-save"></i> Lưu lịch chiếu</button>
+                        <a href="/Admin/QuanLyLichChieu" class="btn-adm-ghost"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="adm-card" style="margin-bottom: 20px;">
+    <div class="adm-card-body" style="padding: 15px 20px;">
+        <form method="get" action="/Admin/QuanLyLichChieu" style="display:flex; gap: 15px; align-items:flex-end;">
+            <div style="flex:1; max-width: 300px;">
+                <label class="adm-form-label">Lọc theo Phim</label>
+                <div class="adm-select-wrap">
+                    @Html.DropDownList("maPhim", ViewBag.Phims as SelectList, "Tất cả phim", new { @class = "adm-select", onchange="this.form.submit()" })
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-calendar3"></i> Danh sách Lịch chiếu
+        </div>
+        <a href="/Admin/ThemLichChieu" class="btn-adm-primary">
+            <i class="bi bi-plus-lg"></i> Thêm lịch chiếu
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" style="margin: 20px; background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã LC</th>
+                        <th>Phim</th>
+                        <th>Phòng chiếu</th>
+                        <th>Ngày chiếu</th>
+                        <th>Giờ chiếu</th>
+                        <th>Giá phụ trội</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span style="font-family:monospace;font-size:12px;color:var(--accent)">@item.MA_LICHCHIEU</span></td>
+                            <td><strong style="color:var(--text-sec)">@item.PHIM.TEN_PHIM</strong></td>
+                            <td>@item.PHONGCHIEU.TEN_PHONG</td>
+                            <td>@item.NGAYCHIEU.ToString("dd/MM/yyyy")</td>
+                            <td><span style="background:rgba(255,255,255,.06);padding:3px 8px;border-radius:4px;font-size:12px">@item.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</span></td>
+                            <td><strong style="color:var(--green)">@String.Format("{0:0,0}", item.GIATVE_PHUTROI ?? 0)đ</strong></td>
+                            <td style="text-align:right">
+                                <a href="/Admin/SuaLichChieu/@item.MA_LICHCHIEU" class="btn-icon edit" title="Sửa">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <form action="/Admin/XoaLichChieu/@item.MA_LICHCHIEU" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa lịch chiếu này?');">
+                                    <button type="submit" class="btn-icon del" title="Xóa">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

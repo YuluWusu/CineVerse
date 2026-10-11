@@ -1,0 +1,184 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU>
+@{
+    ViewBag.Title = "Lịch chiếu";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+    ViewData["ActivePage"] = "Schedule";
+}
+
+@section Styles {
+    <style>
+        .schedule-page-container {
+            padding: 80px 0;
+            background: var(--bg-void);
+            min-height: 80vh;
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 38px;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+
+        .page-title span {
+            color: var(--accent);
+        }
+
+        .cinema-group {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .cinema-name {
+            font-family: var(--font-display);
+            font-size: 24px;
+            color: var(--accent);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .movie-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .movie-poster {
+            width: 120px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            aspect-ratio: 2/3;
+        }
+
+        .movie-info {
+            flex: 1;
+        }
+
+        .movie-title {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .showtime-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .showtime-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .showtime-btn:hover {
+            border-color: rgba(232,184,75,0.4);
+            background: rgba(232,184,75,0.06);
+            transform: translateY(-2px);
+        }
+
+        .showtime-time {
+            font-family: var(--font-display);
+            font-size: 18px;
+            color: var(--text-primary);
+            display: block;
+            text-align: center;
+        }
+
+        .showtime-type {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        @@media (max-width: 768px) {
+            .movie-group {
+                flex-direction: column;
+            }
+            .movie-poster {
+                width: 100px;
+            }
+        }
+    </style>
+}
+
+<div class="schedule-page-container">
+    <div class="container">
+        <h1 class="page-title">LỊCH <span>CHIẾU CHUNG</span></h1>
+
+        @if (Model != null && Model.Any())
+        {
+            var groupedByCinema = Model.GroupBy(l => l.PHONGCHIEU.RAPCHIEU).ToList();
+
+            foreach (var cinema in groupedByCinema)
+            {
+                <div class="cinema-group">
+                    <h2 class="cinema-name"><i class="bi bi-geo-alt-fill me-2"></i> @cinema.Key.TEN_RAP</h2>
+                    
+                    @{
+                        var groupedByMovie = cinema.GroupBy(l => l.PHIM).ToList();
+                    }
+
+                    @foreach (var movie in groupedByMovie)
+                    {
+                        <div class="movie-group">
+                            <div class="movie-poster">
+                                <a href="/Movies/ChiTietPhim/@movie.Key.MA_PHIM">
+                                    <img src="~/Content/HinhAnh/@movie.Key.POSTER" onerror="this.src='https://placehold.co/120x180/1a1a28/555?text=No+Image'" alt="@movie.Key.TEN_PHIM" />
+                                </a>
+                            </div>
+                            <div class="movie-info">
+                                <div class="movie-title">
+                                    <a href="/Movies/ChiTietPhim/@movie.Key.MA_PHIM">@movie.Key.TEN_PHIM</a>
+                                    <span class="badge-age badge-t13" style="font-size: 11px; padding: 3px 8px;">@movie.Key.GIOI_HAN_TUOI</span>
+                                </div>
+                                <div class="showtime-grid">
+                                    @foreach (var lc in movie.OrderByDescending(l => l.NGAYCHIEU).ThenBy(l => l.KHUNGGIO.GIOBATDAU))
+                                    {
+                                        <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU" class="showtime-btn">
+                                            <span class="showtime-time">@lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</span>
+                                            <span class="showtime-type">@lc.NGAYCHIEU.ToString("dd/MM/yyyy")</span>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div style="text-align: center; color: var(--text-muted); font-size: 18px; margin-top: 50px;">
+                <i class="bi bi-calendar-x" style="font-size: 40px; display: block; margin-bottom: 15px;"></i>
+                Hiện chưa có lịch chiếu nào.
+            </div>
+        }
+    </div>
+</div>

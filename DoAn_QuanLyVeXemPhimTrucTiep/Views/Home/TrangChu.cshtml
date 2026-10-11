@@ -1,0 +1,930 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    ViewData["ActivePage"] = "Home";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+}
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models;
+
+
+@section Styles {
+    <style>
+        .hero {
+            position: relative;
+            height: 540px;
+            overflow: hidden;
+            background: #09090f;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity .7s ease;
+        }
+
+            .hero-slide.active {
+                opacity: 1;
+            }
+
+            .hero-slide img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                filter: brightness(.45);
+            }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(9,9,15,.9) 0%, rgba(9,9,15,.4) 55%, transparent 100%);
+        }
+
+        .hero-content {
+            position: absolute;
+            bottom: 64px;
+            left: 0;
+            max-width: 560px;
+            padding: 0 48px;
+            animation: slideUp .6s ease both;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: #000;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .badge-p {
+            background-color: #2ecc71 !important;
+            color: white !important;
+        }
+
+        .badge-t13 {
+            background-color: #f1c40f !important;
+            color: black !important;
+        }
+
+        .badge-t16 {
+            background-color: #e67e22 !important;
+            color: white !important;
+        }
+
+        .badge-t18 {
+            background-color: #e74c3c !important;
+            color: white !important;
+        }
+
+        .tag-dang-chieu {
+            background: #e8b84b !important;
+            color: #000 !important;
+        }
+
+        .tag-sap-chieu {
+            background: #3498db !important;
+            color: #fff !important;
+        }
+
+        .tag-ngung-chieu {
+            background: #95a5a6 !important;
+            color: #fff !important;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(36px, 5vw, 56px);
+            letter-spacing: 2px;
+            line-height: 1.05;
+            margin-bottom: 14px;
+            text-shadow: 0 2px 20px rgba(0,0,0,.5);
+        }
+
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+            .hero-meta span {
+                font-size: 13px;
+                color: rgba(240,239,245,.7);
+            }
+
+            .hero-meta .sep {
+                color: rgba(255,255,255,.25);
+            }
+
+        .hero-desc {
+            font-size: 14px;
+            color: rgba(240,239,245,.7);
+            line-height: 1.7;
+            margin-bottom: 28px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-cv {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s;
+        }
+
+            .btn-primary-cv:hover {
+                background: var(--accent-dim);
+                transform: translateY(-2px);
+                color: #000;
+            }
+
+        .btn-outline-cv {
+            background: rgba(255,255,255,.08);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+            .btn-outline-cv:hover {
+                background: rgba(255,255,255,.14);
+                color: var(--text-primary);
+            }
+
+        .hero-dots {
+            position: absolute;
+            bottom: 22px;
+            left: 48px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .hero-dot {
+            width: 24px;
+            height: 3px;
+            background: rgba(255,255,255,.3);
+            border-radius: 2px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            transition: all .2s;
+        }
+
+            .hero-dot.active {
+                background: var(--accent);
+                width: 40px;
+            }
+
+        .hero-arrows {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-arrow {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+            .hero-arrow:hover {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #000;
+            }
+
+        .booking-bar {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 18px 0;
+        }
+
+            .booking-bar .container {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+        .booking-label {
+            font-family: var(--font-display);
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .booking-select {
+            flex: 1;
+            min-width: 160px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color .2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b8a99' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+
+            .booking-select:focus {
+                border-color: rgba(232,184,75,.4);
+            }
+
+            .booking-select option {
+                background: var(--bg-card);
+            }
+
+        .btn-book-now {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all .2s;
+            letter-spacing: 0.5px;
+        }
+
+            .btn-book-now:hover {
+                background: var(--accent-dim);
+            }
+
+        /* ===== SECTION WRAPPER ===== */
+        .cv-section {
+            padding: 56px 0 16px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+            .section-header a {
+                font-size: 13px;
+                color: var(--accent);
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                transition: gap .2s;
+            }
+
+                .section-header a:hover {
+                    gap: 8px;
+                }
+
+        /* ===== MOVIE CARD ===== */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform .25s, border-color .25s, box-shadow .25s;
+            cursor: pointer;
+            animation: fadeUp .4s ease both;
+        }
+
+            .movie-card:hover {
+                transform: translateY(-6px);
+                border-color: rgba(232,184,75,.25);
+                box-shadow: 0 12px 40px rgba(0,0,0,.45);
+            }
+
+        .movie-poster {
+            position: relative;
+            aspect-ratio: 2/3;
+            overflow: hidden;
+        }
+
+            .movie-poster img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform .4s;
+            }
+
+        .movie-card:hover .movie-poster img {
+            transform: scale(1.05);
+        }
+
+        .movie-poster-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(9,9,15,.85) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-card:hover .movie-poster-overlay {
+            opacity: 1;
+        }
+
+        .btn-play {
+            width: 52px;
+            height: 52px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #000;
+            transform: scale(.8);
+            transition: transform .25s;
+        }
+
+        .movie-card:hover .btn-play {
+            transform: scale(1);
+        }
+
+        .movie-badge-wrap {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .movie-info {
+            padding: 14px 14px 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 140px;
+        }
+
+        .movie-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            height: 2.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .movie-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-grow:1;
+        }
+
+        .movie-genre {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .movie-duration {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .btn-book-card {
+            margin-top: auto;
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            border: 1px solid rgba(232,184,75,.35);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .2s;
+            letter-spacing: 0.5px;
+        }
+
+            .btn-book-card:hover {
+                background: var(--accent);
+                color: #000;
+                border-color: var(--accent);
+            }
+
+        .coming-scroll-wrap {
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-bottom: 8px;
+        }
+
+            .coming-scroll-wrap::-webkit-scrollbar {
+                display: none;
+            }
+
+        .coming-row {
+            display: flex;
+            gap: 16px;
+            min-width: max-content;
+        }
+
+        .coming-card {
+            width: 200px;
+            flex-shrink: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: transform .25s;
+            cursor: pointer;
+        }
+
+            .coming-card:hover {
+                transform: translateY(-4px);
+            }
+
+        .coming-poster {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+            .coming-poster img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                filter: brightness(.75);
+                transition: transform .4s;
+            }
+
+        .coming-card:hover .coming-poster img {
+            transform: scale(1.06);
+        }
+
+        .coming-date-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(232, 184, 75, 0.95);
+            color: #000;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            text-transform: uppercase;
+        }
+
+        .coming-info {
+            padding: 12px;
+        }
+
+        .coming-title {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .coming-genre {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, #1a1025 0%, #0d1a2e 100%);
+            border: 1px solid rgba(232,184,75,.12);
+            border-radius: 16px;
+            padding: 48px 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+            margin: 48px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+            .promo-banner::before {
+                content: '';
+                position: absolute;
+                top: -60px;
+                right: -60px;
+                width: 280px;
+                height: 280px;
+                background: radial-gradient(circle, rgba(232,184,75,.12) 0%, transparent 70%);
+                pointer-events: none;
+            }
+
+        .promo-text {
+        }
+
+        .promo-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .promo-title {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 3vw, 34px);
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        .promo-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 380px;
+            line-height: 1.7;
+        }
+
+        @@media (max-width: 767px) {
+            .hero {
+                height: 420px;
+            }
+
+            .hero-content {
+                padding: 0 20px;
+                bottom: 44px;
+            }
+
+            .booking-bar .container {
+                gap: 8px;
+            }
+
+            .booking-select {
+                min-width: 130px;
+            }
+
+            .promo-banner {
+                padding: 32px 24px;
+                flex-direction: column;
+            }
+        }
+    </style>
+}
+
+
+<section class="hero" id="hero">
+    @{ int index = 0; }
+    @foreach (var phim in ViewBag.HinhNen as List<PHIM>)
+    {
+        <div class="hero-slide @(index == 0 ? "active" : "")" id="slide-@index">
+            <img src="~/Content/Poster/@phim.POSTER"
+                 onerror="this.src='https://placehold.co/300x450/1a0a2e/ffffff?text=No+Image'"
+                 alt="@phim.TEN_PHIM" />
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                @{
+                    string statusClass = "tag-dang-chieu";
+                    if (phim.TRANGTHAI == "Sắp chiếu") { statusClass = "tag-sap-chieu"; }
+                    else if (phim.TRANGTHAI == "Ngừng chiếu") { statusClass = "tag-ngung-chieu"; }
+                }
+                <div class="hero-tag @statusClass">
+                    <i class="bi bi-fire" style="font-size:10px"></i> @phim.TRANGTHAI
+                </div>
+                <h1 class="hero-title">@phim.TEN_PHIM</h1>
+                <div class="hero-meta">
+                    <span class="badge-age badge-@(phim.GIOI_HAN_TUOI?.ToLower().Replace(" ", ""))"
+                          style="padding: 2px 8px; border-radius: 4px; font-weight: bold;">
+                        @phim.GIOI_HAN_TUOI
+                    </span>
+                    <span>@string.Join(", ", phim.THELOAIs.Select(t => t.TEN_THELOAI))</span>
+                    <span class="sep">·</span>
+                    <span>@phim.THOILUONG phút</span>
+                    <span class="sep">·</span>
+                    <span>@(phim.NGAYKHOICHIEU.HasValue ? phim.NGAYKHOICHIEU.Value.ToString("dd/MM/yyyy") : "TBA")</span>
+                </div>
+                <p class="hero-desc">@phim.MOTA</p>
+                <div class="hero-actions">
+                    @if (phim.TRANGTHAI == "Đang chiếu")
+                    {
+                        <a href="/Movies/ChiTietPhim/?id=@phim.MA_PHIM#lich-chieu" class="btn-primary-cv"><i class="bi bi-ticket-perforated-fill"></i> Đặt vé ngay</a>
+                    }
+                    <a href="/Movies/ChiTietPhim/?id=@phim.MA_PHIM" class="btn-outline-cv"><i class="bi bi-play-circle"></i> Chi tiết phim</a>
+                </div>
+            </div>
+        </div>
+        index++;
+    }
+    <div class="hero-dots">
+        @for (int i = 0; i < (ViewBag.HinhNen as List<PHIM>).Count; i++)
+        {
+            <button class="hero-dot @(i == 0 ? "active" : "")" onclick="changeToSlide(@i)"></button>
+        }
+    </div>
+
+    <div class="hero-arrows">
+        <button class="hero-arrow" onclick="changeSlide(-1)"><i class="bi bi-chevron-up"></i></button>
+        <button class="hero-arrow" onclick="changeSlide(1)"><i class="bi bi-chevron-down"></i></button>
+    </div>
+</section>
+
+
+<div class="booking-bar">
+    <div class="container">
+        <span class="booking-label">ĐẶT VÉ NHANH</span>
+        <select class="booking-select" id="fastBookPhim">
+            <option value="">🎬 Chọn phim</option>
+        </select>
+        <select class="booking-select" id="fastBookNgay" disabled>
+            <option value="">📅 Chọn ngày</option>
+        </select>
+        <select class="booking-select" id="fastBookSuat" disabled>
+            <option value="">🕐 Chọn suất</option>
+        </select>
+        <button class="btn-book-now" id="btnFastBook" disabled>ĐẶT NGAY →</button>
+    </div>
+</div>
+
+
+<section class="cv-section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">PHIM ĐANG CHIẾU</h2>
+                <p class="section-subtitle">Những bộ phim hot nhất hiện đang chiếu tại rạp</p>
+            </div>
+            <a href="/Movies/DanhSachPhim">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="movie-grid">
+            @foreach (var phim in ViewBag.DangChieu as List<PHIM>)
+            {
+                <div class="movie-card" onclick="location.href='/Movies/ChiTietPhim/?id=@phim.MA_PHIM'">
+                    <div class="movie-poster">
+                        <img src="~/Content/HinhAnh/@phim.POSTER"
+                             onerror="this.src='https://placehold.co/300x450/1a0a2e/ffffff?text=No+Image'"
+                             alt="@phim.TEN_PHIM" />
+                        <div class="movie-poster-overlay">
+                            <div class="btn-play"><i class="bi bi-play-fill"></i></div>
+                        </div>
+                        <div class="movie-badge-wrap">
+                            <span class="badge-age badge-@(phim.GIOI_HAN_TUOI?.ToLower().Replace(" ", ""))"
+                                  style="padding: 2px 8px; border-radius: 4px; font-weight: bold;">
+                                @phim.GIOI_HAN_TUOI
+                            </span>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-title">@phim.TEN_PHIM</div>
+                        <div class="movie-meta-row">
+                            <span class="movie-genre">
+                                @string.Join(", ", phim.THELOAIs.Select(t => t.TEN_THELOAI))
+                            </span>
+                            <span class="movie-duration">
+                                <i class="bi bi-clock" style="font-size:10px"></i>
+                                @phim.THOILUONG phút
+                            </span>
+                        </div>
+                        <a href="/Movies/ChiTietPhim/?id=@phim.MA_PHIM#lich-chieu"
+                           class="btn-book-card"
+                           onclick="event.stopPropagation()">Đặt vé</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="cv-section" style="padding-top: 24px;">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">SẮP CHIẾU</h2>
+                <p class="section-subtitle">Đừng bỏ lỡ những bộ phim sắp ra mắt</p>
+            </div>
+            <a href="/Movies/DanhSachPhim?trangthai=Sắp chiếu">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="coming-scroll-wrap">
+            <div class="coming-row">
+                @foreach (var phim in ViewBag.SapChieu as List<PHIM>)
+                {
+                    <div class="coming-card" onclick="location.href='/Movies/ChiTietPhim/?id=@phim.MA_PHIM'">
+                        <div class="coming-poster">
+                            <img src="~/Content/HinhAnh/@phim.POSTER" />
+                            <div class="coming-date-badge">
+                                @if (phim.NGAYKHOICHIEU.HasValue)
+                                {
+                                    <i class="bi bi-calendar3" style="font-size: 10px; margin-right: 4px;"></i>
+                                    @phim.NGAYKHOICHIEU.Value.ToString("dd/MM")
+                                }
+                                else
+                                {
+                                    <span>TBA</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="coming-info">
+                            <div class="coming-title">@phim.TEN_PHIM</div>
+                            <div class="coming-genre">
+                                @string.Join(", ", phim.THELOAIs.Select(t => t.TEN_THELOAI))
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const totalSlides = @(((List<PHIM>)ViewBag.HinhNen).Count);
+        let currentSlide = 0;
+
+        let autoSlide;
+
+        function updateSlider(n) {
+
+            document.getElementById('slide-' + currentSlide).classList.remove('active');
+            document.querySelectorAll('.hero-dot')[currentSlide].classList.remove('active');
+
+            currentSlide = (n + totalSlides) % totalSlides;
+
+            document.getElementById('slide-' + currentSlide).classList.add('active');
+            document.querySelectorAll('.hero-dot')[currentSlide].classList.add('active');
+        }
+
+        function changeToSlide(n) {
+            resetTimer();
+            updateSlider(n);
+        }
+
+        function changeSlide(dir) {
+            resetTimer();
+            updateSlider(currentSlide + dir);
+        }
+
+        function resetTimer() {
+            clearInterval(autoSlide);
+            startAuto();
+        }
+
+        function startAuto() {
+            autoSlide = setInterval(() => {
+                updateSlider(currentSlide + 1);
+            }, 5000);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            startAuto();
+            initFastBooking();
+        });
+
+        function initFastBooking() {
+            const selectPhim = document.getElementById('fastBookPhim');
+            const selectNgay = document.getElementById('fastBookNgay');
+            const selectSuat = document.getElementById('fastBookSuat');
+            const btnBook = document.getElementById('btnFastBook');
+
+            fetch('/Home/GetPhimDangChieu')
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(p => {
+                        let opt = document.createElement('option');
+                        opt.value = p.MaPhim;
+                        opt.textContent = p.TenPhim;
+                        selectPhim.appendChild(opt);
+                    });
+                });
+
+            selectPhim.addEventListener('change', function() {
+                selectNgay.innerHTML = '<option value="">📅 Chọn ngày</option>';
+                selectSuat.innerHTML = '<option value="">🕐 Chọn suất</option>';
+                selectNgay.disabled = true;
+                selectSuat.disabled = true;
+                btnBook.disabled = true;
+
+                if(this.value) {
+                    fetch('/Home/GetNgayChieu?maPhim=' + this.value)
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.length > 0) {
+                                selectNgay.disabled = false;
+                                data.forEach(n => {
+                                    let opt = document.createElement('option');
+                                    opt.value = n.Ngay;
+                                    opt.textContent = n.NgayHienThi;
+                                    selectNgay.appendChild(opt);
+                                });
+                            }
+                        });
+                }
+            });
+
+            selectNgay.addEventListener('change', function() {
+                selectSuat.innerHTML = '<option value="">🕐 Chọn suất</option>';
+                selectSuat.disabled = true;
+                btnBook.disabled = true;
+
+                if(this.value) {
+                    fetch('/Home/GetSuatChieu?maPhim=' + selectPhim.value + '&ngay=' + this.value)
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.length > 0) {
+                                selectSuat.disabled = false;
+                                data.forEach(s => {
+                                    let opt = document.createElement('option');
+                                    opt.value = s.MaLichChieu;
+                                    opt.textContent = s.Gio;
+                                    selectSuat.appendChild(opt);
+                                });
+                            }
+                        });
+                }
+            });
+
+            selectSuat.addEventListener('change', function() {
+                btnBook.disabled = !this.value;
+            });
+
+            btnBook.addEventListener('click', function() {
+                if(selectSuat.value) {
+                    window.location.href = '/Booking/ChonGhe?maLichChieu=' + selectSuat.value;
+                }
+            });
+        }
+    </script>
+}
