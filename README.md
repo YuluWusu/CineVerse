@@ -1,130 +1,142 @@
 # 🎬 CinéVerse - Modern Cinema Ticket Booking & Management System
 
-> Hệ thống website đặt vé xem phim trực tuyến & quản trị cụm rạp chiếu phim hiện đại được xây dựng trên nền tảng **ASP.NET MVC 5**, **Entity Framework 6** và **Microsoft SQL Server**.
+> A modern online cinema ticket booking and theater management platform built on **ASP.NET MVC 5**, **Entity Framework 6**, and **Microsoft SQL Server**.
 
 ---
 
-<p align="center">
-  <img src="https://img.shields.io/badge/.NET%20Framework-4.7.2-purple.svg?style=for-the-badge&logo=dotnet" alt=".NET Framework" />
-  <img src="https://img.shields.io/badge/ASP.NET%20MVC-5.2.9-blue.svg?style=for-the-badge&logo=microsoft" alt="ASP.NET MVC 5" />
-  <img src="https://img.shields.io/badge/Entity%20Framework-6.5.2-red.svg?style=for-the-badge" alt="Entity Framework 6" />
-  <img src="https://img.shields.io/badge/SQL%20Server-2019%2B-orange.svg?style=for-the-badge&logo=microsoftsqlserver" alt="SQL Server" />
-  <img src="https://img.shields.io/badge/Bootstrap-5.3-success.svg?style=for-the-badge&logo=bootstrap" alt="Bootstrap 5" />
-  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License" />
-</p>
+---
+
+## 📖 Project Overview
+
+**CinéVerse** is an end-to-end web application crafted to deliver an elevated movie-going experience for audiences and streamlined operational workflows for cinema operators. Featuring an immersive cinematic dark-mode UI, the platform provides seamless user journeys from movie discovery and seat reservation to checkout and digital ticketing.
 
 ---
 
-## 📖 Giới thiệu Dự án
+## ✨ Key Features
 
-**CinéVerse** là ứng dụng web toàn diện phục vụ trải nghiệm xem phim của khách hàng và quy trình vận hành rạp chiếu phim chuyên nghiệp. Dự án được thiết kế với giao diện Dark Mode cao cấp, đậm chất điện ảnh, tối ưu hóa trải nghiệm người dùng từ bước tra cứu phim, đặt vé đến khâu thanh toán và nhận vé điện tử.
+### 🌟 Client Portal
 
----
+* **Movie Discovery:** Explore Now Showing, Coming Soon, and Archived titles complete with trailers, cast & crew metadata, runtime, and age classification labels (P, T13, T16, T18).
+* **Instant Search:** Real-time query matching across titles, genres, directors, and cast members.
+* **Multi-Cinema Schedules:** Browse showtimes by release date, theater complex, and showtime slots.
+* **Interactive Seat Matrix:**
+* Visual seat map with live occupancy status (Available, Selected, Reserved).
+* Dynamic seat tiers: **Standard**, **VIP**, and **Couple Seats**.
+* Automated pricing calculations based on seat tier, weekend surcharges, and prime-time show slots.
 
-## ✨ Tính năng Nổi bật
 
-### 🌟 Phân hệ Khách hàng (Client Portal)
-* **Khám phá phim:** Xem danh sách phim đang chiếu, sắp chiếu, phim đã kết thúc với trailer và thông tin chi tiết (đạo diễn, diễn viên, thời lượng, giới hạn độ tuổi P/T13/T16/T18).
-* **Tìm kiếm thông minh:** Tìm kiếm tức thì theo từ khóa (tên phim, diễn viên, đạo diễn, thể loại).
-* **Lịch chiếu đa rạp:** Tra cứu lịch chiếu theo ngày, theo cụm rạp và từng khung giờ tiện lợi.
-* **Sơ đồ chọn ghế trực quan:**
-  * Ma trận ghế ngồi hiển thị trạng thái thời gian thực (ghế trống, ghế đang chọn, ghế đã được đặt).
-  * Phân biệt rõ các hạng ghế: **Ghế Thường**, **Ghế VIP**, **Ghế Đôi**.
-  * Tự động tính toán tổng giá vé theo loại ghế và phụ trội khung giờ/suất chiếu.
-* **Mã giảm giá (Promotion):** Áp dụng voucher khuyến mãi hợp lệ, tính toán mức giảm phần trăm và giới hạn số tiền giảm tối đa.
-* **Thanh toán & Hóa đơn:** Xác nhận thông tin người đặt, tạo đơn hàng và mã vé tự động.
-* **Quản lý tài khoản:** Đăng ký, đăng nhập bảo mật, tra cứu lịch sử mua vé và mã vé điện tử.
+* **Promotions & Vouchers:** Apply discount coupon codes with automated percentage deductions and max discount caps.
+* **Checkout & Invoicing:** Customer detail confirmation, automated transaction processing, and instant e-ticket code generation.
+* **Customer Account Management:** Authentication, secure sign-in, order history tracking, and digital e-ticket retrieval.
 
 ---
 
-### 🛡 Phân hệ Quản trị (Admin Portal)
-* **Dashboard trực quan:** Báo cáo tổng quan số lượng vé bán ra, tổng doanh thu, phim nổi bật.
-* **Quản lý Phim & Thể loại:** Thêm, sửa, cập nhật poster, trạng thái chiếu, phân loại theo thể loại phim.
-* **Quản lý Cụm Rạp & Phòng chiếu:**
-  * Quản lý thông tin cụm rạp, địa chỉ chi tiết.
-  * Thêm phòng chiếu và tự động khởi tạo ma trận ghế theo số hàng, số cột.
-* **Quản lý Lịch chiếu:**
-  * Chọn rạp chiếu để lọc danh sách phòng chiếu tương ứng.
-  * Tự động kiểm tra trùng lặp lịch chiếu (tránh xung đột cùng phòng, cùng ngày, cùng khung giờ).
-* **Quản lý Loại ghế & Bảng giá:** Cấu hình giá vé tiêu chuẩn cho từng phân khúc ghế.
-* **Quản lý Mã khuyến mãi:** Thiết lập phần trăm giảm, thời hạn kích hoạt, số lượt sử dụng tối đa.
-* **Quản lý Vé & Đơn hàng:** Tra cứu thông tin vé, cập nhật trạng thái đơn hàng.
+### 🛡 Admin Portal
+
+* **Analytics Dashboard:** High-level metrics tracking total ticket sales, gross revenue, and trending movies.
+* **Movie & Genre Catalog:** Create, edit, manage poster assets, toggling release statuses, and categorical grouping.
+* **Cinema Complexes & Screening Halls:**
+* Manage theater complexes and physical location data.
+* Add screening rooms with automated grid-based seat layout generation (rows × columns).
+
+
+* **Showtime Scheduling:**
+* Filter halls by cinema location.
+* Automated conflict-detection engine (prevents overlapping schedules across the same hall, date, and timeframe).
+
+
+* **Seat Tiers & Pricing Control:** Configure base tariffs and tier multipliers across seat classes.
+* **Voucher Management:** Configure discount rates, activation windows, and redemption quotas.
+* **Orders & Ticket Auditing:** Query booking records and update transactional statuses.
 
 ---
 
-## 🛠 Công nghệ Sử dụng
+## 🛠 Tech Stack
 
-| Tầng kiến trúc | Công nghệ & Thư viện |
-| :--- | :--- |
+| Architecture Layer | Technologies & Libraries |
+| --- | --- |
 | **Backend** | C#, ASP.NET MVC 5, .NET Framework 4.7.2 |
 | **ORM / Data Access** | Entity Framework 6 (Database First / EDMX) |
-| **Cơ sở dữ liệu** | Microsoft SQL Server (Transact-SQL) |
+| **Database** | Microsoft SQL Server (Transact-SQL) |
 | **Frontend UI** | Razor Views (`.cshtml`), HTML5, CSS3, JavaScript |
 | **UI Framework & Icons** | Bootstrap 5, Bootstrap Icons, Google Fonts (DM Sans, Bebas Neue) |
-| **Libraries** | jQuery 3.7, Newtonsoft.Json, WebGrease, Modernizr |
+| **Client Libraries** | jQuery 3.7, Newtonsoft.Json, WebGrease, Modernizr |
 
 ---
 
-## 🗄 Cấu trúc Cơ sở Dữ liệu
+## 🗄 Database Schema
 
-Cơ sở dữ liệu `QL_VEPHIM` bao gồm các bảng chính:
-* `RAPCHIEU` — Cụm rạp chiếu phim (Mã rạp, tên rạp, địa chỉ, số phòng).
-* `PHONGCHIEU` — Phòng chiếu trực thuộc từng rạp (Số hàng, số cột).
-* `LOAIGHE` — Bảng phân loại ghế & giá vé cơ bản (Thường, VIP, Đôi).
-* `GHE` — Tọa độ và vị trí từng ghế ngồi trong phòng.
-* `PHIM` & `THELOAI` — Thông tin tác phẩm điện ảnh và phân loại.
-* `KHUNGGIO` — Các khung giờ chiếu trong ngày.
-* `LICHCHIEU` — Suất chiếu liên kết giữa Phim, Phòng, Khung giờ và Ngày chiếu.
-* `KHACHHANG` & `NHANVIEN` — Phân quyền tài khoản người dùng và quản trị.
-* `KHUYENMAI` — Chương trình ưu đãi và mã voucher.
-* `DONHANG` & `VE` — Giao dịch đặt vé, chi tiết từng vé ngồi và thanh toán.
+The core database `QL_VEPHIM` consists of the following primary tables:
+
+* `RAPCHIEU` — Cinema branches (Branch ID, name, street address, hall count).
+* `PHONGCHIEU` — Screening auditoriums mapped to cinemas (Row/column capacity).
+* `LOAIGHE` — Seat tiers and base pricing models (Standard, VIP, Couple).
+* `GHE` — Individual seat coordinates and layouts within auditoriums.
+* `PHIM` & `THELOAI` — Movie listings, runtime metadata, and genre mapping.
+* `KHUNGGIO` — Predefined daily screening time slots.
+* `LICHCHIEU` — Scheduled screenings connecting Movie, Hall, Time Slot, and Date.
+* `KHACHHANG` & `NHANVIEN` — Role-based access control for customers and administrative staff.
+* `KHUYENMAI` — Promotional vouchers, discount percentages, and validity limits.
+* `DONHANG` & `VE` — Transactions, purchased seats, and payment records.
 
 ---
 
-## 🚀 Hướng dẫn Cài đặt & Khởi chạy
+## 🚀 Installation & Local Setup
 
-### Yêu cầu môi trường
-* **Visual Studio 2019 / 2022** (hỗ trợ ASP.NET and web development)
+### Prerequisites
+
+* **Visual Studio 2019 / 2022** (with the *ASP.NET and web development* workload installed)
 * **Microsoft SQL Server 2017+** & **SQL Server Management Studio (SSMS)**
-* **.NET Framework 4.7.2**
+* **.NET Framework 4.7.2 Developer Pack**
 
-### Các bước thực hiện
+### Setup Steps
 
-1. **Clone repository về máy:**
-   ```bash
-   git clone https://github.com/YuluWusu/CineVerse.git
-   ```
+1. **Clone the repository:**
+```bash
+git clone https://github.com/YuluWusu/CineVerse.git
 
-2. **Cài đặt Cơ sở dữ liệu:**
-   * Mở SSMS, kết nối đến SQL Server Instance của bạn.
-   * Mở file script `DoAn_QuanLyVeXemPhimTrucTiep/QL_VEPHIM.sql` và nhấn **Execute (F5)** để tạo CSDL `QL_VEPHIM` cùng dữ liệu mẫu.
+```
 
-3. **Cấu hình Connection String:**
-   * Mở solution trong Visual Studio.
-   * Mở file `Web.config` và kiểm tra chuỗi kết nối `QL_VEPHIM2Entities`:
-     ```xml
-     <add name="QL_VEPHIM2Entities" 
-          connectionString="metadata=res://*/Models.QL_VEPHIM_DuLieu.csdl|...;provider=System.Data.SqlClient;provider connection string=&quot;data source=YOUR_SERVER_NAME;initial catalog=QL_VEPHIM;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework&quot;" 
-          providerName="System.Data.EntityClient" />
-     ```
-   *(Thay `YOUR_SERVER_NAME` bằng tên SQL Server trên máy bạn, ví dụ: `.` hoặc `localhost` hoặc `DESKTOP-XXXXX\SQLEXPRESS`).*
 
-4. **Khởi chạy ứng dụng:**
-   * Trong Visual Studio, chuột phải vào Solution chọn **Restore NuGet Packages**.
-   * Nhấn **Ctrl + F5** (hoặc nút **IIS Express**) để khởi chạy website.
+2. **Database Initialization:**
+* Open SSMS and connect to your local SQL Server instance.
+* Open the SQL script located at `DoAn_QuanLyVeXemPhimTrucTiep/QL_VEPHIM.sql`.
+* Execute the script (**F5**) to provision the `QL_VEPHIM` database and seed default data.
+
+
+3. **Configure Connection String:**
+* Open the project solution (`.sln`) in Visual Studio.
+* Locate and open `Web.config`, then update the `QL_VEPHIM2Entities` connection string:
+```xml
+<add name="QL_VEPHIM2Entities" 
+     connectionString="metadata=res://*/Models.QL_VEPHIM_DuLieu.csdl|...;provider=System.Data.SqlClient;provider connection string=&quot;data source=YOUR_SERVER_NAME;initial catalog=QL_VEPHIM;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework&quot;" 
+     providerName="System.Data.EntityClient" />
+
+```
+
+
+
+
+*(Replace `YOUR_SERVER_NAME` with your local SQL Server instance name, e.g., `.`, `localhost`, or `DESKTOP-XXXXX\SQLEXPRESS`).*
+4. **Build and Run:**
+* Right-click the Solution in Visual Studio and select **Restore NuGet Packages**.
+* Press **Ctrl + F5** (or click the **IIS Express** play button) to launch the web application.
+
+
 
 ---
 
-## 👤 Tài khoản Trải nghiệm Mẫu
+## 👤 Demo Accounts
 
-| Phân hệ | Tài khoản (Email / SĐT) | Mật khẩu mặc định | Ghi chú |
-| :--- | :--- | :--- | :--- |
-| **Quản trị viên (Admin)** | `admin@cineverse.vn` | `123456` | Toàn quyền quản trị hệ thống |
-| **Khách hàng** | `nguyenvanan@gmail.com` | `123456` | Tài khoản đặt vé mẫu |
+| Role | Username / Email | Default Password | Permissions |
+| --- | --- | --- | --- |
+| **Administrator** | `admin@cineverse.vn` | `123456` | Full administrative control |
+| **Customer** | `nguyenvanan@gmail.com` | `123456` | Standard ticket booking & user dashboard |
 
 ---
 
-## 📝 Bản quyền
+## 📝 License & Attribution
 
-Dự án được xây dựng phục vụ học tập và nghiên cứu môn **Lập trình Web** - Trường Đại học Công Thương TP.HCM (HUIT).  
+Developed for academic coursework and study for the **Web Development** course at Ho Chi Minh City University of Industry and Trade (HUIT).
+
 © 2026 **CinéVerse**. All rights reserved.
