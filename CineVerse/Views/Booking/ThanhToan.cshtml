@@ -175,46 +175,131 @@
             font-weight: 600;
             margin-bottom: 10px;
         }
+
+/*        Khuyễn mãi*/
         .promo-input-wrap {
             display: flex;
             gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
         }
-        .promo-input-wrap input {
-            flex: 1;
-            background: rgba(255,255,255,.06);
-            border: 1px solid var(--border);
-            color: #fff;
-            padding: 9px 13px;
-            border-radius: 7px;
-            font-size: 14px;
-            letter-spacing: .08em;
-            font-weight: 700;
-        }
-        .promo-input-wrap input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        .promo-input-wrap button {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 7px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background .2s;
-            white-space: nowrap;
-        }
-        .promo-input-wrap button:hover { background: var(--accent-dim); }
-        .promo-input-wrap button:disabled { opacity: .5; cursor: not-allowed; }
+
+            .promo-input-wrap input {
+                flex: 1;
+                min-width: 0;
+                background: rgba(255,255,255,.06);
+                border: 1px solid var(--border);
+                color: #fff;
+                padding: 9px 12px;
+                border-radius: 7px;
+                font-size: 13px;
+                letter-spacing: .05em;
+                font-weight: 700;
+            }
+
+                .promo-input-wrap input:focus {
+                    outline: none;
+                    border-color: var(--accent);
+                }
+
+            .promo-input-wrap button {
+                flex-shrink: 0; 
+                background: var(--accent);
+                color: #000;
+                border: none;
+                padding: 9px 14px;
+                border-radius: 7px;
+                font-weight: 700;
+                font-size: 13px;
+                cursor: pointer;
+                transition: background .2s;
+                white-space: nowrap;
+            }
+
+                .promo-input-wrap button:hover {
+                    background: var(--accent-dim);
+                }
+
+                .promo-input-wrap button:disabled {
+                    opacity: .5;
+                    cursor: not-allowed;
+                }
+
         .promo-msg {
             margin-top: 8px;
             font-size: 13px;
             min-height: 20px;
         }
-        .promo-msg.success { color: #4be87c; }
-        .promo-msg.error { color: #e84b4b; }
+
+            .promo-msg.success {
+                color: #4be87c;
+            }
+
+            .promo-msg.error {
+                color: #e84b4b;
+            }
+
+      
+        .voucher-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .voucher-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px; 
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(232, 184, 75, 0.25);
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .voucher-item:hover {
+                background: rgba(232, 184, 75, 0.1);
+                border-color: var(--accent);
+            }
+
+        .voucher-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .voucher-code {
+            display: inline-block;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 12px;
+            background: rgba(232, 184, 75, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .voucher-desc {
+            font-size: 11.5px;
+            color: #aaa;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .voucher-use-btn {
+            flex-shrink: 0; 
+            background: rgba(75, 232, 124, 0.15);
+            border: 1px solid rgba(75, 232, 124, 0.4);
+            color: #4be87c;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
     </style>
 }
 
@@ -263,28 +348,28 @@
 
                 <div class="checkout-card">
                     <h3 class="card-title">Tóm tắt đơn hàng</h3>
-                    
+
                     <div class="summary-item movie-title">
                         <span>@lichChieu.PHIM.TEN_PHIM</span>
                     </div>
-                    
+
                     <div class="summary-item">
                         <span class="summary-label">Rạp:</span>
                         <span class="summary-value">@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</span>
                     </div>
-                    
+
                     <div class="summary-item">
                         <span class="summary-label">Suất chiếu:</span>
                         <span class="summary-value">@lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") | @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</span>
                     </div>
-                    
+
                     <div class="divider"></div>
-                    
+
                     <div class="summary-item">
                         <span class="summary-label">Ghế chọn (@Model.Count vé):</span>
                         <div class="summary-value">
                             <div class="seats-list">
-                                @foreach(var ghe in Model)
+                                @foreach (var ghe in Model)
                                 {
                                     <span class="seat-badge">@ghe.SOGHE</span>
                                 }
@@ -305,15 +390,41 @@
                         <span class="total-amount" id="totalDisplay">@String.Format("{0:0,0}", tongTien)đ</span>
                     </div>
 
+                
                     <!-- Khuyến mãi -->
                     <div class="promo-section">
                         <div class="promo-label"><i class="bi bi-tag-fill me-1"></i> Mã Khuyến Mãi</div>
                         <div class="promo-input-wrap">
-                            <input type="text" id="promoCodeInput" placeholder="Nhập mã giảm giá..."
+                            <input type="text" id="promoCodeInput" placeholder="Nhập hoặc chọn mã bên dưới..."
                                    style="text-transform:uppercase;" maxlength="20" />
                             <button type="button" id="btnApplyPromo" onclick="applyPromo()">Áp dụng</button>
                         </div>
                         <div id="promoMsg" class="promo-msg"></div>
+
+                        @{
+                            var dsKhuyenMai = ViewBag.DanhSachKM as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.KHUYENMAI>;
+                        }
+                        @if (dsKhuyenMai != null && dsKhuyenMai.Any())
+                        {
+                            <div class="voucher-list">
+                                @foreach (var km in dsKhuyenMai)
+                                {
+                                    <div class="voucher-item" onclick="selectPromo('@km.MA_CODE')">
+                                        <div class="voucher-info">
+                                            <span class="voucher-code">@km.MA_CODE</span>
+                                            <span style="font-size:13px; color:#fff; font-weight:600; margin-left:6px;">@km.TEN_KM</span>
+                                            <div class="voucher-desc">
+                                                Giảm @km.GIAMGIA_PHANTRAM%
+                                                @(km.GIAMGIA_TOIDA.HasValue ? string.Format("(Tối đa {0:0,0}đ)", km.GIAMGIA_TOIDA.Value) : "")
+                                                • HSD: @km.NGAYKETTHUC.ToString("dd/MM/yyyy")
+                                            </div>
+                                        </div>
+                                        <span class="voucher-use-btn">Áp dụng ngay</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+
                         <input type="hidden" name="maCodeKhuyenMai" id="hdMaCode" value="" />
                         <input type="hidden" name="maKmId" id="hdMaKmId" value="" />
                         <input type="hidden" id="hdTongGoc" value="@tongTien" />
@@ -342,6 +453,11 @@
 <script>
     function formatMoney(n) {
         return n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + 'đ';
+    }
+
+    function selectPromo(code) {
+        document.getElementById('promoCodeInput').value = code;
+        applyPromo();
     }
 
     function applyPromo() {

@@ -229,5 +229,16 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 throw new Exception("Lỗi lưu cơ sở dữ liệu: " + inner.Message, ex);
             }
         }
+
+        // lấy khuyến mãi
+        public List<KHUYENMAI> GetActivePromotions()
+        {
+            var now = DateTime.Now;
+
+            return db.KHUYENMAIs.Where(km => km.TRANGTHAI == "HoatDong"
+                       && km.NGAYBATDAU <= now
+                       && km.NGAYKETTHUC >= now
+                       && (km.SO_LUOT_TOIDA == null || km.SO_LUOT_DADUNG < km.SO_LUOT_TOIDA)).ToList();
+        }
     }
 }
