@@ -52,6 +52,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
             ViewBag.LichChieu = lichChieu;
             ViewBag.SelectedSeatsList = listMaGhe;
+            ViewBag.DanhSachKM = bookingService.GetActivePromotions();
 
             return View(gheDuocChon);
         }
