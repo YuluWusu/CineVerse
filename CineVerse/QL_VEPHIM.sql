@@ -236,7 +236,19 @@ GO
 INSERT INTO PHONGCHIEU (MA_PHONG, TEN_PHONG, MA_RAP, SO_HANG, SO_COT) VALUES
 ('PA01', N'Phòng 1', 'A01', 2, 4),
 ('PA02', N'Phòng 2', 'A01', 0, 0),
-('PB01', N'Phòng 1', 'A02', 2, 2);
+('PB01', N'Phòng 1', 'A02', 2, 2),
+('PC01', N'Phòng 1', 'A03', 15, 16),
+('PC02', N'Phòng 2', 'A03', 12, 14),
+('PC03', N'Phòng 3', 'A03', 12, 14),
+('PC04', N'Phòng 4', 'A03', 12, 14),
+('PC05', N'Phòng 5', 'A03', 10, 12),
+('PC06', N'Phòng 6', 'A03', 10, 12),
+('PD01', N'Phòng 1', 'A04', 15, 16),
+('PD02', N'Phòng 2', 'A04', 12, 14),
+('PD03', N'Phòng 3', 'A04', 12, 14),
+('PD04', N'Phòng 4', 'A04', 12, 14),
+('PD05', N'Phòng 5', 'A04', 10, 12),
+('PD06', N'Phòng 6', 'A04', 10, 12);
 GO
 
 INSERT INTO LOAIGHE (MA_LOAIGHE, TEN_LOAIGHE, GIATVE) VALUES
