@@ -400,10 +400,25 @@ INSERT INTO VAITRO VALUES
 ('QUANLYRAP', N'Quản lý rạp');
 GO
 
-INSERT INTO NHANVIEN VALUES
-('NV001', N'Phạm Thị Duyên', '0934567890', 'phamduyen@cineverse.vn', 'hash_nv_1', N'NhanVienQuay', 6000000, 'A01', '2024-03-01', N'DangLamViec'),
-('NV002', N'Hồ Văn Em',      '0945678901', 'hovanem@cineverse.vn',   'hash_nv_2', N'QuanLyRap',    9500000, 'A01', '2023-06-15', N'DangLamViec'),
-('NV003', N'Ngô Thị Phương', '0956789012', 'ngophuong@cineverse.vn', 'hash_nv_3', N'NhanVienQuay', 6000000, 'A02', '2024-08-20', N'DangLamViec');
+INSERT INTO TAIKHOAN (MA_TAIKHOAN, HOTEN, SDT, EMAIL, MATKHAU) VALUES
+('TK002', N'Nguyễn Văn An',  '0901234567', 'nguyenvanan@gmail.com',  'hash_matkhau_1'),
+('TK003', N'Trần Thị Bình',  '0912345678', 'tranthibinh@gmail.com',  'hash_matkhau_2'),
+('TK004', N'Lê Hoàng Cường', '0923456789', 'lehoangcuong@gmail.com', 'hash_matkhau_3'),
+('TK001', N'Quản Trị Viên',  '0999999999', 'admin@cineverse.vn',     'hash_admin_pw'),
+('TK005', N'Phạm Thị Duyên', '0934567890', 'phamduyen@cineverse.vn', 'hash_nv_1'),
+('TK006', N'Hồ Văn Em',      '0945678901', 'hovanem@cineverse.vn',   'hash_nv_2'),
+('TK007', N'Ngô Thị Phương', '0956789012', 'ngophuong@cineverse.vn', 'hash_nv_3')
+GO
+
+INSERT INTO TAIKHOAN_VAITRO VALUES
+('TK001', 'ADMIN'),
+('TK002', 'KHACHHANG'),
+('TK003', 'KHACHHANG'),
+('TK004', 'KHACHHANG'),
+('TK005', 'NHANVIEN'),
+('TK006', 'QUANLYRAP'),
+('TK007', 'NHANVIEN');
+GO
 GO
 
 INSERT INTO KHUYENMAI (MA_KM, TEN_KM, MA_CODE, GIAMGIA_PHANTRAM, GIAMGIA_TOIDA, NGAYBATDAU, NGAYKETTHUC, SO_LUOT_TOIDA) VALUES 
