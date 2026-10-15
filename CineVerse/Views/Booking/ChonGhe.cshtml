@@ -267,7 +267,11 @@
 
         <div class="seats-map">
             @{
-                var groupedSeats = Model.OrderBy(g => g.SOGHE).GroupBy(g => g.SOGHE.Substring(0, 1)).ToList();
+                var groupedSeats = Model
+                    .OrderBy(g => g.SO_HANG)
+                    .ThenBy(g => g.SO_COT)
+                    .GroupBy(g => g.SOGHE.Substring(0, 1))
+                    .ToList();
             }
             
             @foreach (var group in groupedSeats)
