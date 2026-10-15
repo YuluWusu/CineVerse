@@ -393,11 +393,11 @@ INSERT INTO LICHCHIEU VALUES
 ('LC009', 'P0018', 'PC05', 'KG01', '2025-05-01', 10000);
 GO
 
-INSERT INTO KHACHHANG VALUES
-('KH001', N'Nguyễn Văn An',  '0901234567', '123456789012', 'nguyenvanan@gmail.com',  'hash_matkhau_1', N'KhachHang', GETDATE()),
-('KH002', N'Trần Thị Bình',  '0912345678', '234567890123', 'tranthibinh@gmail.com',  'hash_matkhau_2', N'KhachHang', GETDATE()),
-('KH003', N'Lê Hoàng Cường', '0923456789', '345678901234', 'lehoangcuong@gmail.com', 'hash_matkhau_3', N'KhachHang', GETDATE()),
-('ADMIN', N'Quản Trị Viên',  '0999999999', NULL,           'admin@cineverse.vn',     'hash_admin_pw', N'Admin',     GETDATE());
+INSERT INTO VAITRO VALUES
+('ADMIN', N'Quản trị viên'),
+('KHACHHANG', N'Khách hàng'),
+('NHANVIEN', N'Nhân viên'),
+('QUANLYRAP', N'Quản lý rạp');
 GO
 
 INSERT INTO NHANVIEN VALUES
