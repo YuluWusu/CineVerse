@@ -228,7 +228,9 @@ GO
 
 INSERT INTO RAPCHIEU (MA_RAP, TEN_RAP, DIACHI, SO_PHONG_TOIDA) VALUES
 ('A01', N'CinéVerse Huế',     N'Vincom Center, 50 Hùng Vương, TP. Huế', 8),
-('A02', N'CinéVerse Đà Nẵng', N'Lotte Mart, 6 Nại Nam, Đà Nẵng', 6);
+('A02', N'CinéVerse Đà Nẵng', N'Lotte Mart, 6 Nại Nam, Đà Nẵng', 6),
+('A03', N'CinéVerse Hà Nội', N'Tràng Tiền Plaza, 24 Hai Bà Trưng, Hoàn Kiếm, Hà Nội', 6),
+('A04', N'CinéVerse TP.HCM', N'Vincom Center Landmark 81, 720A Điện Biên Phủ, TP.HCM', 6);
 GO
 
 INSERT INTO PHONGCHIEU (MA_PHONG, TEN_PHONG, MA_RAP, SO_HANG, SO_COT) VALUES
