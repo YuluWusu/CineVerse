@@ -44,15 +44,36 @@ CREATE TABLE KHUNGGIO (
 );
 GO
 
+CREATE TABLE TAIKHOAN (
+    MA_TAIKHOAN  NCHAR(5) PRIMARY KEY,
+    HOTEN        NVARCHAR(50) NOT NULL,
+    SDT          NCHAR(11) NOT NULL UNIQUE,
+    EMAIL        NVARCHAR(100) NOT NULL UNIQUE,
+    MATKHAU      NVARCHAR(255) NOT NULL,
+    NGAYTAO      DATETIME DEFAULT GETDATE(),
+    TRANGTHAI    NVARCHAR(20) DEFAULT N'HoatDong' CHECK (TRANGTHAI IN (N'HoatDong', N'Khoa', N'DaNghi'))
+);
+GO
+
+CREATE TABLE VAITRO (
+    MA_VAITRO   NVARCHAR(20) PRIMARY KEY,
+    TEN_VAITRO  NVARCHAR(50) NOT NULL
+);
+GO
+
+CREATE TABLE TAIKHOAN_VAITRO (
+    MA_TAIKHOAN NCHAR(5) NOT NULL,
+    MA_VAITRO   NVARCHAR(20) NOT NULL,
+    PRIMARY KEY (MA_TAIKHOAN, MA_VAITRO),
+    FOREIGN KEY (MA_TAIKHOAN) REFERENCES TAIKHOAN(MA_TAIKHOAN),
+    FOREIGN KEY (MA_VAITRO) REFERENCES VAITRO(MA_VAITRO)
+);
+GO
+
 CREATE TABLE KHACHHANG (
-    MA_KHACH    NCHAR(5) PRIMARY KEY,
-    HOTEN       NVARCHAR(50) NOT NULL,
-    SDT         NCHAR(11) NOT NULL UNIQUE,
-    CCCD        NCHAR(12) NULL,
-    EMAIL       NVARCHAR(100) NOT NULL UNIQUE,
-    MATKHAU     NVARCHAR(255) NOT NULL,
-    VAITRO      NVARCHAR(10) DEFAULT N'KhachHang' CHECK (VAITRO IN (N'Admin', N'KhachHang')),
-    NGAYTAO     DATETIME DEFAULT GETDATE()
+    MA_KHACHHANG    NCHAR(5) PRIMARY KEY,
+    CCCD            NCHAR(12) NULL,
+    FOREIGN KEY (MA_KHACHHANG) REFERENCES TAIKHOAN(MA_TAIKHOAN)
 );
 GO
 
@@ -87,16 +108,11 @@ CREATE TABLE PHIM (
 GO
 
 CREATE TABLE NHANVIEN (
-    MA_NV       NCHAR(5) PRIMARY KEY,
-    HOTEN       NVARCHAR(50) NOT NULL,
-    SDT         NCHAR(11) NOT NULL UNIQUE,
-    EMAIL       NVARCHAR(100) NOT NULL UNIQUE,
-    MATKHAU     NVARCHAR(255) NOT NULL,
-    CHUCVU      NVARCHAR(20) NOT NULL DEFAULT N'NhanVienQuay' CHECK (CHUCVU IN (N'NhanVienQuay', N'QuanLyRap')),
-    LUONG       DECIMAL(12,0) NOT NULL DEFAULT 0 CHECK (LUONG >= 0),
-    MA_RAP      NCHAR(5) NOT NULL,
-    NGAYVAOLAM  DATE NOT NULL DEFAULT GETDATE(),
-    TRANGTHAI   NVARCHAR(20) NOT NULL DEFAULT N'DangLamViec' CHECK (TRANGTHAI IN (N'DangLamViec', N'DaNghi')),
+    MA_NHANVIEN     NCHAR(5) PRIMARY KEY,
+    LUONG           DECIMAL(12,0) NOT NULL DEFAULT 0 CHECK (LUONG >= 0),
+    MA_RAP          NCHAR(5) NOT NULL,
+    NGAYVAOLAM      DATE NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (MA_NHANVIEN) REFERENCES TAIKHOAN(MA_TAIKHOAN),
     FOREIGN KEY (MA_RAP) REFERENCES RAPCHIEU(MA_RAP)
 );
 GO
@@ -163,8 +179,8 @@ GO
 
 CREATE TABLE DONHANG (
     MA_DONHANG    NCHAR(5) PRIMARY KEY,
-    MA_KHACH      NCHAR(5) NULL,
-    MA_NV         NCHAR(5) NULL,
+    MA_KHACHHANG  NCHAR(5) NULL,
+    MA_NHANVIEN   NCHAR(5) NULL,
     MA_LICHCHIEU  NCHAR(5) NOT NULL,
     MA_KM         NVARCHAR(10) NULL,
     NGAYDAT       DATETIME NOT NULL DEFAULT GETDATE(),
@@ -173,11 +189,11 @@ CREATE TABLE DONHANG (
     TIENGIAM      DECIMAL(12,0) NOT NULL DEFAULT 0,
     TONGTIEN      DECIMAL(12,0) NOT NULL DEFAULT 0,
     TRANGTHAI     NVARCHAR(20) NOT NULL DEFAULT N'ChoThanhToan' CHECK (TRANGTHAI IN (N'ChoThanhToan', N'DaThanhToan', N'DaHuy')),
-    FOREIGN KEY (MA_KHACH) REFERENCES KHACHHANG(MA_KHACH),
-    FOREIGN KEY (MA_NV) REFERENCES NHANVIEN(MA_NV),
+    FOREIGN KEY (MA_KHACHHANG) REFERENCES KHACHHANG(MA_KHACHHANG),
+    FOREIGN KEY (MA_NHANVIEN) REFERENCES NHANVIEN(MA_NHANVIEN),
     FOREIGN KEY (MA_LICHCHIEU) REFERENCES LICHCHIEU(MA_LICHCHIEU),
     FOREIGN KEY (MA_KM) REFERENCES KHUYENMAI(MA_KM),
-    CONSTRAINT CK_DONHANG_NGUOITAO CHECK (MA_KHACH IS NOT NULL OR MA_NV IS NOT NULL)
+    CONSTRAINT CK_DONHANG_NGUOITAO CHECK (MA_KHACHHANG IS NOT NULL OR MA_NHANVIEN IS NOT NULL)
 );
 GO
 
@@ -212,13 +228,27 @@ GO
 
 INSERT INTO RAPCHIEU (MA_RAP, TEN_RAP, DIACHI, SO_PHONG_TOIDA) VALUES
 ('A01', N'CinéVerse Huế',     N'Vincom Center, 50 Hùng Vương, TP. Huế', 8),
-('A02', N'CinéVerse Đà Nẵng', N'Lotte Mart, 6 Nại Nam, Đà Nẵng', 6);
+('A02', N'CinéVerse Đà Nẵng', N'Lotte Mart, 6 Nại Nam, Đà Nẵng', 6),
+('A03', N'CinéVerse Hà Nội', N'Tràng Tiền Plaza, 24 Hai Bà Trưng, Hoàn Kiếm, Hà Nội', 6),
+('A04', N'CinéVerse TP.HCM', N'Vincom Center Landmark 81, 720A Điện Biên Phủ, TP.HCM', 6);
 GO
 
 INSERT INTO PHONGCHIEU (MA_PHONG, TEN_PHONG, MA_RAP, SO_HANG, SO_COT) VALUES
 ('PA01', N'Phòng 1', 'A01', 2, 4),
 ('PA02', N'Phòng 2', 'A01', 0, 0),
-('PB01', N'Phòng 1', 'A02', 2, 2);
+('PB01', N'Phòng 1', 'A02', 2, 2),
+('PC01', N'Phòng 1', 'A03', 15, 16),
+('PC02', N'Phòng 2', 'A03', 12, 14),
+('PC03', N'Phòng 3', 'A03', 12, 14),
+('PC04', N'Phòng 4', 'A03', 12, 14),
+('PC05', N'Phòng 5', 'A03', 10, 12),
+('PC06', N'Phòng 6', 'A03', 10, 12),
+('PD01', N'Phòng 1', 'A04', 15, 16),
+('PD02', N'Phòng 2', 'A04', 12, 14),
+('PD03', N'Phòng 3', 'A04', 12, 14),
+('PD04', N'Phòng 4', 'A04', 12, 14),
+('PD05', N'Phòng 5', 'A04', 10, 12),
+('PD06', N'Phòng 6', 'A04', 10, 12);
 GO
 
 INSERT INTO LOAIGHE (MA_LOAIGHE, TEN_LOAIGHE, GIATVE) VALUES
@@ -236,7 +266,23 @@ INSERT INTO GHE (MA_GHE, SOGHE, MA_PHONG, MA_LOAIGHE, SO_HANG, SO_COT) VALUES
 ('G0006', 'B2', 'PA01', 'LG02', 2, 2),
 ('G0007', 'A1', 'PB01', 'LG01', 1, 1),
 ('G0008', 'A2', 'PB01', 'LG01', 1, 2),
-('G0009', 'B1', 'PB01', 'LG03', 2, 1);
+('G0009', 'B1', 'PB01', 'LG03', 2, 1),
+
+('G0010', 'A1', 'PC01', 'LG01', 1, 1), ('G0011', 'A2', 'PC01', 'LG01', 1, 2), ('G0012', 'A3', 'PC01', 'LG01', 1, 3), ('G0013', 'A4', 'PC01', 'LG01', 1, 4), ('G0014', 'A5', 'PC01', 'LG01', 1, 5), ('G0015', 'A6', 'PC01', 'LG01', 1, 6), ('G0016', 'A7', 'PC01', 'LG01', 1, 7), ('G0017', 'A8', 'PC01', 'LG01', 1, 8), ('G0018', 'A9', 'PC01', 'LG01', 1, 9), ('G0019', 'A10', 'PC01', 'LG01', 1, 10), ('G0020', 'A11', 'PC01', 'LG01', 1, 11), ('G0021', 'A12', 'PC01', 'LG01', 1, 12), ('G0022', 'A13', 'PC01', 'LG01', 1, 13), ('G0023', 'A14', 'PC01', 'LG01', 1, 14), ('G0024', 'A15', 'PC01', 'LG01', 1, 15), ('G0025', 'A16', 'PC01', 'LG01', 1, 16),
+('G0026', 'B1', 'PC01', 'LG01', 2, 1), ('G0027', 'B2', 'PC01', 'LG01', 2, 2), ('G0028', 'B3', 'PC01', 'LG01', 2, 3), ('G0029', 'B4', 'PC01', 'LG01', 2, 4), ('G0030', 'B5', 'PC01', 'LG01', 2, 5), ('G0031', 'B6', 'PC01', 'LG01', 2, 6), ('G0032', 'B7', 'PC01', 'LG01', 2, 7), ('G0033', 'B8', 'PC01', 'LG01', 2, 8), ('G0034', 'B9', 'PC01', 'LG01', 2, 9), ('G0035', 'B10', 'PC01', 'LG01', 2, 10), ('G0036', 'B11', 'PC01', 'LG01', 2, 11), ('G0037', 'B12', 'PC01', 'LG01', 2, 12), ('G0038', 'B13', 'PC01', 'LG01', 2, 13), ('G0039', 'B14', 'PC01', 'LG01', 2, 14), ('G0040', 'B15', 'PC01', 'LG01', 2, 15), ('G0041', 'B16', 'PC01', 'LG01', 2, 16),
+('G0042', 'C1', 'PC01', 'LG01', 3, 1), ('G0043', 'C2', 'PC01', 'LG01', 3, 2), ('G0044', 'C3', 'PC01', 'LG01', 3, 3), ('G0045', 'C4', 'PC01', 'LG01', 3, 4), ('G0046', 'C5', 'PC01', 'LG01', 3, 5), ('G0047', 'C6', 'PC01', 'LG01', 3, 6), ('G0048', 'C7', 'PC01', 'LG01', 3, 7), ('G0049', 'C8', 'PC01', 'LG01', 3, 8), ('G0050', 'C9', 'PC01', 'LG01', 3, 9), ('G0051', 'C10', 'PC01', 'LG01', 3, 10), ('G0052', 'C11', 'PC01', 'LG01', 3, 11), ('G0053', 'C12', 'PC01', 'LG01', 3, 12), ('G0054', 'C13', 'PC01', 'LG01', 3, 13), ('G0055', 'C14', 'PC01', 'LG01', 3, 14), ('G0056', 'C15', 'PC01', 'LG01', 3, 15), ('G0057', 'C16', 'PC01', 'LG01', 3, 16),
+('G0058', 'D1', 'PC01', 'LG02', 4, 1), ('G0059', 'D2', 'PC01', 'LG02', 4, 2), ('G0060', 'D3', 'PC01', 'LG02', 4, 3), ('G0061', 'D4', 'PC01', 'LG02', 4, 4), ('G0062', 'D5', 'PC01', 'LG02', 4, 5), ('G0063', 'D6', 'PC01', 'LG02', 4, 6), ('G0064', 'D7', 'PC01', 'LG02', 4, 7), ('G0065', 'D8', 'PC01', 'LG02', 4, 8), ('G0066', 'D9', 'PC01', 'LG02', 4, 9), ('G0067', 'D10', 'PC01', 'LG02', 4, 10), ('G0068', 'D11', 'PC01', 'LG02', 4, 11), ('G0069', 'D12', 'PC01', 'LG02', 4, 12), ('G0070', 'D13', 'PC01', 'LG02', 4, 13), ('G0071', 'D14', 'PC01', 'LG02', 4, 14), ('G0072', 'D15', 'PC01', 'LG02', 4, 15), ('G0073', 'D16', 'PC01', 'LG02', 4, 16),
+('G0074', 'E1', 'PC01', 'LG02', 5, 1), ('G0075', 'E2', 'PC01', 'LG02', 5, 2), ('G0076', 'E3', 'PC01', 'LG02', 5, 3), ('G0077', 'E4', 'PC01', 'LG02', 5, 4), ('G0078', 'E5', 'PC01', 'LG02', 5, 5), ('G0079', 'E6', 'PC01', 'LG02', 5, 6), ('G0080', 'E7', 'PC01', 'LG02', 5, 7), ('G0081', 'E8', 'PC01', 'LG02', 5, 8), ('G0082', 'E9', 'PC01', 'LG02', 5, 9), ('G0083', 'E10', 'PC01', 'LG02', 5, 10), ('G0084', 'E11', 'PC01', 'LG02', 5, 11), ('G0085', 'E12', 'PC01', 'LG02', 5, 12), ('G0086', 'E13', 'PC01', 'LG02', 5, 13), ('G0087', 'E14', 'PC01', 'LG02', 5, 14), ('G0088', 'E15', 'PC01', 'LG02', 5, 15), ('G0089', 'E16', 'PC01', 'LG02', 5, 16),
+('G0090', 'F1', 'PC01', 'LG02', 6, 1), ('G0091', 'F2', 'PC01', 'LG02', 6, 2), ('G0092', 'F3', 'PC01', 'LG02', 6, 3), ('G0093', 'F4', 'PC01', 'LG02', 6, 4), ('G0094', 'F5', 'PC01', 'LG02', 6, 5), ('G0095', 'F6', 'PC01', 'LG02', 6, 6), ('G0096', 'F7', 'PC01', 'LG02', 6, 7), ('G0097', 'F8', 'PC01', 'LG02', 6, 8), ('G0098', 'F9', 'PC01', 'LG02', 6, 9), ('G0099', 'F10', 'PC01', 'LG02', 6, 10), ('G0100', 'F11', 'PC01', 'LG02', 6, 11), ('G0101', 'F12', 'PC01', 'LG02', 6, 12), ('G0102', 'F13', 'PC01', 'LG02', 6, 13), ('G0103', 'F14', 'PC01', 'LG02', 6, 14), ('G0104', 'F15', 'PC01', 'LG02', 6, 15), ('G0105', 'F16', 'PC01', 'LG02', 6, 16),
+('G0106', 'G1', 'PC01', 'LG02', 7, 1), ('G0107', 'G2', 'PC01', 'LG02', 7, 2), ('G0108', 'G3', 'PC01', 'LG02', 7, 3), ('G0109', 'G4', 'PC01', 'LG02', 7, 4), ('G0110', 'G5', 'PC01', 'LG02', 7, 5), ('G0111', 'G6', 'PC01', 'LG02', 7, 6), ('G0112', 'G7', 'PC01', 'LG02', 7, 7), ('G0113', 'G8', 'PC01', 'LG02', 7, 8), ('G0114', 'G9', 'PC01', 'LG02', 7, 9), ('G0115', 'G10', 'PC01', 'LG02', 7, 10), ('G0116', 'G11', 'PC01', 'LG02', 7, 11), ('G0117', 'G12', 'PC01', 'LG02', 7, 12), ('G0118', 'G13', 'PC01', 'LG02', 7, 13), ('G0119', 'G14', 'PC01', 'LG02', 7, 14), ('G0120', 'G15', 'PC01', 'LG02', 7, 15), ('G0121', 'G16', 'PC01', 'LG02', 7, 16),
+('G0122', 'H1', 'PC01', 'LG02', 8, 1), ('G0123', 'H2', 'PC01', 'LG02', 8, 2), ('G0124', 'H3', 'PC01', 'LG02', 8, 3), ('G0125', 'H4', 'PC01', 'LG02', 8, 4), ('G0126', 'H5', 'PC01', 'LG02', 8, 5), ('G0127', 'H6', 'PC01', 'LG02', 8, 6), ('G0128', 'H7', 'PC01', 'LG02', 8, 7), ('G0129', 'H8', 'PC01', 'LG02', 8, 8), ('G0130', 'H9', 'PC01', 'LG02', 8, 9), ('G0131', 'H10', 'PC01', 'LG02', 8, 10), ('G0132', 'H11', 'PC01', 'LG02', 8, 11), ('G0133', 'H12', 'PC01', 'LG02', 8, 12), ('G0134', 'H13', 'PC01', 'LG02', 8, 13), ('G0135', 'H14', 'PC01', 'LG02', 8, 14), ('G0136', 'H15', 'PC01', 'LG02', 8, 15), ('G0137', 'H16', 'PC01', 'LG02', 8, 16),
+('G0138', 'I1', 'PC01', 'LG02', 9, 1), ('G0139', 'I2', 'PC01', 'LG02', 9, 2), ('G0140', 'I3', 'PC01', 'LG02', 9, 3), ('G0141', 'I4', 'PC01', 'LG02', 9, 4), ('G0142', 'I5', 'PC01', 'LG02', 9, 5), ('G0143', 'I6', 'PC01', 'LG02', 9, 6), ('G0144', 'I7', 'PC01', 'LG02', 9, 7), ('G0145', 'I8', 'PC01', 'LG02', 9, 8), ('G0146', 'I9', 'PC01', 'LG02', 9, 9), ('G0147', 'I10', 'PC01', 'LG02', 9, 10), ('G0148', 'I11', 'PC01', 'LG02', 9, 11), ('G0149', 'I12', 'PC01', 'LG02', 9, 12), ('G0150', 'I13', 'PC01', 'LG02', 9, 13), ('G0151', 'I14', 'PC01', 'LG02', 9, 14), ('G0152', 'I15', 'PC01', 'LG02', 9, 15), ('G0153', 'I16', 'PC01', 'LG02', 9, 16),
+('G0154', 'J1', 'PC01', 'LG02', 10, 1), ('G0155', 'J2', 'PC01', 'LG02', 10, 2), ('G0156', 'J3', 'PC01', 'LG02', 10, 3), ('G0157', 'J4', 'PC01', 'LG02', 10, 4), ('G0158', 'J5', 'PC01', 'LG02', 10, 5), ('G0159', 'J6', 'PC01', 'LG02', 10, 6), ('G0160', 'J7', 'PC01', 'LG02', 10, 7), ('G0161', 'J8', 'PC01', 'LG02', 10, 8), ('G0162', 'J9', 'PC01', 'LG02', 10, 9), ('G0163', 'J10', 'PC01', 'LG02', 10, 10), ('G0164', 'J11', 'PC01', 'LG02', 10, 11), ('G0165', 'J12', 'PC01', 'LG02', 10, 12), ('G0166', 'J13', 'PC01', 'LG02', 10, 13), ('G0167', 'J14', 'PC01', 'LG02', 10, 14), ('G0168', 'J15', 'PC01', 'LG02', 10, 15), ('G0169', 'J16', 'PC01', 'LG02', 10, 16),
+('G0170', 'K1', 'PC01', 'LG02', 11, 1), ('G0171', 'K2', 'PC01', 'LG02', 11, 2), ('G0172', 'K3', 'PC01', 'LG02', 11, 3), ('G0173', 'K4', 'PC01', 'LG02', 11, 4), ('G0174', 'K5', 'PC01', 'LG02', 11, 5), ('G0175', 'K6', 'PC01', 'LG02', 11, 6), ('G0176', 'K7', 'PC01', 'LG02', 11, 7), ('G0177', 'K8', 'PC01', 'LG02', 11, 8), ('G0178', 'K9', 'PC01', 'LG02', 11, 9), ('G0179', 'K10', 'PC01', 'LG02', 11, 10), ('G0180', 'K11', 'PC01', 'LG02', 11, 11), ('G0181', 'K12', 'PC01', 'LG02', 11, 12), ('G0182', 'K13', 'PC01', 'LG02', 11, 13), ('G0183', 'K14', 'PC01', 'LG02', 11, 14), ('G0184', 'K15', 'PC01', 'LG02', 11, 15), ('G0185', 'K16', 'PC01', 'LG02', 11, 16),
+('G0186', 'L1', 'PC01', 'LG02', 12, 1), ('G0187', 'L2', 'PC01', 'LG02', 12, 2), ('G0188', 'L3', 'PC01', 'LG02', 12, 3), ('G0189', 'L4', 'PC01', 'LG02', 12, 4), ('G0190', 'L5', 'PC01', 'LG02', 12, 5), ('G0191', 'L6', 'PC01', 'LG02', 12, 6), ('G0192', 'L7', 'PC01', 'LG02', 12, 7), ('G0193', 'L8', 'PC01', 'LG02', 12, 8), ('G0194', 'L9', 'PC01', 'LG02', 12, 9), ('G0195', 'L10', 'PC01', 'LG02', 12, 10), ('G0196', 'L11', 'PC01', 'LG02', 12, 11), ('G0197', 'L12', 'PC01', 'LG02', 12, 12), ('G0198', 'L13', 'PC01', 'LG02', 12, 13), ('G0199', 'L14', 'PC01', 'LG02', 12, 14), ('G0200', 'L15', 'PC01', 'LG02', 12, 15), ('G0201', 'L16', 'PC01', 'LG02', 12, 16),
+('G0202', 'M1', 'PC01', 'LG02', 13, 1), ('G0203', 'M2', 'PC01', 'LG02', 13, 2), ('G0204', 'M3', 'PC01', 'LG02', 13, 3), ('G0205', 'M4', 'PC01', 'LG02', 13, 4), ('G0206', 'M5', 'PC01', 'LG02', 13, 5), ('G0207', 'M6', 'PC01', 'LG02', 13, 6), ('G0208', 'M7', 'PC01', 'LG02', 13, 7), ('G0209', 'M8', 'PC01', 'LG02', 13, 8), ('G0210', 'M9', 'PC01', 'LG02', 13, 9), ('G0211', 'M10', 'PC01', 'LG02', 13, 10), ('G0212', 'M11', 'PC01', 'LG02', 13, 11), ('G0213', 'M12', 'PC01', 'LG02', 13, 12), ('G0214', 'M13', 'PC01', 'LG02', 13, 13), ('G0215', 'M14', 'PC01', 'LG02', 13, 14), ('G0216', 'M15', 'PC01', 'LG02', 13, 15), ('G0217', 'M16', 'PC01', 'LG02', 13, 16),
+('G0218', 'N1', 'PC01', 'LG03', 14, 1), ('G0219', 'N2', 'PC01', 'LG03', 14, 2), ('G0220', 'N3', 'PC01', 'LG03', 14, 3), ('G0221', 'N4', 'PC01', 'LG03', 14, 4), ('G0222', 'N5', 'PC01', 'LG03', 14, 5), ('G0223', 'N6', 'PC01', 'LG03', 14, 6), ('G0224', 'N7', 'PC01', 'LG03', 14, 7), ('G0225', 'N8', 'PC01', 'LG03', 14, 8), ('G0226', 'N9', 'PC01', 'LG03', 14, 9), ('G0227', 'N10', 'PC01', 'LG03', 14, 10), ('G0228', 'N11', 'PC01', 'LG03', 14, 11), ('G0229', 'N12', 'PC01', 'LG03', 14, 12), ('G0230', 'N13', 'PC01', 'LG03', 14, 13), ('G0231', 'N14', 'PC01', 'LG03', 14, 14), ('G0232', 'N15', 'PC01', 'LG03', 14, 15), ('G0233', 'N16', 'PC01', 'LG03', 14, 16),
+('G0234', 'O1', 'PC01', 'LG03', 15, 1), ('G0235', 'O2', 'PC01', 'LG03', 15, 2), ('G0236', 'O3', 'PC01', 'LG03', 15, 3), ('G0237', 'O4', 'PC01', 'LG03', 15, 4), ('G0238', 'O5', 'PC01', 'LG03', 15, 5), ('G0239', 'O6', 'PC01', 'LG03', 15, 6), ('G0240', 'O7', 'PC01', 'LG03', 15, 7), ('G0241', 'O8', 'PC01', 'LG03', 15, 8), ('G0242', 'O9', 'PC01', 'LG03', 15, 9), ('G0243', 'O10', 'PC01', 'LG03', 15, 10), ('G0244', 'O11', 'PC01', 'LG03', 15, 11), ('G0245', 'O12', 'PC01', 'LG03', 15, 12), ('G0246', 'O13', 'PC01', 'LG03', 15, 13), ('G0247', 'O14', 'PC01', 'LG03', 15, 14), ('G0248', 'O15', 'PC01', 'LG03', 15, 15), ('G0249', 'O16', 'PC01', 'LG03', 15, 16);
 GO
 
 -- Cập nhật lại Kích thước lưới cho PHONGCHIEU từ ghế thực tế
@@ -338,21 +384,53 @@ GO
 INSERT INTO LICHCHIEU VALUES
 ('LC001', 'P0001', 'PA01', 'KG03', '2025-04-15', 0),
 ('LC002', 'P0001', 'PA01', 'KG05', '2025-04-15', 20000), 
-('LC003', 'P0002', 'PA02', 'KG02', '2025-04-15', 0),
-('LC004', 'P0001', 'PA01', 'KG03', '2025-04-16', 0);
+('LC003', 'P0002', 'PA01', 'KG02', '2025-04-15', 0),
+('LC004', 'P0001', 'PA01', 'KG03', '2025-04-16', 0),
+('LC005', 'P0015', 'PC01', 'KG05', '2025-04-30', 30000),
+('LC006', 'P0001', 'PD01', 'KG06', '2025-04-30', 25000),
+('LC007', 'P0005', 'PC02', 'KG03', '2025-04-30', 0),
+('LC008', 'P0012', 'PD02', 'KG04', '2025-04-30', 0),
+('LC009', 'P0018', 'PC05', 'KG01', '2025-05-01', 10000);
 GO
 
-INSERT INTO KHACHHANG VALUES
-('KH001', N'Nguyễn Văn An',  '0901234567', '123456789012', 'nguyenvanan@gmail.com',  'hash_matkhau_1', N'KhachHang', GETDATE()),
-('KH002', N'Trần Thị Bình',  '0912345678', '234567890123', 'tranthibinh@gmail.com',  'hash_matkhau_2', N'KhachHang', GETDATE()),
-('KH003', N'Lê Hoàng Cường', '0923456789', '345678901234', 'lehoangcuong@gmail.com', 'hash_matkhau_3', N'KhachHang', GETDATE()),
-('ADMIN', N'Quản Trị Viên',  '0999999999', NULL,           'admin@cineverse.vn',     'hash_admin_pw', N'Admin',     GETDATE());
+INSERT INTO VAITRO VALUES
+('ADMIN', N'Quản trị viên'),
+('KHACHHANG', N'Khách hàng'),
+('NHANVIEN', N'Nhân viên'),
+('QUANLYRAP', N'Quản lý rạp');
 GO
 
-INSERT INTO NHANVIEN VALUES
-('NV001', N'Phạm Thị Duyên', '0934567890', 'phamduyen@cineverse.vn', 'hash_nv_1', N'NhanVienQuay', 6000000, 'A01', '2024-03-01', N'DangLamViec'),
-('NV002', N'Hồ Văn Em',      '0945678901', 'hovanem@cineverse.vn',   'hash_nv_2', N'QuanLyRap',    9500000, 'A01', '2023-06-15', N'DangLamViec'),
-('NV003', N'Ngô Thị Phương', '0956789012', 'ngophuong@cineverse.vn', 'hash_nv_3', N'NhanVienQuay', 6000000, 'A02', '2024-08-20', N'DangLamViec');
+INSERT INTO TAIKHOAN (MA_TAIKHOAN, HOTEN, SDT, EMAIL, MATKHAU) VALUES
+('TK002', N'Nguyễn Văn An',  '0901234567', 'nguyenvanan@gmail.com',  'hash_matkhau_1'),
+('TK003', N'Trần Thị Bình',  '0912345678', 'tranthibinh@gmail.com',  'hash_matkhau_2'),
+('TK004', N'Lê Hoàng Cường', '0923456789', 'lehoangcuong@gmail.com', 'hash_matkhau_3'),
+('TK001', N'Quản Trị Viên',  '0999999999', 'admin@cineverse.vn',     'hash_admin_pw'),
+('TK005', N'Phạm Thị Duyên', '0934567890', 'phamduyen@cineverse.vn', 'hash_nv_1'),
+('TK006', N'Hồ Văn Em',      '0945678901', 'hovanem@cineverse.vn',   'hash_nv_2'),
+('TK007', N'Ngô Thị Phương', '0956789012', 'ngophuong@cineverse.vn', 'hash_nv_3')
+GO
+
+INSERT INTO TAIKHOAN_VAITRO VALUES
+('TK001', 'ADMIN'),
+('TK002', 'KHACHHANG'),
+('TK003', 'KHACHHANG'),
+('TK004', 'KHACHHANG'),
+('TK005', 'NHANVIEN'),
+('TK006', 'QUANLYRAP'),
+('TK007', 'NHANVIEN');
+GO
+
+INSERT INTO KHACHHANG (MA_KHACHHANG, CCCD) VALUES
+('TK001', NULL),
+('TK002', '123456789012'),
+('TK003', '234567890123'),
+('TK004', '345678901234');
+GO
+
+INSERT INTO NHANVIEN (MA_NHANVIEN, LUONG, MA_RAP, NGAYVAOLAM) VALUES
+('TK005', 6000000, 'A01', '2024-03-01'),
+('TK006', 9500000, 'A01', '2023-05-15'),
+('TK007', 6000000, 'A02', '2024-08-20');
 GO
 
 INSERT INTO KHUYENMAI (MA_KM, TEN_KM, MA_CODE, GIAMGIA_PHANTRAM, GIAMGIA_TOIDA, NGAYBATDAU, NGAYKETTHUC, SO_LUOT_TOIDA) VALUES 
@@ -366,10 +444,10 @@ INSERT INTO MONAN VALUES
 ('MN004', N'Combo đôi (1 bắp lớn + 2 nước)', N'ComBo',   89000, 'combo-doi.jpg',   N'ConBan');
 GO
 
-INSERT INTO DONHANG (MA_DONHANG, MA_KHACH, MA_NV, MA_LICHCHIEU, MA_KM, NGAYDAT, TIENVE, TIENMONAN, TIENGIAM, TONGTIEN, TRANGTHAI) VALUES
-('DH001', 'KH001', NULL, 'LC001', NULL, GETDATE(), 150000, 89000, 0, 239000, N'DaThanhToan'),
-('DH002', 'KH002', NULL, 'LC002', NULL, GETDATE(), 130000,     0, 0, 130000, N'DaThanhToan'),
-('DH003', 'KH003', NULL, 'LC003', NULL, GETDATE(),  75000,     0, 0,  75000, N'DaThanhToan');
+INSERT INTO DONHANG (MA_DONHANG, MA_KHACHHANG, MA_NHANVIEN, MA_LICHCHIEU, MA_KM, NGAYDAT, TIENVE, TIENMONAN, TIENGIAM, TONGTIEN, TRANGTHAI) VALUES
+('DH001', 'TK002', NULL, 'LC001', NULL, GETDATE(), 150000, 89000, 0, 239000, N'DaThanhToan'),
+('DH002', 'TK003', NULL, 'LC002', NULL, GETDATE(), 130000,     0, 0, 130000, N'DaThanhToan'),
+('DH003', 'TK004', NULL, 'LC003', NULL, GETDATE(),  75000,     0, 0,  75000, N'DaThanhToan');
 GO
 
 INSERT INTO VE (MA_VE, MA_DONHANG, MA_LICHCHIEU, MA_GHE, DONGIA, TRANGTHAI) VALUES
