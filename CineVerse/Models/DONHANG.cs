@@ -22,8 +22,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         }
     
         public string MA_DONHANG { get; set; }
-        public string MA_KHACH { get; set; }
-        public string MA_NV { get; set; }
+        public string MA_KHACHHANG { get; set; }
+        public string MA_NHANVIEN { get; set; }
         public string MA_LICHCHIEU { get; set; }
         public string MA_KM { get; set; }
         public System.DateTime NGAYDAT { get; set; }

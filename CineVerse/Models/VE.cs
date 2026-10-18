@@ -15,14 +15,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
     public partial class VE
     {
         public string MA_VE { get; set; }
+        public string MA_DONHANG { get; set; }
         public string MA_LICHCHIEU { get; set; }
         public string MA_GHE { get; set; }
-        public string TRANGTHAI { get; set; }
-        public string MA_DONHANG { get; set; }
         public decimal DONGIA { get; set; }
+        public string TRANGTHAI { get; set; }
     
+        public virtual DONHANG DONHANG { get; set; }
         public virtual GHE GHE { get; set; }
         public virtual LICHCHIEU LICHCHIEU { get; set; }
-        public virtual DONHANG DONHANG { get; set; }
     }
 }

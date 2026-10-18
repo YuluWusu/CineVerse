@@ -1,17 +1,15 @@
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Web;
-using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
     public class AccountController : Controller
     {
-        QL_VEPHIM2Entities data = new QL_VEPHIM2Entities();
+        QL_VEPHIMEntities data = new QL_VEPHIMEntities();
 
         // GET: Account/DangKy
         [HttpGet]
@@ -35,38 +33,57 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 return View();
             }
 
-            var checkKhach = data.KHACHHANGs.FirstOrDefault(k => k.SDT == SDT);
-            if (checkKhach != null)
+            string sdtTrim = SDT.Trim();
+            var checkTk = data.TAIKHOANs.FirstOrDefault(t => t.SDT.Trim() == sdtTrim);
+            if (checkTk != null)
             {
                 ViewBag.Error = "Số điện thoại này đã được đăng ký.";
                 return View();
             }
 
-            var allIds = data.KHACHHANGs.Select(k => k.MA_KHACH).ToList();
+            var allIds = data.KHACHHANGs.Select(k => k.MA_KHACHHANG).ToList();
             int maxId = 0;
             foreach (var id in allIds)
             {
-                if (!string.IsNullOrEmpty(id) && id.StartsWith("KH"))
+                if (!string.IsNullOrEmpty(id))
                 {
-                    if (int.TryParse(id.Substring(2), out int currentId))
+                    string trimmed = id.Trim();
+                    if (trimmed.StartsWith("KH"))
                     {
-                        if (currentId > maxId) maxId = currentId;
+                        if (int.TryParse(trimmed.Substring(2), out int currentId))
+                        {
+                            if (currentId > maxId) maxId = currentId;
+                        }
                     }
                 }
             }
             int nextId = maxId + 1;
             string newMaKhach = "KH" + nextId.ToString("D3");
 
+            var tk = new TAIKHOAN
+            {
+                MA_TAIKHOAN = newMaKhach,
+                HOTEN = HOTEN.Trim(),
+                SDT = sdtTrim,
+                EMAIL = !string.IsNullOrWhiteSpace(EMAIL) ? EMAIL.Trim() : null,
+                MATKHAU = MATKHAU,
+                NGAYTAO = DateTime.Now,
+                TRANGTHAI = "HoatDong"
+            };
+
+            var vaiTro = data.VAITROes.FirstOrDefault(v => v.MA_VAITRO.Trim() == "KhachHang" || v.TEN_VAITRO.Trim() == "KhachHang");
+            if (vaiTro != null)
+            {
+                tk.VAITROes.Add(vaiTro);
+            }
+
+            data.TAIKHOANs.Add(tk);
+
             KHACHHANG kh = new KHACHHANG
             {
-                MA_KHACH = newMaKhach,
-                HOTEN = HOTEN,
-                SDT = SDT,
-                EMAIL = EMAIL,
+                MA_KHACHHANG = newMaKhach,
                 CCCD = cancuoc,
-                MATKHAU = MATKHAU,
-                VAITRO = "KhachHang",
-                NGAYTAO = DateTime.Now
+                TAIKHOAN = tk
             };
 
             data.KHACHHANGs.Add(kh);
@@ -92,9 +109,26 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 return View();
             }
 
-            var kh = data.KHACHHANGs.FirstOrDefault(k => k.SDT == SDT && k.MATKHAU == MATKHAU);
-            if (kh != null)
+            string sdtTrim = SDT.Trim();
+            var tk = data.TAIKHOANs
+                .Include(t => t.KHACHHANG)
+                .Include(t => t.VAITROes)
+                .FirstOrDefault(t => t.SDT.Trim() == sdtTrim && t.MATKHAU == MATKHAU);
+
+            if (tk != null)
             {
+                var kh = tk.KHACHHANG;
+                if (kh == null)
+                {
+                    kh = new KHACHHANG
+                    {
+                        MA_KHACHHANG = tk.MA_TAIKHOAN,
+                        TAIKHOAN = tk
+                    };
+                    data.KHACHHANGs.Add(kh);
+                    data.SaveChanges();
+                }
+
                 Session["KhachHang"] = kh;
                 return RedirectToAction("TrangChu", "Home");
             }
@@ -114,8 +148,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
 
             var sessionKh = Session["KhachHang"] as KHACHHANG;
+            string maKh = sessionKh.MA_KHACHHANG.Trim();
             
-            var kh = data.KHACHHANGs.FirstOrDefault(k => k.MA_KHACH == sessionKh.MA_KHACH);
+            var kh = data.KHACHHANGs
+                .Include(k => k.TAIKHOAN)
+                .Include(k => k.TAIKHOAN.VAITROes)
+                .FirstOrDefault(k => k.MA_KHACHHANG.Trim() == maKh);
 
             if (kh == null)
             {
@@ -123,6 +161,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 return RedirectToAction("DangNhap", "Account");
             }
 
+            Session["KhachHang"] = kh;
             return View(kh);
         }
 

@@ -8,14 +8,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 {
     public class ReportService
     {
-        private QL_VEPHIM2Entities db;
+        private QL_VEPHIMEntities db;
 
         public ReportService()
         {
-            this.db = new QL_VEPHIM2Entities();
+            this.db = new QL_VEPHIMEntities();
         }
 
-        public ReportService(QL_VEPHIM2Entities dbContext)
+        public ReportService(QL_VEPHIMEntities dbContext)
         {
             this.db = dbContext;
         }

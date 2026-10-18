@@ -8,14 +8,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 {
     public class BookingService
     {
-        private QL_VEPHIM2Entities db;
+        private QL_VEPHIMEntities db;
 
         public BookingService()
         {
-            this.db = new QL_VEPHIM2Entities();
+            this.db = new QL_VEPHIMEntities();
         }
 
-        public BookingService(QL_VEPHIM2Entities dbContext)
+        public BookingService(QL_VEPHIMEntities dbContext)
         {
             this.db = dbContext;
         }
@@ -23,10 +23,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
         public KHACHHANG GetOrCreateCustomer(string hoTen, string soDienThoai, string email)
         {
             string sdt = soDienThoai?.Trim() ?? "";
-            var khachHang = db.KHACHHANGs.FirstOrDefault(k => k.SDT.Trim() == sdt);
+            var khachHang = db.KHACHHANGs
+                .Include(k => k.TAIKHOAN)
+                .Include(k => k.TAIKHOAN.VAITROes)
+                .FirstOrDefault(k => k.TAIKHOAN != null && k.TAIKHOAN.SDT.Trim() == sdt);
+
             if (khachHang == null)
             {
-                var allKhIds = db.KHACHHANGs.Select(k => k.MA_KHACH).ToList();
+                var allKhIds = db.KHACHHANGs.Select(k => k.MA_KHACHHANG).ToList();
                 int maxKhId = 0;
                 foreach (var id in allKhIds)
                 {
@@ -44,15 +48,29 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 }
                 string newMaKhach = "KH" + (maxKhId + 1).ToString("D3");
 
-                khachHang = new KHACHHANG
+                var tk = new TAIKHOAN
                 {
-                    MA_KHACH = newMaKhach,
+                    MA_TAIKHOAN = newMaKhach,
                     HOTEN = string.IsNullOrWhiteSpace(hoTen) ? "Khách vãng lai" : hoTen.Trim(),
                     SDT = sdt,
                     EMAIL = string.IsNullOrWhiteSpace(email) ? (sdt + "@cineverse.vn") : email.Trim(),
                     MATKHAU = "123456",
-                    VAITRO = "KhachHang",
-                    NGAYTAO = DateTime.Now
+                    NGAYTAO = DateTime.Now,
+                    TRANGTHAI = "HoatDong"
+                };
+
+                var vaiTro = db.VAITROes.FirstOrDefault(v => v.MA_VAITRO.Trim() == "KhachHang" || v.TEN_VAITRO.Trim() == "KhachHang");
+                if (vaiTro != null)
+                {
+                    tk.VAITROes.Add(vaiTro);
+                }
+
+                db.TAIKHOANs.Add(tk);
+
+                khachHang = new KHACHHANG
+                {
+                    MA_KHACHHANG = newMaKhach,
+                    TAIKHOAN = tk
                 };
                 db.KHACHHANGs.Add(khachHang);
                 db.SaveChanges(); // Save to get the customer available for later
@@ -64,20 +82,32 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
         {
             if (string.IsNullOrEmpty(phone)) return null;
             string trimmed = phone.Trim();
-            return db.KHACHHANGs.FirstOrDefault(k => k.SDT.Trim() == trimmed);
+            return db.KHACHHANGs
+                .Include(k => k.TAIKHOAN)
+                .Include(k => k.TAIKHOAN.VAITROes)
+                .FirstOrDefault(k => k.TAIKHOAN != null && k.TAIKHOAN.SDT.Trim() == trimmed);
         }
 
         public KHACHHANG GetCustomerById(string id)
         {
             if (string.IsNullOrEmpty(id)) return null;
             string trimmed = id.Trim();
-            return db.KHACHHANGs.FirstOrDefault(k => k.MA_KHACH.Trim() == trimmed);
+            return db.KHACHHANGs
+                .Include(k => k.TAIKHOAN)
+                .Include(k => k.TAIKHOAN.VAITROes)
+                .FirstOrDefault(k => k.MA_KHACHHANG.Trim() == trimmed);
         }
 
         public List<VE> GetBookingHistory(string maKhach)
         {
+            string trimmed = maKhach?.Trim() ?? "";
             return db.VEs
-                .Where(v => v.DONHANG.MA_KHACH == maKhach)
+                .Include(v => v.DONHANG)
+                .Include(v => v.LICHCHIEU.PHIM)
+                .Include(v => v.LICHCHIEU.KHUNGGIO)
+                .Include(v => v.LICHCHIEU.PHONGCHIEU.RAPCHIEU)
+                .Include(v => v.GHE.LOAIGHE)
+                .Where(v => v.DONHANG != null && v.DONHANG.MA_KHACHHANG.Trim() == trimmed)
                 .OrderByDescending(v => v.DONHANG.NGAYDAT)
                 .ToList();
         }
@@ -86,8 +116,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
         {
             if (string.IsNullOrEmpty(maKmId)) return null;
 
+            string trimmed = maKmId.Trim();
             var khuyenMai = db.KHUYENMAIs.FirstOrDefault(k =>
-                k.MA_KM == maKmId &&
+                k.MA_KM.Trim() == trimmed &&
                 k.TRANGTHAI == "HoatDong" &&
                 k.NGAYBATDAU <= DateTime.Now &&
                 k.NGAYKETTHUC >= DateTime.Now);
@@ -147,13 +178,13 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             decimal tongTienSauGiam = tongTienGoc - soTienGiam;
             if (tongTienSauGiam < 0) tongTienSauGiam = 0;
 
-            string maKhach = khachHang.MA_KHACH.Trim();
+            string maKhach = khachHang.MA_KHACHHANG.Trim();
             string maLichChieu = lichChieu.MA_LICHCHIEU.Trim();
 
             DONHANG donHang = new DONHANG
             {
                 MA_DONHANG = maDonHang,
-                MA_KHACH = maKhach,
+                MA_KHACHHANG = maKhach,
                 MA_LICHCHIEU = maLichChieu,
                 MA_KM = !string.IsNullOrEmpty(khuyenMai?.MA_KM) ? khuyenMai.MA_KM.Trim() : null,
                 NGAYDAT = DateTime.Now,

@@ -17,8 +17,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public RAPCHIEU()
         {
-            this.PHONGCHIEUx = new HashSet<PHONGCHIEU>();
             this.NHANVIENs = new HashSet<NHANVIEN>();
+            this.PHONGCHIEUx = new HashSet<PHONGCHIEU>();
         }
     
         public string MA_RAP { get; set; }
@@ -27,8 +27,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public Nullable<int> SO_PHONG_TOIDA { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PHONGCHIEU> PHONGCHIEUx { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<NHANVIEN> NHANVIENs { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PHONGCHIEU> PHONGCHIEUx { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
     public class HomeController : Controller
     {
-        private QL_VEPHIM2Entities data = new QL_VEPHIM2Entities();
+        private QL_VEPHIMEntities data = new QL_VEPHIMEntities();
         public ActionResult TrangChu()
         {
             List<PHIM> dangChieu = data.PHIMs.Where(p => p.TRANGTHAI == "Đang chiếu").Take(5).ToList();

@@ -70,7 +70,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             if (Session["KhachHang"] != null)
             {
                 var sessionKh = Session["KhachHang"] as KHACHHANG;
-                khachHang = bookingService.GetCustomerById(sessionKh.MA_KHACH);
+                khachHang = bookingService.GetCustomerById(sessionKh.MA_KHACHHANG);
             }
 
             if (khachHang == null)
@@ -123,7 +123,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
 
             var sessionKh = Session["KhachHang"] as KHACHHANG;
-            var veList = bookingService.GetBookingHistory(sessionKh.MA_KHACH);
+            var veList = bookingService.GetBookingHistory(sessionKh.MA_KHACHHANG);
 
             return View(veList);
         }

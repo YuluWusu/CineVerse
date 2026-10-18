@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="e3fe7fc35da544ddb84f802b125e5149" Name="Diagram1">
+        <EntityTypeShape EntityType="QL_VEPHIMModel.DONHANG" Width="1.5" PointX="5.25" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.DONHANG_MONAN" Width="1.5" PointX="7.5" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.GHE" Width="1.5" PointX="8.25" PointY="13.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.KHACHHANG" Width="1.5" PointX="3" PointY="6" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.KHUNGGIO" Width="1.5" PointX="0.75" PointY="19.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.KHUYENMAI" Width="1.5" PointX="3" PointY="15" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.LICHCHIEU" Width="1.5" PointX="3" PointY="22.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.LOAIGHE" Width="1.5" PointX="6" PointY="14" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.MONAN" Width="1.5" PointX="5.25" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.NHANVIEN" Width="1.5" PointX="6" PointY="9.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.PHIM" Width="1.5" PointX="0.75" PointY="21.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.PHONGCHIEU" Width="1.5" PointX="0.75" PointY="25.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.RAPCHIEU" Width="1.5" PointX="1.5" PointY="30.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.TAIKHOAN" Width="1.5" PointX="0.75" PointY="6.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.THELOAI" Width="1.5" PointX="3" PointY="19.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.VAITRO" Width="1.5" PointX="3" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="QL_VEPHIMModel.VE" Width="1.5" PointX="10.5" PointY="5.5" IsExpanded="true" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__DONHANG__MA_KHAC__70DDC3D8" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__DONHANG__MA_KM__73BA3083" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__DONHANG__MA_LICH__72C60C4A" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__DONHANG__MA_NHAN__71D1E811" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__DONHANG_M__MA_DO__00200768" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__VE__MA_DONHANG__7A672E12" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__DONHANG_M__MA_MO__01142BA1" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__GHE__MA_LOAIGHE__60A75C0F" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__GHE__MA_PHONG__5FB337D6" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__VE__MA_GHE__7C4F7684" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__KHACHHANG__MA_KH__3B75D760" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__LICHCHIEU__MA_KH__6754599E" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__LICHCHIEU__MA_PH__656C112C" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__LICHCHIEU__MA_PH__66603565" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__VE__MA_LICHCHIEU__7B5B524B" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__NHANVIEN__MA_NHA__4E88ABD4" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__NHANVIEN__MA_RAP__4F7CD00D" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.FK__PHONGCHIE__MA_RA__5812160E" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.PHIM_THELOAI" ManuallyRouted="false" />
+        <AssociationConnector Association="QL_VEPHIMModel.TAIKHOAN_VAITRO" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

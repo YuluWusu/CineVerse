@@ -7,14 +7,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 {
     public class CinemaService
     {
-        private QL_VEPHIM2Entities db;
+        private QL_VEPHIMEntities db;
 
         public CinemaService()
         {
-            this.db = new QL_VEPHIM2Entities();
+            this.db = new QL_VEPHIMEntities();
         }
 
-        public CinemaService(QL_VEPHIM2Entities dbContext)
+        public CinemaService(QL_VEPHIMEntities dbContext)
         {
             this.db = dbContext;
         }

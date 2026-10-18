@@ -9,7 +9,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
     public class MoviesController : Controller
     {
         // GET: Movies
-        QL_VEPHIM2Entities data = new QL_VEPHIM2Entities();
+        QL_VEPHIMEntities data = new QL_VEPHIMEntities();
         public ActionResult DanhSachPhim(string trangthai = null, string search = null)
         {
             var query = data.PHIMs.AsQueryable();

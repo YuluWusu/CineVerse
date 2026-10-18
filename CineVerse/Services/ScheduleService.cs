@@ -8,14 +8,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 {
     public class ScheduleService
     {
-        private QL_VEPHIM2Entities db;
+        private QL_VEPHIMEntities db;
 
         public ScheduleService()
         {
-            this.db = new QL_VEPHIM2Entities();
+            this.db = new QL_VEPHIMEntities();
         }
 
-        public ScheduleService(QL_VEPHIM2Entities dbContext)
+        public ScheduleService(QL_VEPHIMEntities dbContext)
         {
             this.db = dbContext;
         }

@@ -17,8 +17,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public LICHCHIEU()
         {
-            this.VEs = new HashSet<VE>();
             this.DONHANGs = new HashSet<DONHANG>();
+            this.VEs = new HashSet<VE>();
         }
     
         public string MA_LICHCHIEU { get; set; }
@@ -28,12 +28,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public System.DateTime NGAYCHIEU { get; set; }
         public Nullable<decimal> GIATVE_PHUTROI { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DONHANG> DONHANGs { get; set; }
         public virtual KHUNGGIO KHUNGGIO { get; set; }
         public virtual PHIM PHIM { get; set; }
         public virtual PHONGCHIEU PHONGCHIEU { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<VE> VEs { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<DONHANG> DONHANGs { get; set; }
     }
 }

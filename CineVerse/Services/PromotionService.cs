@@ -8,14 +8,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 {
     public class PromotionService
     {
-        private QL_VEPHIM2Entities db;
+        private QL_VEPHIMEntities db;
 
         public PromotionService()
         {
-            this.db = new QL_VEPHIM2Entities();
+            this.db = new QL_VEPHIMEntities();
         }
 
-        public PromotionService(QL_VEPHIM2Entities dbContext)
+        public PromotionService(QL_VEPHIMEntities dbContext)
         {
             this.db = dbContext;
         }

@@ -20,16 +20,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
             this.DONHANGs = new HashSet<DONHANG>();
         }
     
-        public string MA_KHACH { get; set; }
-        public string HOTEN { get; set; }
-        public string SDT { get; set; }
+        public string MA_KHACHHANG { get; set; }
         public string CCCD { get; set; }
-        public string EMAIL { get; set; }
-        public string MATKHAU { get; set; }
-        public string VAITRO { get; set; }
-        public Nullable<System.DateTime> NGAYTAO { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DONHANG> DONHANGs { get; set; }
+        public virtual TAIKHOAN TAIKHOAN { get; set; }
     }
 }
