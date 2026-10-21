@@ -54,7 +54,7 @@
                     foreach (var kg in Model)
                     {
                         var thoiLuong = kg.GIOKETTHUC - kg.GIOBATDAU;
-                        var soLich = kg.LICHCHIEUx?.Count ?? 0;
+                        //var soLich = (kg.LICHCHIEUX == null) ? 0 : kg.LICHCHIEUX.Count;
                         <tr>
                             <td><span class="badge bg-secondary">@kg.MA_KHUNGGIO</span></td>
                             <td>
@@ -71,7 +71,7 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="badge bg-dark border">@soLich lịch chiếu</span>
+                                <span class="badge bg-dark border"> lịch chiếu</span>
                             </td>
                             <td class="text-end">
                                 <a href="/Admin/SuaKhungGio/@kg.MA_KHUNGGIO" class="btn btn-sm btn-outline-warning me-1">

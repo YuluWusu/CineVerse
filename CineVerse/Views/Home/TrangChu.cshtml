@@ -666,7 +666,7 @@
                 </div>
                 <h1 class="hero-title">@phim.TEN_PHIM</h1>
                 <div class="hero-meta">
-                    <span class="badge-age badge-@(phim.GIOI_HAN_TUOI?.ToLower().Replace(" ", ""))"
+                    <span class="badge-age badge-@(phim.GIOI_HAN_TUOI.ToLower().Replace(" ", ""))"
                           style="padding: 2px 8px; border-radius: 4px; font-weight: bold;">
                         @phim.GIOI_HAN_TUOI
                     </span>
@@ -741,7 +741,7 @@
                             <div class="btn-play"><i class="bi bi-play-fill"></i></div>
                         </div>
                         <div class="movie-badge-wrap">
-                            <span class="badge-age badge-@(phim.GIOI_HAN_TUOI?.ToLower().Replace(" ", ""))"
+                            <span class="badge-age badge-@(phim.GIOI_HAN_TUOI.ToLower().Replace(" ", ""))"
                                   style="padding: 2px 8px; border-radius: 4px; font-weight: bold;">
                                 @phim.GIOI_HAN_TUOI
                             </span>

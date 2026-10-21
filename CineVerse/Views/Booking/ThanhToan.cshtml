@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_Khung.cshtml";
     var lichChieu = ViewBag.LichChieu as DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU;
     var selectedSeatsList = ViewBag.SelectedSeatsList as string[];
+    var danhSachMon = ViewBag.DanhSachMon as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.MONAN>;
 }
 @model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.GHE>
 
@@ -39,6 +40,7 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 30px;
+            margin-bottom: 20px;
         }
 
         .card-title {
@@ -54,12 +56,12 @@
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: var(--text-muted);
+            }
 
         .form-control {
             width: 100%;
@@ -71,11 +73,11 @@
             font-size: 15px;
         }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: rgba(255,255,255,0.08);
-        }
+            .form-control:focus {
+                outline: none;
+                border-color: var(--accent);
+                background: rgba(255,255,255,0.08);
+            }
 
         /* Tóm tắt đơn hàng */
         .summary-item {
@@ -85,11 +87,11 @@
             font-size: 15px;
         }
 
-        .summary-item.movie-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #fff;
-        }
+            .summary-item.movie-title {
+                font-size: 18px;
+                font-weight: bold;
+                color: #fff;
+            }
 
         .summary-label {
             color: var(--text-muted);
@@ -155,13 +157,53 @@
             transition: all 0.2s;
         }
 
-        .btn-submit:hover {
-            background: var(--accent-dim);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(232,184,75,0.3);
+            .btn-submit:hover {
+                background: var(--accent-dim);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(232,184,75,0.3);
+            }
+
+        /* Món ăn / Bắp nước */
+        .food-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
         }
 
-        /* === KHUYẾN MÃI === */
+            .food-item:last-child {
+                border-bottom: none;
+            }
+
+        .food-info {
+            flex: 1;
+        }
+
+        .food-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .food-price {
+            color: var(--accent);
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .food-qty-input {
+            width: 70px;
+            text-align: center;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        /* Khuyến mãi */
         .promo-section {
             margin-top: 18px;
             background: rgba(232,184,75,.05);
@@ -169,6 +211,7 @@
             border-radius: 10px;
             padding: 14px;
         }
+
         .promo-label {
             font-size: 13px;
             color: var(--accent);
@@ -176,34 +219,25 @@
             margin-bottom: 10px;
         }
 
-/*        Khuyễn mãi*/
         .promo-input-wrap {
             display: flex;
             gap: 8px;
             width: 100%;
-            box-sizing: border-box;
         }
 
             .promo-input-wrap input {
                 flex: 1;
-                min-width: 0;
                 background: rgba(255,255,255,.06);
                 border: 1px solid var(--border);
                 color: #fff;
                 padding: 9px 12px;
                 border-radius: 7px;
                 font-size: 13px;
-                letter-spacing: .05em;
                 font-weight: 700;
+                text-transform: uppercase;
             }
 
-                .promo-input-wrap input:focus {
-                    outline: none;
-                    border-color: var(--accent);
-                }
-
             .promo-input-wrap button {
-                flex-shrink: 0; 
                 background: var(--accent);
                 color: #000;
                 border: none;
@@ -212,18 +246,7 @@
                 font-weight: 700;
                 font-size: 13px;
                 cursor: pointer;
-                transition: background .2s;
-                white-space: nowrap;
             }
-
-                .promo-input-wrap button:hover {
-                    background: var(--accent-dim);
-                }
-
-                .promo-input-wrap button:disabled {
-                    opacity: .5;
-                    cursor: not-allowed;
-                }
 
         .promo-msg {
             margin-top: 8px;
@@ -239,13 +262,12 @@
                 color: #e84b4b;
             }
 
-      
         .voucher-list {
             margin-top: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 180px;
+            max-height: 160px;
             overflow-y: auto;
         }
 
@@ -253,52 +275,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px; 
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(232, 184, 75, 0.25);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(232,184,75,0.25);
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 8px 10px;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-            .voucher-item:hover {
-                background: rgba(232, 184, 75, 0.1);
-                border-color: var(--accent);
-            }
-
-        .voucher-info {
-            flex: 1;
-            min-width: 0;
         }
 
         .voucher-code {
-            display: inline-block;
             font-weight: 700;
             color: var(--accent);
             font-size: 12px;
-            background: rgba(232, 184, 75, 0.15);
+            background: rgba(232,184,75,0.15);
             padding: 2px 6px;
             border-radius: 4px;
         }
 
-        .voucher-desc {
-            font-size: 11.5px;
-            color: #aaa;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-
         .voucher-use-btn {
-            flex-shrink: 0; 
-            background: rgba(75, 232, 124, 0.15);
-            border: 1px solid rgba(75, 232, 124, 0.4);
+            background: rgba(75,232,124,0.15);
+            border: 1px solid rgba(75,232,124,0.4);
             color: #4be87c;
-            padding: 5px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            white-space: nowrap;
         }
     </style>
 }
@@ -306,145 +306,173 @@
 <div class="checkout-container">
     <div class="container">
         <h1 class="checkout-title">XÁC NHẬN THÔNG TIN ĐẶT VÉ</h1>
-        
-        <form action="/Booking/XuLyThanhToan" method="post">
+
+        <form action="/Booking/XuLyThanhToan" method="post" id="checkoutForm">
             <input type="hidden" name="maLichChieu" value="@lichChieu.MA_LICHCHIEU" />
             <input type="hidden" name="selectedSeats" value="@string.Join(",", selectedSeatsList)" />
 
             <div class="checkout-grid">
-                
-                <div class="checkout-card">
-                    <h3 class="card-title">Thông tin người đặt</h3>
-                    @{
-                        string hoTenVal = "";
-                        string sdtVal = "";
-                        string emailVal = "";
-                        bool isReadonly = false;
-                        if (Session["KhachHang"] != null)
-                        {
-                            var kh = Session["KhachHang"] as DoAn_QuanLyVeXemPhimTrucTiep.Models.KHACHHANG;
-                            hoTenVal = kh.HOTEN;
-                            sdtVal = kh.SDT;
-                            emailVal = kh.EMAIL;
-                            isReadonly = true;
-                        }
-                    }
-                    <div class="form-group">
-                        <label for="hoTen">Họ và Tên *</label>
-                        <input style="color:white;" type="text" class="form-control" id="hoTen" name="hoTen" value="@hoTenVal" required placeholder="Nhập họ và tên đầy đủ" @(isReadonly ? "readonly" : "") />
-                    </div>
-                    <div class="form-group">
-                        <label for="soDienThoai">Số điện thoại *</label>
-                        <input style="color:white;" type="tel" class="form-control" id="soDienThoai" name="soDienThoai" value="@sdtVal" required placeholder="Nhập số điện thoại" @(isReadonly ? "readonly" : "") />
-                    </div>
-                    <div class="form-group">
-                        <label for="Email">Email *</label>
-                        <input style="color:white;" type="text" class="form-control" id="Email" name="Email" value="@emailVal" required placeholder="Nhập Email" @(isReadonly ? "readonly" : "") />
-                    </div>
-                    <p style="color: var(--text-muted); font-size: 13px; margin-top: 20px;">
-                        <i class="bi bi-info-circle"></i> Vui lòng kiểm tra thông tin chính xác để nhận mã vé.
-                    </p>
-                </div>
 
-                <div class="checkout-card">
-                    <h3 class="card-title">Tóm tắt đơn hàng</h3>
-
-                    <div class="summary-item movie-title">
-                        <span>@lichChieu.PHIM.TEN_PHIM</span>
-                    </div>
-
-                    <div class="summary-item">
-                        <span class="summary-label">Rạp:</span>
-                        <span class="summary-value">@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</span>
-                    </div>
-
-                    <div class="summary-item">
-                        <span class="summary-label">Suất chiếu:</span>
-                        <span class="summary-value">@lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") | @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</span>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="summary-item">
-                        <span class="summary-label">Ghế chọn (@Model.Count vé):</span>
-                        <div class="summary-value">
-                            <div class="seats-list">
-                                @foreach (var ghe in Model)
-                                {
-                                    <span class="seat-badge">@ghe.SOGHE</span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    @{
-                        decimal tongPhuThu = (lichChieu.GIATVE_PHUTROI ?? 0) * Model.Count;
-                        decimal tongGiaGhe = Model.Sum(g => g.LOAIGHE.GIATVE);
-                        decimal tongTien = tongGiaGhe + tongPhuThu;
-                    }
-
-                    <div class="divider"></div>
-
-                    <div class="total-row">
-                        <span class="total-label">Tổng thanh toán:</span>
-                        <span class="total-amount" id="totalDisplay">@String.Format("{0:0,0}", tongTien)đ</span>
-                    </div>
-
-                
-                    <!-- Khuyến mãi -->
-                    <div class="promo-section">
-                        <div class="promo-label"><i class="bi bi-tag-fill me-1"></i> Mã Khuyến Mãi</div>
-                        <div class="promo-input-wrap">
-                            <input type="text" id="promoCodeInput" placeholder="Nhập hoặc chọn mã bên dưới..."
-                                   style="text-transform:uppercase;" maxlength="20" />
-                            <button type="button" id="btnApplyPromo" onclick="applyPromo()">Áp dụng</button>
-                        </div>
-                        <div id="promoMsg" class="promo-msg"></div>
-
+                <!-- Cột trái: Thông tin khách hàng & Bắp nước -->
+                <div>
+                    <div class="checkout-card">
+                        <h3 class="card-title"><i class="bi bi-person-fill me-2"></i>Thông tin người đặt</h3>
                         @{
-                            var dsKhuyenMai = ViewBag.DanhSachKM as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.KHUYENMAI>;
+                            string hoTenVal = "";
+                            string sdtVal = "";
+                            string emailVal = "";
+                            bool isReadonly = false;
+                            if (Session["KhachHang"] != null)
+                            {
+                                var kh = Session["KhachHang"] as DoAn_QuanLyVeXemPhimTrucTiep.Models.KHACHHANG;
+                                hoTenVal = kh.HOTEN;
+                                sdtVal = kh.SDT;
+                                emailVal = kh.EMAIL;
+                                isReadonly = true;
+                            }
                         }
-                        @if (dsKhuyenMai != null && dsKhuyenMai.Any())
-                        {
-                            <div class="voucher-list">
-                                @foreach (var km in dsKhuyenMai)
+                        <div class="form-group">
+                            <label for="hoTen">Họ và Tên *</label>
+                            <input type="text" class="form-control" id="hoTen" name="hoTen" value="@hoTenVal" required placeholder="Nhập họ và tên đầy đủ" @(isReadonly ? "readonly" : "") />
+                        </div>
+                        <div class="form-group">
+                            <label for="soDienThoai">Số điện thoại *</label>
+                            <input type="tel" class="form-control" id="soDienThoai" name="soDienThoai" value="@sdtVal" required placeholder="Nhập số điện thoại" @(isReadonly ? "readonly" : "") />
+                        </div>
+                        <div class="form-group">
+                            <label for="Email">Email *</label>
+                            <input type="text" class="form-control" id="Email" name="Email" value="@emailVal" required placeholder="Nhập Email" @(isReadonly ? "readonly" : "") />
+                        </div>
+                    </div>
+
+                    <!-- Khối chọn Bắp Nước -->
+                    @if (danhSachMon != null && danhSachMon.Any())
+                    {
+                        <div class="checkout-card">
+                            <h3 class="card-title"><i class="bi bi-cup-straw me-2"></i>Chọn Bắp Nước & Đồ Ăn Kèm</h3>
+                            <div class="food-list">
+                                @foreach (var mon in danhSachMon)
                                 {
-                                    <div class="voucher-item" onclick="selectPromo('@km.MA_CODE')">
-                                        <div class="voucher-info">
-                                            <span class="voucher-code">@km.MA_CODE</span>
-                                            <span style="font-size:13px; color:#fff; font-weight:600; margin-left:6px;">@km.TEN_KM</span>
-                                            <div class="voucher-desc">
-                                                Giảm @km.GIAMGIA_PHANTRAM%
-                                                @(km.GIAMGIA_TOIDA.HasValue ? string.Format("(Tối đa {0:0,0}đ)", km.GIAMGIA_TOIDA.Value) : "")
-                                                • HSD: @km.NGAYKETTHUC.ToString("dd/MM/yyyy")
-                                            </div>
+                                    <div class="food-item">
+                                        <div class="food-info">
+                                            <div class="food-name">@mon.TEN_MON</div>
+                                            <div class="food-price">@String.Format("{0:0,0}", mon.GIA)đ</div>
                                         </div>
-                                        <span class="voucher-use-btn">Áp dụng ngay</span>
+                                        <input type="number" min="0" max="10" value="0"
+                                               class="food-qty-input food-qty"
+                                               name="mon_@mon.MA_MON.Trim()"
+                                               data-price="@mon.GIA"
+                                               onchange="tinhTien()" onkeyup="tinhTien()" />
                                     </div>
                                 }
                             </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Cột phải: Tóm tắt đơn hàng & Thanh toán -->
+                <div>
+                    <div class="checkout-card">
+                        <h3 class="card-title">Tóm tắt đơn hàng</h3>
+
+                        <div class="summary-item movie-title">
+                            <span>@lichChieu.PHIM.TEN_PHIM</span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="summary-label">Rạp:</span>
+                            <span class="summary-value">@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="summary-label">Suất chiếu:</span>
+                            <span class="summary-value">@lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") | @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</span>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="summary-item">
+                            <span class="summary-label">Ghế chọn (@Model.Count vé):</span>
+                            <div class="summary-value">
+                                <div class="seats-list">
+                                    @foreach (var ghe in Model)
+                                    {
+                                        <span class="seat-badge">@ghe.SOGHE</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @{
+                            decimal tongPhuThu = (lichChieu.GIATVE_PHUTROI ?? 0) * Model.Count;
+                            decimal tongGiaGhe = Model.Sum(g => g.LOAIGHE.GIATVE);
+                            decimal tongTienVe = tongGiaGhe + tongPhuThu;
                         }
 
-                        <input type="hidden" name="maCodeKhuyenMai" id="hdMaCode" value="" />
-                        <input type="hidden" name="maKmId" id="hdMaKmId" value="" />
-                        <input type="hidden" id="hdTongGoc" value="@tongTien" />
-                    </div>
+                        <input type="hidden" id="hdTongTienVe" value="@tongTienVe" />
 
-                    <div id="discountRow" class="summary-item" style="display:none;">
-                        <span class="summary-label" style="color:#4be87c;"><i class="bi bi-gift me-1"></i>Khuyến mãi:</span>
-                        <span class="summary-value" style="color:#4be87c;" id="discountAmt">-0đ</span>
-                    </div>
-
-                    <div id="finalTotalWrap" style="display:none;">
-                        <div class="divider"></div>
-                        <div class="total-row">
-                            <span class="total-label">Thực thanh toán:</span>
-                            <span class="total-amount" id="finalDisplay" style="color:#4be87c;"></span>
+                        <!-- Dòng hiển thị tiền bắp nước -->
+                        <div id="foodRow" class="summary-item" style="display:none;">
+                            <span class="summary-label">Bắp nước:</span>
+                            <span class="summary-value" id="foodAmt">0đ</span>
                         </div>
-                    </div>
 
-                    <button type="submit" class="btn-submit">THANH TOÁN NGAY</button>
+                        <div class="divider"></div>
+
+                        <div class="total-row">
+                            <span class="total-label">Tổng thanh toán:</span>
+                            <span class="total-amount" id="totalDisplay">@String.Format("{0:0,0}", tongTienVe)đ</span>
+                        </div>
+
+                        <!-- Khuyến mãi -->
+                        <div class="promo-section">
+                            <div class="promo-label"><i class="bi bi-tag-fill me-1"></i> Mã Khuyến Mãi</div>
+                            <div class="promo-input-wrap">
+                                <input type="text" id="promoCodeInput" placeholder="Nhập mã..." style="text-transform:uppercase;" maxlength="20" />
+                                <button type="button" id="btnApplyPromo" onclick="applyPromo()">Áp dụng</button>
+                            </div>
+                            <div id="promoMsg" class="promo-msg"></div>
+
+                            @{
+                                var dsKhuyenMai = ViewBag.DanhSachKM as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.KHUYENMAI>;
+                            }
+                            @if (dsKhuyenMai != null && dsKhuyenMai.Any())
+                            {
+                                <div class="voucher-list">
+                                    @foreach (var km in dsKhuyenMai)
+                                    {
+                                        <div class="voucher-item" onclick="selectPromo('@km.MA_CODE')">
+                                            <div>
+                                                <span class="voucher-code">@km.MA_CODE</span>
+                                                <span style="font-size:12px; color:#fff; margin-left:4px;">@km.TEN_KM</span>
+                                            </div>
+                                            <span class="voucher-use-btn">Dùng ngay</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            <input type="hidden" name="maCodeKhuyenMai" id="hdMaCode" value="" />
+                            <input type="hidden" name="maKmId" id="hdMaKmId" value="" />
+                        </div>
+
+                        <div id="discountRow" class="summary-item" style="display:none; margin-top:15px;">
+                            <span class="summary-label" style="color:#4be87c;"><i class="bi bi-gift me-1"></i>Khuyến mãi:</span>
+                            <span class="summary-value" style="color:#4be87c;" id="discountAmt">-0đ</span>
+                        </div>
+
+                        <div id="finalTotalWrap" style="display:none;">
+                            <div class="divider"></div>
+                            <div class="total-row">
+                                <span class="total-label">Thực thanh toán:</span>
+                                <span class="total-amount" id="finalDisplay" style="color:#4be87c;"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit">THANH TOÁN NGAY</button>
+                    </div>
                 </div>
+
             </div>
         </form>
     </div>
@@ -455,6 +483,40 @@
         return n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + 'đ';
     }
 
+    // Tính tổng tiền động gồm (Tiền vé + Tiền bắp nước)
+    function tinhTien() {
+        var tongTienVe = parseFloat(document.getElementById('hdTongTienVe').value);
+        var tongTienFood = 0;
+
+        var foodInputs = document.querySelectorAll('.food-qty');
+        foodInputs.forEach(function (inp) {
+            var qty = parseInt(inp.value) || 0;
+            var price = parseFloat(inp.getAttribute('data-price')) || 0;
+            if (qty > 0) {
+                tongTienFood += qty * price;
+            }
+        });
+
+        // Hiển thị tiền bắp nước nếu > 0
+        var foodRow = document.getElementById('foodRow');
+        var foodAmt = document.getElementById('foodAmt');
+        if (tongTienFood > 0) {
+            foodRow.style.display = 'flex';
+            foodAmt.textContent = formatMoney(tongTienFood);
+        } else {
+            foodRow.style.display = 'none';
+        }
+
+        var tongCong = tongTienVe + tongTienFood;
+        document.getElementById('totalDisplay').textContent = formatMoney(tongCong);
+
+        // Nếu đang áp dụng mã giảm giá, cần tính lại mã giảm giá theo tổng tiền mới
+        var appliedCode = document.getElementById('hdMaCode').value;
+        if (appliedCode) {
+            applyPromo(); // Tự động check lại mã giảm giá với tổng tiền mới
+        }
+    }
+
     function selectPromo(code) {
         document.getElementById('promoCodeInput').value = code;
         applyPromo();
@@ -462,7 +524,17 @@
 
     function applyPromo() {
         var code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
-        var tongGoc = parseFloat(document.getElementById('hdTongGoc').value);
+
+        // Tính lại tổng gốc (Vé + Bắp nước)
+        var tongTienVe = parseFloat(document.getElementById('hdTongTienVe').value);
+        var tongTienFood = 0;
+        document.querySelectorAll('.food-qty').forEach(function (inp) {
+            var qty = parseInt(inp.value) || 0;
+            var price = parseFloat(inp.getAttribute('data-price')) || 0;
+            if (qty > 0) { tongTienFood += qty * price; }
+        });
+        var tongGoc = tongTienVe + tongTienFood;
+
         var msg = document.getElementById('promoMsg');
         var btn = document.getElementById('btnApplyPromo');
 
@@ -481,34 +553,33 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'maCode=' + encodeURIComponent(code) + '&tongTien=' + tongGoc
         })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            btn.disabled = false;
-            if (data.success) {
-                msg.className = 'promo-msg success';
-                msg.textContent = data.message;
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                btn.disabled = false;
+                if (data.success) {
+                    msg.className = 'promo-msg success';
+                    msg.textContent = data.message;
 
-                document.getElementById('hdMaCode').value = code;
-                document.getElementById('hdMaKmId').value = data.maKm;
+                    document.getElementById('hdMaCode').value = code;
+                    document.getElementById('hdMaKmId').value = data.maKm;
 
-                // Hiển thị discount
-                document.getElementById('discountRow').style.display = 'flex';
-                document.getElementById('discountAmt').textContent = '-' + formatMoney(data.soTienGiam);
-                document.getElementById('finalTotalWrap').style.display = 'block';
-                document.getElementById('finalDisplay').textContent = formatMoney(data.tongSauGiam);
-                document.getElementById('btnApplyPromo').textContent = 'Đã áp dụng ✓';
-                document.getElementById('btnApplyPromo').style.background = '#4be87c';
-            } else {
+                    document.getElementById('discountRow').style.display = 'flex';
+                    document.getElementById('discountAmt').textContent = '-' + formatMoney(data.soTienGiam);
+                    document.getElementById('finalTotalWrap').style.display = 'block';
+                    document.getElementById('finalDisplay').textContent = formatMoney(data.tongSauGiam);
+                    document.getElementById('btnApplyPromo').textContent = 'Đã áp dụng ✓';
+                    document.getElementById('btnApplyPromo').style.background = '#4be87c';
+                } else {
+                    msg.className = 'promo-msg error';
+                    msg.textContent = data.message;
+                    clearPromo();
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
                 msg.className = 'promo-msg error';
-                msg.textContent = data.message;
-                clearPromo();
-            }
-        })
-        .catch(function() {
-            btn.disabled = false;
-            msg.className = 'promo-msg error';
-            msg.textContent = 'Có lỗi xảy ra. Vui lòng thử lại.';
-        });
+                msg.textContent = 'Có lỗi xảy ra.';
+            });
     }
 
     function clearPromo() {
@@ -518,8 +589,7 @@
         document.getElementById('finalTotalWrap').style.display = 'none';
     }
 
-    // Khi xóa code thì reset
-    document.getElementById('promoCodeInput').addEventListener('input', function() {
+    document.getElementById('promoCodeInput').addEventListener('input', function () {
         if (this.value === '') {
             clearPromo();
             document.getElementById('promoMsg').textContent = '';
@@ -528,8 +598,7 @@
         }
     });
 
-    // Enter để áp dụng
-    document.getElementById('promoCodeInput').addEventListener('keydown', function(e) {
+    document.getElementById('promoCodeInput').addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
     });
 </script>

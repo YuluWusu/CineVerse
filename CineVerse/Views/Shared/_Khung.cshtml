@@ -385,10 +385,10 @@
             </a>
 
             <ul class="cv-nav-links">
-                <li><a href="/Home/TrangChu" class="@(ViewData["ActivePage"]?.ToString() == "Home" ? "active" : "")">Trang chủ</a></li>
-                <li><a href="/Movies/DanhSachPhim" class="@(ViewData["ActivePage"]?.ToString() == "Movies" ? "active" : "")">Phim</a></li>
-                <li><a href="/Movies/LichChieuChung" class="@(ViewData["ActivePage"]?.ToString() == "Schedule" ? "active" : "")">Lịch chiếu</a></li>
-                <li><a href="/Home/GioiThieu" class="@(ViewData["ActivePage"]?.ToString() == "About" ? "active" : "")">Giới thiệu</a></li>
+                <li><a href="/Home/TrangChu" class="@(ViewData["ActivePage"] as string == "Home" ? "active" : "")">Trang chủ</a></li>
+                <li><a href="/Movies/DanhSachPhim" class="@(ViewData["ActivePage"] as string == "Movies" ? "active" : "")">Phim</a></li>
+                <li><a href="/Movies/LichChieuChung" class="@(ViewData["ActivePage"] as string == "Schedule" ? "active" : "")">Lịch chiếu</a></li>
+                <li><a href="/Home/GioiThieu" class="@(ViewData["ActivePage"] as string == "About" ? "active" : "")">Giới thiệu</a></li>
             </ul>
 
             <form action="/Movies/DanhSachPhim" method="get" class="cv-search" style="margin: 0 0 0 auto;">
@@ -411,6 +411,14 @@
                             <a href="/Account/HoSo" class="btn-ghost" style="padding: 5px 10px; font-size: 12px;" title="Hồ sơ cá nhân"><i class="bi bi-person-circle"></i></a>
                             <a href="/Booking/LichSuVe" class="btn-ghost" style="padding: 5px 10px; font-size: 12px;" title="Lịch sử vé"><i class="bi bi-clock-history"></i></a>
                         }
+                        <a href="/Account/DangXuat" class="btn-ghost" style="padding: 5px 10px; font-size: 12px;">Đăng xuất</a>
+                    </div>
+                }
+                else if ((Session["VaiTro"] as string) == "NHANVIEN")
+                {
+                    <div style="display:flex; align-items:center; gap: 15px;">
+                        <span style="color: var(--accent); font-weight: 600; margin-right: 10px;">@(Session["NhanVienTen"] as string)</span>
+                        <a href="/NhanVien/Index" class="btn-ghost" style="padding: 5px 10px; font-size: 12px;">Quầy nhân viên</a>
                         <a href="/Account/DangXuat" class="btn-ghost" style="padding: 5px 10px; font-size: 12px;">Đăng xuất</a>
                     </div>
                 }

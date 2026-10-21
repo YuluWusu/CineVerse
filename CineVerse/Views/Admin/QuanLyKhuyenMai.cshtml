@@ -33,10 +33,10 @@
 <div class="row g-3 mb-4">
     @{
         var now = DateTime.Now;
-        int tongKM = Model?.Count ?? 0;
-        int dangHoatDong = Model?.Count(k => k.TRANGTHAI == "HoatDong" && k.NGAYBATDAU <= now && k.NGAYKETTHUC >= now) ?? 0;
-        int hetHan = Model?.Count(k => k.NGAYKETTHUC < now) ?? 0;
-        int tamDung = Model?.Count(k => k.TRANGTHAI == "TamDung") ?? 0;
+        int tongKM = (Model != null) ? Model.Count : 0;
+        int dangHoatDong = (Model != null) ? Model.Count(k => k.TRANGTHAI == "HoatDong" && k.NGAYBATDAU <= now && k.NGAYKETTHUC >= now) : 0;
+        int hetHan = (Model != null) ? Model.Count(k => k.NGAYKETTHUC < now) : 0;
+        int tamDung = (Model != null) ? Model.Count(k => k.TRANGTHAI == "TamDung") : 0;
     }
     <div class="col-md-3">
         <div class="stat-card">

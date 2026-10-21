@@ -1,0 +1,183 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.GHE>
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
+@{
+    Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
+    var lichChieu = ViewBag.LichChieu as LICHCHIEU;
+    var gheDaDat = ViewBag.GheDaDat as List<string>;
+    var danhSachMon = ViewBag.DanhSachMon as List<MONAN>;
+    var danhSachKm = ViewBag.DanhSachKM as List<KHUYENMAI>;
+    decimal phuTroi = lichChieu.GIATVE_PHUTROI ?? 0;
+    var cacHang = Model.GroupBy(g => g.SO_HANG).OrderBy(h => h.Key).ToList();
+}
+
+@section Styles {
+    <style>
+        .seat-wrap { overflow-x: auto; padding: 10px 0 20px; }
+        .screen-bar { height: 6px; border-radius: 6px; background: var(--accent); opacity: .7; margin: 0 auto 26px; max-width: 520px; box-shadow: 0 8px 30px var(--accent-glow); }
+        .screen-label { text-align: center; font-size: 11px; letter-spacing: 3px; color: var(--text-muted); margin-bottom: 18px; }
+        .seat-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; }
+        .seat { min-width: 38px; height: 34px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-sec); font-size: 11px; font-weight: 600; cursor: pointer; }
+        .seat.vip { border-color: rgba(232,184,75,.5); }
+        .seat.doi { min-width: 62px; border-color: rgba(75,139,232,.5); }
+        .seat.taken { background: rgba(232,75,75,.15); color: var(--text-muted); cursor: not-allowed; text-decoration: line-through; }
+        .seat.chon { background: var(--accent); color: #111; border-color: var(--accent); }
+        .legend { display: flex; gap: 18px; justify-content: center; font-size: 12px; color: var(--text-sec); flex-wrap: wrap; }
+        .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--border); background: var(--bg-hover); }
+        .mon-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .mon-row input { width: 70px; }
+        .tong-tien { font-size: 26px; font-weight: 700; color: var(--accent); }
+    </style>
+}
+
+@if (TempData["Loi"] != null)
+{
+    <div style="background:rgba(232,75,75,.12);border:1px solid rgba(232,75,75,.4);color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Loi"]
+    </div>
+}
+
+<div class="adm-card" style="margin-bottom:20px">
+    <div class="adm-card-body" style="padding:15px 20px">
+        <strong style="font-size:16px">@lichChieu.PHIM.TEN_PHIM</strong><br />
+        <span style="color:var(--text-sec)">
+            @lichChieu.PHONGCHIEU.TEN_PHONG · @lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP · @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") · @StaffService.GioChieu(lichChieu)
+        </span>
+    </div>
+</div>
+
+<form method="post" action="/NhanVien/XuLyBanVe">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="maLichChieu" value="@lichChieu.MA_LICHCHIEU.Trim()" />
+    <input type="hidden" name="selectedSeats" id="selectedSeats" value="" />
+
+    <div class="adm-card" style="margin-bottom:20px">
+        <div class="adm-card-header">
+            <div class="adm-card-title"><i class="bi bi-grid-3x3-gap-fill"></i> Chọn ghế</div>
+        </div>
+        <div class="adm-card-body">
+            <div class="screen-label">MÀN HÌNH</div>
+            <div class="screen-bar"></div>
+            <div class="seat-wrap">
+                @foreach (var hang in cacHang)
+                {
+                    <div class="seat-row">
+                        @foreach (var ghe in hang.OrderBy(g => g.SO_COT))
+                        {
+                            string maGhe = ghe.MA_GHE.Trim();
+                            bool daDat = gheDaDat.Contains(maGhe);
+                            string tenLoai = ghe.LOAIGHE.TEN_LOAIGHE.Trim();
+                            string lop = "seat" + (tenLoai == "VIP" ? " vip" : (tenLoai == "Đôi" ? " doi" : "")) + (daDat ? " taken" : "");
+                            string gia = (ghe.LOAIGHE.GIATVE + phuTroi).ToString("0");
+                            string tieuDeGhe = tenLoai + " - " + String.Format("{0:0,0}", ghe.LOAIGHE.GIATVE + phuTroi) + "đ";
+                            <button type="button" class="@lop" data-ma="@maGhe" data-gia="@gia" @(daDat ? "disabled" : "") title="@tieuDeGhe">@ghe.SOGHE</button>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="legend">
+                <span><i></i>Ghế thường</span>
+                <span><i style="border-color:rgba(232,184,75,.7)"></i>VIP</span>
+                <span><i style="border-color:rgba(75,139,232,.7)"></i>Ghế đôi</span>
+                <span><i style="background:var(--accent)"></i>Đang chọn</span>
+                <span><i style="background:rgba(232,75,75,.3)"></i>Đã có người đặt</span>
+            </div>
+        </div>
+    </div>
+
+    @if (danhSachMon != null && danhSachMon.Count > 0)
+    {
+        <div class="adm-card" style="margin-bottom:20px">
+            <div class="adm-card-header">
+                <div class="adm-card-title"><i class="bi bi-cup-straw"></i> Bắp nước (tùy chọn)</div>
+            </div>
+            <div class="adm-card-body">
+                @foreach (var mon in danhSachMon)
+                {
+                    <div class="mon-row">
+                        <div>
+                            <strong>@mon.TEN_MON</strong><br />
+                            <span style="font-size:12px;color:var(--text-muted)">@String.Format("{0:0,0}", mon.GIA)đ</span>
+                        </div>
+                        <input type="number" min="0" max="20" value="0" class="adm-input mon-sl" name="mon_@mon.MA_MON.Trim()" data-gia="@mon.GIA.ToString("0")" />
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="adm-card">
+        <div class="adm-card-body" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between">
+            <div style="display:flex;gap:15px;flex-wrap:wrap;flex:1">
+                <div style="min-width:220px;flex:1">
+                    <label class="adm-form-label">SĐT khách hàng (nếu là thành viên)</label>
+                    <input type="text" name="sdtKhach" class="adm-input" placeholder="Để trống nếu là khách vãng lai" autocomplete="off" />
+                </div>
+                <div style="min-width:220px;flex:1">
+                    <label class="adm-form-label">Khuyến mãi</label>
+                    <select name="maKm" class="adm-input">
+                        <option value="">Không áp dụng</option>
+                        @if (danhSachKm != null)
+                        {
+                            foreach (var km in danhSachKm)
+                            {
+                                <option value="@km.MA_KM.Trim()">@km.TEN_KM (-@km.GIAMGIA_PHANTRAM%)</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:12px;color:var(--text-muted)">Tạm tính (chưa trừ khuyến mãi)</div>
+                <div class="tong-tien" id="tongTien">0đ</div>
+                <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px" id="gheDangChon">Chưa chọn ghế</div>
+                <a href="/NhanVien/BanVe" class="btn-adm-ghost">Quay lại</a>
+                <button type="submit" class="btn-adm-primary" id="nutThanhToan" disabled><i class="bi bi-cash-coin"></i> Thu tiền &amp; xuất vé</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        (function () {
+            var daChon = [];
+            var hidden = document.getElementById('selectedSeats');
+            var nut = document.getElementById('nutThanhToan');
+
+            function dinhDang(so) {
+                return so.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + 'đ';
+            }
+
+            function capNhat() {
+                var tong = 0;
+                document.querySelectorAll('.seat.chon').forEach(function (s) { tong += parseInt(s.getAttribute('data-gia'), 10); });
+                document.querySelectorAll('.mon-sl').forEach(function (o) {
+                    var sl = parseInt(o.value, 10);
+                    if (!isNaN(sl) && sl > 0) tong += sl * parseInt(o.getAttribute('data-gia'), 10);
+                });
+                hidden.value = daChon.join(',');
+                document.getElementById('tongTien').textContent = dinhDang(tong);
+                document.getElementById('gheDangChon').textContent = daChon.length ? ('Ghế: ' + daChon.join(', ')) : 'Chưa chọn ghế';
+                nut.disabled = daChon.length === 0;
+            }
+
+            document.querySelectorAll('.seat').forEach(function (s) {
+                s.addEventListener('click', function () {
+                    if (s.classList.contains('taken')) return;
+                    var ma = s.getAttribute('data-ma');
+                    var vt = daChon.indexOf(ma);
+                    if (vt >= 0) { daChon.splice(vt, 1); s.classList.remove('chon'); }
+                    else { daChon.push(ma); s.classList.add('chon'); }
+                    capNhat();
+                });
+            });
+
+            document.querySelectorAll('.mon-sl').forEach(function (o) { o.addEventListener('input', capNhat); });
+            capNhat();
+        })();
+    </script>
+}

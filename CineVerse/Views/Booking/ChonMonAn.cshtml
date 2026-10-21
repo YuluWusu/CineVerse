@@ -1,0 +1,41 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var lichChieu = ViewBag.LichChieu as DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU;
+    var danhSachMon = ViewBag.DanhSachMon as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.MONAN>;
+    string selectedSeats = ViewBag.SelectedSeats as string;
+}
+
+<div class="container" style="padding-top: 40px; padding-bottom: 40px; max-width: 800px;">
+    <h2 style="font-family:'Bebas Neue'; letter-spacing:2px; margin-bottom: 24px; color: var(--accent);">CHỌN BẮP NƯỚC & ĐỒ ĂN KÈM</h2>
+
+    <form method="post" action="/Booking/XacNhanChonMon">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="maLichChieu" value="@lichChieu.MA_LICHCHIEU.Trim()" />
+        <input type="hidden" name="selectedSeats" value="@selectedSeats" />
+
+        <div class="adm-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+            @if (danhSachMon != null && danhSachMon.Count > 0)
+            {
+                foreach (var mon in danhSachMon)
+                {
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <strong style="font-size: 15px;">@mon.TEN_MON</strong><br />
+                            <span style="color: var(--accent); font-size: 13px;">@String.Format("{0:0,0}", mon.GIA)đ</span>
+                        </div>
+                        <input type="number" min="0" max="10" value="0" name="mon_@mon.MA_MON.Trim()" class="form-control" style="width: 80px; background: rgba(255,255,255,.05); color: #fff; border-color: var(--border);" />
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Hiện không có bắp nước nào.</p>
+            }
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/Booking/ChonGhe?maLichChieu=@lichChieu.MA_LICHCHIEU.Trim()" class="btn btn-secondary">Quay lại chọn ghế</a>
+            <button type="submit" class="btn btn-warning" style="font-weight: bold; background: var(--accent); border: none;">Tiếp tục đến thanh toán <i class="bi bi-arrow-right"></i></button>
+        </div>
+    </form>
+</div>

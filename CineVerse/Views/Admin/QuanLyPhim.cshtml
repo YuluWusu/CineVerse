@@ -9,7 +9,7 @@
         <div class="adm-card-title">
             <i class="bi bi-camera-reels"></i> Danh sách phim
             <span style="font-family:var(--font-body);font-size:12px;color:var(--text-muted);font-weight:400;letter-spacing:0">
-                (@(Model?.Count ?? 0) bộ phim)
+                (@(Model != null ? Model.Count : 0) bộ phim)
             </span>
         </div>
         <a href="/Admin/ThemPhim" class="btn-adm-primary">

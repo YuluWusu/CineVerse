@@ -361,7 +361,7 @@
                 <div>
                     <span style="color: var(--text-muted);">Kết quả tìm kiếm cho: </span>
                     <strong style="color: var(--accent); font-size: 16px;">"@searchKeyword"</strong>
-                    <span style="color: var(--text-muted); margin-left: 8px;">(@(phims?.Count ?? 0) phim)</span>
+                    <span style="color: var(--text-muted); margin-left: 8px;">(@((phims != null) ? phims.Count : 0) phim)</span>
                 </div>
                 <a href="@Url.Action("DanhSachPhim", "Movies")" class="btn-ghost" style="padding: 6px 14px; font-size: 13px; text-decoration: none;">
                     <i class="bi bi-x-circle"></i> Xóa bộ lọc
@@ -386,8 +386,8 @@
             <div class="movies-grid">
                 @foreach (var phim in phims)
                 {
-                    var theloais = phim.THELOAIs?.Select(t => t.TEN_THELOAI).ToList() ?? new List<string>();
-                    var badgeClass = phim.GIOI_HAN_TUOI?.ToLower().Replace(" ", "") ?? "p";
+                    var theloais = phim.THELOAIs.Select(t => t.TEN_THELOAI).ToList() ?? new List<string>();
+                    var badgeClass = phim.GIOI_HAN_TUOI.ToLower().Replace(" ", "") ?? "p";
 
                     <div class="movie-card"
                          onclick="location.href='@Url.Action("ChiTietPhim", "Movies", new { id = phim.MA_PHIM })'">
