@@ -112,11 +112,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             string sdtTrim = SDT.Trim();
             var tk = data.TAIKHOANs
                 .Include(t => t.KHACHHANG)
+                .Include(t => t.NHANVIEN)
                 .Include(t => t.VAITROes)
                 .FirstOrDefault(t => t.SDT.Trim() == sdtTrim && t.MATKHAU == MATKHAU);
 
             if (tk != null)
             {
+                bool laAdmin = tk.VAITROes.Any(v => LaVaiTro(v, "ADMIN"));
+                bool laNhanVien = tk.VAITROes.Any(v => LaVaiTro(v, "NHANVIEN") || LaVaiTro(v, "QUANLYRAP"));
+
+                if (laNhanVien && !laAdmin && tk.NHANVIEN != null)
+                {
+                    Session.Clear();
+                    Session["VaiTro"] = "NHANVIEN";
+                    Session["NhanVienMa"] = tk.NHANVIEN.MA_NHANVIEN.Trim();
+                    Session["NhanVienTen"] = tk.HOTEN;
+                    Session["NhanVienRap"] = tk.NHANVIEN.MA_RAP == null ? null : tk.NHANVIEN.MA_RAP.Trim();
+                    return RedirectToAction("Index", "NhanVien");
+                }
+
                 var kh = tk.KHACHHANG;
                 if (kh == null)
                 {
@@ -130,6 +144,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 }
 
                 Session["KhachHang"] = kh;
+                Session["VaiTro"] = laAdmin ? "ADMIN" : "KHACHHANG";
                 return RedirectToAction("TrangChu", "Home");
             }
             else
@@ -165,8 +180,15 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             return View(kh);
         }
 
+        private static bool LaVaiTro(VAITRO vaiTro, string ma)
+        {
+            return (vaiTro.MA_VAITRO != null && vaiTro.MA_VAITRO.Trim().Equals(ma, StringComparison.OrdinalIgnoreCase))
+                || (vaiTro.TEN_VAITRO != null && vaiTro.TEN_VAITRO.Trim().Equals(ma, StringComparison.OrdinalIgnoreCase));
+        }
+
         public ActionResult DangXuat()
         {
+            Session.Clear();
             Session["KhachHang"] = null;
             return RedirectToAction("TrangChu", "Home");
         }

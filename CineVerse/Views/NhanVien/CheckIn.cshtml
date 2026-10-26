@@ -1,0 +1,110 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.VE>
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
+@{
+    Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
+    string tuKhoa = ViewBag.TuKhoa as string;
+}
+
+@if (TempData["CheckInOk"] != null)
+{
+    <div style="background:rgba(75,232,124,.12);border:1px solid rgba(75,232,124,.4);color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
+        <i class="bi bi-check-circle-fill"></i> @TempData["CheckInOk"]
+    </div>
+}
+@if (TempData["CheckInLoi"] != null)
+{
+    <div style="background:rgba(232,75,75,.12);border:1px solid rgba(232,75,75,.4);color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["CheckInLoi"]
+    </div>
+}
+
+<div class="adm-card" style="margin-bottom:20px">
+    <div class="adm-card-body" style="padding:15px 20px">
+        <form method="get" action="/NhanVien/CheckIn" style="display:flex;gap:15px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:240px">
+                <label class="adm-form-label">Mã vé, mã đơn hàng hoặc SĐT khách hàng</label>
+                <input type="text" name="tuKhoa" value="@tuKhoa" class="adm-input" placeholder="Ví dụ: VE004, DH003 hoặc 0901234567" autofocus autocomplete="off" />
+            </div>
+            <div>
+                <button type="submit" class="btn-adm-primary"><i class="bi bi-search"></i> Tìm vé</button>
+                <a href="/NhanVien/CheckIn" class="btn-adm-ghost"><i class="bi bi-x-circle"></i> Xóa</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title"><i class="bi bi-ticket-perforated"></i> Kết quả tìm kiếm</div>
+    </div>
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã vé / Khách hàng</th>
+                        <th>Suất chiếu</th>
+                        <th>Ghế</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (string.IsNullOrWhiteSpace(tuKhoa))
+                    {
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Nhập mã vé, mã đơn hàng hoặc số điện thoại để bắt đầu.</td></tr>
+                    }
+                    else if (Model.Count == 0)
+                    {
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Không tìm thấy vé nào khớp với "@tuKhoa".</td></tr>
+                    }
+                    @foreach (var ve in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span style="font-family:monospace;font-size:12px;color:var(--accent)">@ve.MA_VE</span><br />
+                                <strong>@(ve.DONHANG != null && ve.DONHANG.KHACHHANG != null ? ve.DONHANG.KHACHHANG.HOTEN : "Khách lẻ")</strong><br />
+                                <span style="font-size:11px;color:var(--text-muted)">Đơn @ve.MA_DONHANG</span>
+                            </td>
+                            <td>
+                                <strong style="color:var(--text-sec)">@ve.LICHCHIEU.PHIM.TEN_PHIM</strong><br />
+                                <span style="font-size:12px">@ve.LICHCHIEU.PHONGCHIEU.TEN_PHONG - @ve.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP</span><br />
+                                <span style="font-size:11px;color:var(--text-muted)">@ve.LICHCHIEU.NGAYCHIEU.ToString("dd/MM/yyyy") · @StaffService.GioChieu(ve.LICHCHIEU)</span>
+                            </td>
+                            <td><span style="background:rgba(255,255,255,.06);padding:3px 8px;border-radius:4px;font-size:12px;font-weight:bold">@ve.GHE.SOGHE</span></td>
+                            <td>
+                                @if (ve.TRANGTHAI == "Đã check-in")
+                                {
+                                    <span class="adm-badge xong">@ve.TRANGTHAI</span>
+                                }
+                                else if (ve.TRANGTHAI == "Đã thanh toán")
+                                {
+                                    <span class="adm-badge dang">@ve.TRANGTHAI</span>
+                                }
+                                else
+                                {
+                                    <span class="adm-badge red">@ve.TRANGTHAI</span>
+                                }
+                            </td>
+                            <td style="text-align:right">
+                                @if (ve.TRANGTHAI == "Đã thanh toán")
+                                {
+                                    using (Html.BeginForm("CheckInVe", "NhanVien", FormMethod.Post, new { style = "display:inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="maVe" value="@ve.MA_VE.Trim()" />
+                                        <input type="hidden" name="tuKhoa" value="@tuKhoa" />
+                                        <button type="submit" class="btn-adm-primary"><i class="bi bi-check2-circle"></i> Check-in</button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

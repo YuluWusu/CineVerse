@@ -56,7 +56,7 @@
                                 <option value="">-- Chọn phòng chiếu --</option>
                                 @if (ViewBag.DanhSachPhong != null)
                                 {
-                                    string currentPhong = Model.MA_PHONG?.Trim();
+                                    string currentPhong = Model.MA_PHONG.Trim();
                                     foreach (var phong in (IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.PHONGCHIEU>)ViewBag.DanhSachPhong)
                                     {
                                         string rapName = phong.RAPCHIEU != null ? phong.RAPCHIEU.TEN_RAP : "";

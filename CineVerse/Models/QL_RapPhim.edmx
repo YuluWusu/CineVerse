@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="QL_VEPHIMModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="QL_VEPHIMModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="DONHANG">
           <Key>
             <PropertyRef Name="MA_DONHANG" />
@@ -200,7 +200,7 @@
           <Property Name="DONGIA" Type="decimal" Precision="10" Scale="0" Nullable="false" />
           <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" />
         </EntityType>
-        <Association Name="FK__DONHANG__MA_KHAC__70DDC3D8">
+        <Association Name="FK__DONHANG__MA_KHAC__03F0984C">
           <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -212,7 +212,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG__MA_KM__73BA3083">
+        <Association Name="FK__DONHANG__MA_KM__06CD04F7">
           <End Role="KHUYENMAI" Type="Self.KHUYENMAI" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -224,7 +224,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG__MA_LICH__72C60C4A">
+        <Association Name="FK__DONHANG__MA_LICH__05D8E0BE">
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -236,7 +236,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG__MA_NHAN__71D1E811">
+        <Association Name="FK__DONHANG__MA_NHAN__04E4BC85">
           <End Role="NHANVIEN" Type="Self.NHANVIEN" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -248,7 +248,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG_M__MA_DO__00200768">
+        <Association Name="FK__DONHANG_M__MA_DO__1332DBDC">
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="1" />
           <End Role="DONHANG_MONAN" Type="Self.DONHANG_MONAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -260,7 +260,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG_M__MA_MO__01142BA1">
+        <Association Name="FK__DONHANG_M__MA_MO__14270015">
           <End Role="MONAN" Type="Self.MONAN" Multiplicity="1" />
           <End Role="DONHANG_MONAN" Type="Self.DONHANG_MONAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -272,7 +272,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__GHE__MA_LOAIGHE__60A75C0F">
+        <Association Name="FK__GHE__MA_LOAIGHE__73BA3083">
           <End Role="LOAIGHE" Type="Self.LOAIGHE" Multiplicity="0..1" />
           <End Role="GHE" Type="Self.GHE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -284,7 +284,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__GHE__MA_PHONG__5FB337D6">
+        <Association Name="FK__GHE__MA_PHONG__72C60C4A">
           <End Role="PHONGCHIEU" Type="Self.PHONGCHIEU" Multiplicity="1" />
           <End Role="GHE" Type="Self.GHE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -296,7 +296,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__KHACHHANG__MA_KH__3B75D760">
+        <Association Name="FK__KHACHHANG__MA_KH__4E88ABD4">
           <End Role="TAIKHOAN" Type="Self.TAIKHOAN" Multiplicity="1" />
           <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
           <ReferentialConstraint>
@@ -308,7 +308,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__LICHCHIEU__MA_KH__6754599E">
+        <Association Name="FK__LICHCHIEU__MA_KH__7A672E12">
           <End Role="KHUNGGIO" Type="Self.KHUNGGIO" Multiplicity="1" />
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -320,7 +320,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__LICHCHIEU__MA_PH__656C112C">
+        <Association Name="FK__LICHCHIEU__MA_PH__787EE5A0">
           <End Role="PHIM" Type="Self.PHIM" Multiplicity="1" />
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -332,7 +332,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__LICHCHIEU__MA_PH__66603565">
+        <Association Name="FK__LICHCHIEU__MA_PH__797309D9">
           <End Role="PHONGCHIEU" Type="Self.PHONGCHIEU" Multiplicity="1" />
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -344,7 +344,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__NHANVIEN__MA_NHA__4E88ABD4">
+        <Association Name="FK__NHANVIEN__MA_NHA__619B8048">
           <End Role="TAIKHOAN" Type="Self.TAIKHOAN" Multiplicity="1" />
           <End Role="NHANVIEN" Type="Self.NHANVIEN" Multiplicity="0..1" />
           <ReferentialConstraint>
@@ -356,7 +356,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__NHANVIEN__MA_RAP__4F7CD00D">
+        <Association Name="FK__NHANVIEN__MA_RAP__628FA481">
           <End Role="RAPCHIEU" Type="Self.RAPCHIEU" Multiplicity="1" />
           <End Role="NHANVIEN" Type="Self.NHANVIEN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -368,7 +368,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__PHIM_THEL__MA_PH__5AEE82B9">
+        <Association Name="FK__PHIM_THEL__MA_PH__6E01572D">
           <End Role="PHIM" Type="Self.PHIM" Multiplicity="1" />
           <End Role="PHIM_THELOAI" Type="Self.PHIM_THELOAI" Multiplicity="*" />
           <ReferentialConstraint>
@@ -380,7 +380,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__PHIM_THEL__MA_TH__5BE2A6F2">
+        <Association Name="FK__PHIM_THEL__MA_TH__6EF57B66">
           <End Role="THELOAI" Type="Self.THELOAI" Multiplicity="1" />
           <End Role="PHIM_THELOAI" Type="Self.PHIM_THELOAI" Multiplicity="*" />
           <ReferentialConstraint>
@@ -392,7 +392,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__PHONGCHIE__MA_RA__5812160E">
+        <Association Name="FK__PHONGCHIE__MA_RA__6B24EA82">
           <End Role="RAPCHIEU" Type="Self.RAPCHIEU" Multiplicity="1" />
           <End Role="PHONGCHIEU" Type="Self.PHONGCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -404,7 +404,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TAIKHOAN___MA_TA__37A5467C">
+        <Association Name="FK__TAIKHOAN___MA_TA__4AB81AF0">
           <End Role="TAIKHOAN" Type="Self.TAIKHOAN" Multiplicity="1" />
           <End Role="TAIKHOAN_VAITRO" Type="Self.TAIKHOAN_VAITRO" Multiplicity="*" />
           <ReferentialConstraint>
@@ -416,7 +416,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TAIKHOAN___MA_VA__38996AB5">
+        <Association Name="FK__TAIKHOAN___MA_VA__4BAC3F29">
           <End Role="VAITRO" Type="Self.VAITRO" Multiplicity="1" />
           <End Role="TAIKHOAN_VAITRO" Type="Self.TAIKHOAN_VAITRO" Multiplicity="*" />
           <ReferentialConstraint>
@@ -428,7 +428,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__VE__MA_DONHANG__7A672E12">
+        <Association Name="FK__VE__MA_DONHANG__0D7A0286">
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="1" />
           <End Role="VE" Type="Self.VE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -440,7 +440,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__VE__MA_GHE__7C4F7684">
+        <Association Name="FK__VE__MA_GHE__0F624AF8">
           <End Role="GHE" Type="Self.GHE" Multiplicity="1" />
           <End Role="VE" Type="Self.VE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -452,7 +452,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__VE__MA_LICHCHIEU__7B5B524B">
+        <Association Name="FK__VE__MA_LICHCHIEU__0E6E26BF">
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="1" />
           <End Role="VE" Type="Self.VE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -484,97 +484,96 @@
           <EntitySet Name="THELOAI" EntityType="Self.THELOAI" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VAITRO" EntityType="Self.VAITRO" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VE" EntityType="Self.VE" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__DONHANG__MA_KHAC__70DDC3D8" Association="Self.FK__DONHANG__MA_KHAC__70DDC3D8">
+          <AssociationSet Name="FK__DONHANG__MA_KHAC__03F0984C" Association="Self.FK__DONHANG__MA_KHAC__03F0984C">
             <End Role="KHACHHANG" EntitySet="KHACHHANG" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_KM__73BA3083" Association="Self.FK__DONHANG__MA_KM__73BA3083">
+          <AssociationSet Name="FK__DONHANG__MA_KM__06CD04F7" Association="Self.FK__DONHANG__MA_KM__06CD04F7">
             <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_LICH__72C60C4A" Association="Self.FK__DONHANG__MA_LICH__72C60C4A">
+          <AssociationSet Name="FK__DONHANG__MA_LICH__05D8E0BE" Association="Self.FK__DONHANG__MA_LICH__05D8E0BE">
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_NHAN__71D1E811" Association="Self.FK__DONHANG__MA_NHAN__71D1E811">
+          <AssociationSet Name="FK__DONHANG__MA_NHAN__04E4BC85" Association="Self.FK__DONHANG__MA_NHAN__04E4BC85">
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG_M__MA_DO__00200768" Association="Self.FK__DONHANG_M__MA_DO__00200768">
+          <AssociationSet Name="FK__DONHANG_M__MA_DO__1332DBDC" Association="Self.FK__DONHANG_M__MA_DO__1332DBDC">
             <End Role="DONHANG" EntitySet="DONHANG" />
             <End Role="DONHANG_MONAN" EntitySet="DONHANG_MONAN" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG_M__MA_MO__01142BA1" Association="Self.FK__DONHANG_M__MA_MO__01142BA1">
+          <AssociationSet Name="FK__DONHANG_M__MA_MO__14270015" Association="Self.FK__DONHANG_M__MA_MO__14270015">
             <End Role="MONAN" EntitySet="MONAN" />
             <End Role="DONHANG_MONAN" EntitySet="DONHANG_MONAN" />
           </AssociationSet>
-          <AssociationSet Name="FK__GHE__MA_LOAIGHE__60A75C0F" Association="Self.FK__GHE__MA_LOAIGHE__60A75C0F">
+          <AssociationSet Name="FK__GHE__MA_LOAIGHE__73BA3083" Association="Self.FK__GHE__MA_LOAIGHE__73BA3083">
             <End Role="LOAIGHE" EntitySet="LOAIGHE" />
             <End Role="GHE" EntitySet="GHE" />
           </AssociationSet>
-          <AssociationSet Name="FK__GHE__MA_PHONG__5FB337D6" Association="Self.FK__GHE__MA_PHONG__5FB337D6">
+          <AssociationSet Name="FK__GHE__MA_PHONG__72C60C4A" Association="Self.FK__GHE__MA_PHONG__72C60C4A">
             <End Role="PHONGCHIEU" EntitySet="PHONGCHIEU" />
             <End Role="GHE" EntitySet="GHE" />
           </AssociationSet>
-          <AssociationSet Name="FK__KHACHHANG__MA_KH__3B75D760" Association="Self.FK__KHACHHANG__MA_KH__3B75D760">
+          <AssociationSet Name="FK__KHACHHANG__MA_KH__4E88ABD4" Association="Self.FK__KHACHHANG__MA_KH__4E88ABD4">
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
             <End Role="KHACHHANG" EntitySet="KHACHHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__LICHCHIEU__MA_KH__6754599E" Association="Self.FK__LICHCHIEU__MA_KH__6754599E">
+          <AssociationSet Name="FK__LICHCHIEU__MA_KH__7A672E12" Association="Self.FK__LICHCHIEU__MA_KH__7A672E12">
             <End Role="KHUNGGIO" EntitySet="KHUNGGIO" />
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__LICHCHIEU__MA_PH__656C112C" Association="Self.FK__LICHCHIEU__MA_PH__656C112C">
+          <AssociationSet Name="FK__LICHCHIEU__MA_PH__787EE5A0" Association="Self.FK__LICHCHIEU__MA_PH__787EE5A0">
             <End Role="PHIM" EntitySet="PHIM" />
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__LICHCHIEU__MA_PH__66603565" Association="Self.FK__LICHCHIEU__MA_PH__66603565">
+          <AssociationSet Name="FK__LICHCHIEU__MA_PH__797309D9" Association="Self.FK__LICHCHIEU__MA_PH__797309D9">
             <End Role="PHONGCHIEU" EntitySet="PHONGCHIEU" />
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__NHANVIEN__MA_NHA__4E88ABD4" Association="Self.FK__NHANVIEN__MA_NHA__4E88ABD4">
+          <AssociationSet Name="FK__NHANVIEN__MA_NHA__619B8048" Association="Self.FK__NHANVIEN__MA_NHA__619B8048">
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
           </AssociationSet>
-          <AssociationSet Name="FK__NHANVIEN__MA_RAP__4F7CD00D" Association="Self.FK__NHANVIEN__MA_RAP__4F7CD00D">
+          <AssociationSet Name="FK__NHANVIEN__MA_RAP__628FA481" Association="Self.FK__NHANVIEN__MA_RAP__628FA481">
             <End Role="RAPCHIEU" EntitySet="RAPCHIEU" />
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
           </AssociationSet>
-          <AssociationSet Name="FK__PHIM_THEL__MA_PH__5AEE82B9" Association="Self.FK__PHIM_THEL__MA_PH__5AEE82B9">
+          <AssociationSet Name="FK__PHIM_THEL__MA_PH__6E01572D" Association="Self.FK__PHIM_THEL__MA_PH__6E01572D">
             <End Role="PHIM" EntitySet="PHIM" />
             <End Role="PHIM_THELOAI" EntitySet="PHIM_THELOAI" />
           </AssociationSet>
-          <AssociationSet Name="FK__PHIM_THEL__MA_TH__5BE2A6F2" Association="Self.FK__PHIM_THEL__MA_TH__5BE2A6F2">
+          <AssociationSet Name="FK__PHIM_THEL__MA_TH__6EF57B66" Association="Self.FK__PHIM_THEL__MA_TH__6EF57B66">
             <End Role="THELOAI" EntitySet="THELOAI" />
             <End Role="PHIM_THELOAI" EntitySet="PHIM_THELOAI" />
           </AssociationSet>
-          <AssociationSet Name="FK__PHONGCHIE__MA_RA__5812160E" Association="Self.FK__PHONGCHIE__MA_RA__5812160E">
+          <AssociationSet Name="FK__PHONGCHIE__MA_RA__6B24EA82" Association="Self.FK__PHONGCHIE__MA_RA__6B24EA82">
             <End Role="RAPCHIEU" EntitySet="RAPCHIEU" />
             <End Role="PHONGCHIEU" EntitySet="PHONGCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__TAIKHOAN___MA_TA__37A5467C" Association="Self.FK__TAIKHOAN___MA_TA__37A5467C">
+          <AssociationSet Name="FK__TAIKHOAN___MA_TA__4AB81AF0" Association="Self.FK__TAIKHOAN___MA_TA__4AB81AF0">
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
             <End Role="TAIKHOAN_VAITRO" EntitySet="TAIKHOAN_VAITRO" />
           </AssociationSet>
-          <AssociationSet Name="FK__TAIKHOAN___MA_VA__38996AB5" Association="Self.FK__TAIKHOAN___MA_VA__38996AB5">
+          <AssociationSet Name="FK__TAIKHOAN___MA_VA__4BAC3F29" Association="Self.FK__TAIKHOAN___MA_VA__4BAC3F29">
             <End Role="VAITRO" EntitySet="VAITRO" />
             <End Role="TAIKHOAN_VAITRO" EntitySet="TAIKHOAN_VAITRO" />
           </AssociationSet>
-          <AssociationSet Name="FK__VE__MA_DONHANG__7A672E12" Association="Self.FK__VE__MA_DONHANG__7A672E12">
+          <AssociationSet Name="FK__VE__MA_DONHANG__0D7A0286" Association="Self.FK__VE__MA_DONHANG__0D7A0286">
             <End Role="DONHANG" EntitySet="DONHANG" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
-          <AssociationSet Name="FK__VE__MA_GHE__7C4F7684" Association="Self.FK__VE__MA_GHE__7C4F7684">
+          <AssociationSet Name="FK__VE__MA_GHE__0F624AF8" Association="Self.FK__VE__MA_GHE__0F624AF8">
             <End Role="GHE" EntitySet="GHE" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
-          <AssociationSet Name="FK__VE__MA_LICHCHIEU__7B5B524B" Association="Self.FK__VE__MA_LICHCHIEU__7B5B524B">
+          <AssociationSet Name="FK__VE__MA_LICHCHIEU__0E6E26BF" Association="Self.FK__VE__MA_LICHCHIEU__0E6E26BF">
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="QL_VEPHIMModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">

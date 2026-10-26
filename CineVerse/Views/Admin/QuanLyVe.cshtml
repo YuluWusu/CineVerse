@@ -49,8 +49,8 @@
                         <tr>
                             <td>
                                 <span style="font-family:monospace;font-size:12px;color:var(--accent)">@item.MA_VE</span><br/>
-                                <strong>@(item.DONHANG?.KHACHHANG?.HOTEN ?? "Khách lẻ")</strong><br/>
-                                <span style="font-size:11px;color:var(--text-muted)">@(item.DONHANG?.KHACHHANG?.SDT ?? "")</span>
+                                <strong>@(item.DONHANG.KHACHHANG.HOTEN ?? "Khách lẻ")</strong><br/>
+                                <span style="font-size:11px;color:var(--text-muted)">@(item.DONHANG.KHACHHANG.SDT ?? "")</span>
                             </td>
                             <td>
                                 <strong style="color:var(--text-sec)">@item.LICHCHIEU.PHIM.TEN_PHIM</strong><br/>
@@ -65,6 +65,8 @@
                             <td>
                                 @if(item.TRANGTHAI == "Đã đặt" || item.TRANGTHAI == "Đã thanh toán") {
                                     <span class="adm-badge dang">@item.TRANGTHAI</span>
+                                } else if(item.TRANGTHAI == "Đã check-in") {
+                                    <span class="adm-badge xong">@item.TRANGTHAI</span>
                                 } else {
                                     <span class="adm-badge red">@item.TRANGTHAI</span>
                                 }
@@ -76,6 +78,7 @@
                                         <option value="Đã đặt" @(item.TRANGTHAI == "Đã đặt" ? "selected" : "")>Đã đặt</option>
                                         <option value="Đã hủy" @(item.TRANGTHAI == "Đã hủy" ? "selected" : "")>Đã hủy</option>
                                         <option value="Đã thanh toán" @(item.TRANGTHAI == "Đã thanh toán" ? "selected" : "")>Đã thanh toán</option>
+                                        <option value="Đã check-in" @(item.TRANGTHAI == "Đã check-in" ? "selected" : "")>Đã check-in</option>
                                     </select>
                                 </form>
                                 

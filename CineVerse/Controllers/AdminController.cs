@@ -6,9 +6,11 @@ using System.Web.Mvc;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
 using DoAn_QuanLyVeXemPhimTrucTiep.Services;
 using System.IO;
+using DoAn_QuanLyVeXemPhimTrucTiep.Filters;
 
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
+    [PhanQuyen("ADMIN")]
     public class AdminController : Controller
     {
         private readonly MovieService movieService = new MovieService();

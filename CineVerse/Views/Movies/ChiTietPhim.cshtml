@@ -604,7 +604,7 @@
 
 @{
     string ageClass = "badge-p";
-    string ageLimit = Model.GIOI_HAN_TUOI?.ToUpper() ?? "";
+    string ageLimit = Model.GIOI_HAN_TUOI.ToUpper() ?? "";
     if (ageLimit == "T13") { ageClass = "badge-t13"; }
     else if (ageLimit == "T16") { ageClass = "badge-t16"; }
     else if (ageLimit == "T18") { ageClass = "badge-t18"; }
@@ -789,7 +789,7 @@
                             @foreach (var cinemaGroup in groupedByCinema)
                             {
                                 <div class="showtime-group">
-                                    <div class="showtime-group-label">@(cinemaGroup.Key?.TEN_RAP ?? "Rạp")</div>
+                                    <div class="showtime-group-label">@(cinemaGroup.Key.TEN_RAP ?? "Rạp")</div>
                                     <div class="showtime-grid">
                                         @foreach (var lc in cinemaGroup)
                                         {

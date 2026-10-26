@@ -1,0 +1,102 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU>
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
+@{
+    Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
+    var thongKe = ViewBag.ThongKe as ThongKeNhanVien;
+    var thongKeSuat = ViewBag.ThongKeSuat as Dictionary<string, ThongKeSuat>;
+}
+
+<div class="stat-grid">
+    <div class="stat-card green">
+        <div class="stat-label">Vé chờ check-in hôm nay</div>
+        <div class="stat-value">@thongKe.VeChoCheckIn</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">vé đã thanh toán</div>
+        <i class="bi bi-hourglass-split stat-icon"></i>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-label">Đã check-in hôm nay</div>
+        <div class="stat-value">@thongKe.VeDaCheckIn</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">vé</div>
+        <i class="bi bi-qr-code-scan stat-icon"></i>
+    </div>
+    <div class="stat-card gold">
+        <div class="stat-label">Doanh thu quầy hôm nay</div>
+        <div class="stat-value">@String.Format("{0:0,0}", thongKe.DoanhThuQuay)</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">VNĐ</div>
+        <i class="bi bi-cash-coin stat-icon"></i>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-label">Đơn bán tại quầy hôm nay</div>
+        <div class="stat-value">@thongKe.DonDaBan</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">đơn</div>
+        <i class="bi bi-receipt stat-icon"></i>
+    </div>
+</div>
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title"><i class="bi bi-calendar3"></i> Suất chiếu hôm nay</div>
+        <div>
+            <a href="/NhanVien/CheckIn" class="btn-adm-ghost"><i class="bi bi-qr-code-scan"></i> Check-in vé</a>
+            <a href="/NhanVien/BanVe" class="btn-adm-primary"><i class="bi bi-cash-coin"></i> Bán vé tại quầy</a>
+        </div>
+    </div>
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Giờ chiếu</th>
+                        <th>Phim</th>
+                        <th>Phòng</th>
+                        <th>Vé đã bán</th>
+                        <th>Đã check-in</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">Hôm nay chưa có suất chiếu nào.</td></tr>
+                    }
+                    @foreach (var lc in Model)
+                    {
+                        var tk = thongKeSuat[lc.MA_LICHCHIEU.Trim()];
+                        var trangThai = StaffService.TrangThaiSuat(lc);
+                        <tr>
+                            <td><strong>@StaffService.GioChieu(lc)</strong><br /><span style="font-size:11px;color:var(--text-muted)">@lc.MA_LICHCHIEU</span></td>
+                            <td>@lc.PHIM.TEN_PHIM</td>
+                            <td>@lc.PHONGCHIEU.TEN_PHONG<br /><span style="font-size:11px;color:var(--text-muted)">@lc.PHONGCHIEU.RAPCHIEU.TEN_RAP</span></td>
+                            <td>@tk.DaBan</td>
+                            <td>@tk.DaCheckIn</td>
+                            <td>
+                                @if (trangThai == "Đang chiếu")
+                                {
+                                    <span class="adm-badge dang">@trangThai</span>
+                                }
+                                else if (trangThai == "Sắp chiếu")
+                                {
+                                    <span class="adm-badge sap">@trangThai</span>
+                                }
+                                else
+                                {
+                                    <span class="adm-badge xong">@trangThai</span>
+                                }
+                            </td>
+                            <td style="text-align:right">
+                                @if (StaffService.ConBanDuoc(lc))
+                                {
+                                    <a href="/NhanVien/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU.Trim()" class="btn-adm-ghost">Bán vé</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

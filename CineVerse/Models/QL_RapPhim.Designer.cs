@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'D:\2 Personal Activities\Study Folder\University\Năm Ba\Lập trình Web\DoAn_QuanLyVeXemPhimTrucTiep\CineVerse\Models\QL_RapPhim.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\Users\PHAT\CineVerse\CineVerse\Models\QL_RapPhim.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

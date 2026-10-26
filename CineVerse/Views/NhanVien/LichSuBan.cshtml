@@ -1,0 +1,49 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.DONHANG>
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
+@{
+    Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
+    decimal tongDoanhThu = Model.Sum(d => d.TONGTIEN);
+}
+
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title"><i class="bi bi-receipt"></i> Đơn bán tại quầy hôm nay</div>
+        <div style="color:var(--text-sec);font-size:13px">Tổng: <strong style="color:var(--accent)">@String.Format("{0:0,0}", tongDoanhThu)đ</strong> · @Model.Count đơn</div>
+    </div>
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Giờ bán</th>
+                        <th>Phim / Suất</th>
+                        <th>Số vé</th>
+                        <th style="text-align:right">Tổng tiền</th>
+                        <th style="text-align:right">Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Hôm nay chưa bán đơn nào tại quầy.</td></tr>
+                    }
+                    @foreach (var dh in Model)
+                    {
+                        <tr>
+                            <td style="font-family:monospace;color:var(--accent)">@dh.MA_DONHANG</td>
+                            <td>@dh.NGAYDAT.ToString("HH:mm")</td>
+                            <td>@dh.LICHCHIEU.PHIM.TEN_PHIM<br /><span style="font-size:11px;color:var(--text-muted)">@StaffService.GioChieu(dh.LICHCHIEU)</span></td>
+                            <td>@dh.VEs.Count</td>
+                            <td style="text-align:right"><strong>@String.Format("{0:0,0}", dh.TONGTIEN)đ</strong></td>
+                            <td style="text-align:right"><a href="/NhanVien/HoaDon/@dh.MA_DONHANG.Trim()" class="btn-adm-ghost">Xem</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

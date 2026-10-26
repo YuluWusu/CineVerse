@@ -1,0 +1,80 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.DONHANG
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
+@{
+    Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
+    var lichChieu = Model.LICHCHIEU;
+}
+
+@section Styles {
+    <style>
+        @@media print {
+            #sidebar, #topbar, .no-print, .adm-footer { display: none !important; }
+            #main-content { margin-left: 0 !important; }
+            body { background: #fff !important; color: #000 !important; }
+        }
+    </style>
+}
+
+<div class="adm-card" style="max-width:760px">
+    <div class="adm-card-header">
+        <div class="adm-card-title"><i class="bi bi-receipt"></i> Hóa đơn @Model.MA_DONHANG</div>
+        <span class="adm-badge dang">Đã thanh toán</span>
+    </div>
+    <div class="adm-card-body">
+        <p style="margin-bottom:4px"><strong>@lichChieu.PHIM.TEN_PHIM</strong></p>
+        <p style="color:var(--text-sec);margin-bottom:16px">
+            @lichChieu.PHONGCHIEU.TEN_PHONG · @lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP · @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") · @StaffService.GioChieu(lichChieu)
+        </p>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+            Thu ngân: @(Model.NHANVIEN != null ? Model.NHANVIEN.HOTEN : "") ·
+            Khách hàng: @(Model.KHACHHANG != null ? Model.KHACHHANG.HOTEN : "Khách vãng lai") ·
+            @Model.NGAYDAT.ToString("dd/MM/yyyy HH:mm")
+        </p>
+
+        <table class="adm-table">
+            <thead>
+                <tr><th>Mã vé</th><th>Ghế</th><th>Loại ghế</th><th style="text-align:right">Giá</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var ve in Model.VEs.OrderBy(v => v.MA_VE))
+                {
+                    <tr>
+                        <td style="font-family:monospace;color:var(--accent)">@ve.MA_VE</td>
+                        <td>@ve.GHE.SOGHE</td>
+                        <td>@ve.GHE.LOAIGHE.TEN_LOAIGHE</td>
+                        <td style="text-align:right">@String.Format("{0:0,0}", ve.DONGIA)đ</td>
+                    </tr>
+                }
+                @foreach (var mon in Model.DONHANG_MONAN)
+                {
+                    <tr>
+                        <td colspan="3">@mon.MONAN.TEN_MON x @mon.SOLUONG</td>
+                        <td style="text-align:right">@String.Format("{0:0,0}", mon.DONGIA * mon.SOLUONG)đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div style="margin-top:16px;text-align:right;line-height:1.9">
+            <div>Tiền vé: @String.Format("{0:0,0}", Model.TIENVE)đ</div>
+            @if (Model.TIENMONAN > 0)
+            {
+                <div>Bắp nước: @String.Format("{0:0,0}", Model.TIENMONAN)đ</div>
+            }
+            @if (Model.TIENGIAM > 0)
+            {
+                <div>Khuyến mãi: -@String.Format("{0:0,0}", Model.TIENGIAM)đ</div>
+            }
+            <div style="font-size:22px;font-weight:700;color:var(--accent)">Tổng thanh toán: @String.Format("{0:0,0}", Model.TONGTIEN)đ</div>
+        </div>
+
+        <div class="no-print" style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+            <button type="button" class="btn-adm-primary" onclick="window.print()"><i class="bi bi-printer"></i> In hóa đơn</button>
+            <a href="/NhanVien/BanVe" class="btn-adm-ghost"><i class="bi bi-plus-circle"></i> Bán đơn mới</a>
+            <a href="/NhanVien/LichSuBan" class="btn-adm-ghost">Đơn đã bán</a>
+        </div>
+    </div>
+</div>
