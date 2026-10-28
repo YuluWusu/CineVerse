@@ -1,57 +1,273 @@
 @model DoAn_QuanLyVeXemPhimTrucTiep.Models.KHACHHANG
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
 @{
-    ViewBag.Title = "Hồ sơ của tôi";
+    ViewBag.Title = "Hồ sơ thành viên CinéVerse";
     Layout = "~/Views/Shared/_Khung.cshtml";
+    var loyalty = ViewBag.LoyaltyInfo as TierProgressInfo ?? new TierProgressInfo();
+    string tier = !string.IsNullOrEmpty(Model.HANGTHANHVIEN) ? Model.HANGTHANHVIEN.Trim() : "Member";
+    string tierColor = tier == "VVIP" ? "#e0a96d" : (tier == "VIP" ? "#ffd700" : "#a0aec0");
+    string cardBg = tier == "VVIP" 
+        ? "linear-gradient(135deg, #1f1a14 0%, #3d2b1f 50%, #15100c 100%)" 
+        : (tier == "VIP" 
+            ? "linear-gradient(135deg, #1c1c24 0%, #2d2613 50%, #0d0e15 100%)" 
+            : "linear-gradient(135deg, #141721 0%, #1f2430 50%, #0d0f17 100%)");
 }
 
 @section Styles {
     <style>
         .profile-container {
-            padding: 80px 0;
+            padding: 50px 0 90px;
             background: var(--bg-void);
-            min-height: 80vh;
+            min-height: 85vh;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 991px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Thẻ Thành Viên Điện Tử Cinematic */
+        .membership-card-wrap {
+            perspective: 1000px;
+            margin-bottom: 25px;
+        }
+
+        .digital-card {
+            background: @cardBg;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 18px;
+            padding: 26px 28px;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 40px rgba(255,255,255,0.02);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .digital-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.8), 0 0 25px rgba(229,166,35,0.2);
+        }
+
+        .card-chip {
+            width: 44px;
+            height: 32px;
+            background: linear-gradient(135deg, #e6c875 0%, #b8973b 100%);
+            border-radius: 6px;
+            position: relative;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
+        }
+
+        .card-chip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .card-chip::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .card-brand {
+            font-family: var(--font-display, sans-serif);
+            font-size: 20px;
+            letter-spacing: 2px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .card-brand span {
+            color: var(--accent, #e5a623);
+        }
+
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid @tierColor;
+            color: @tierColor;
+            box-shadow: 0 0 10px rgba(229,166,35,0.2);
+        }
+
+        .card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .card-bottom-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .card-holder-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 2px;
+        }
+
+        .card-holder-name {
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .card-hologram {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: conic-gradient(from 180deg at 50% 50%, #ffd700, #ff6b6b, #4dabf7, #69db7c, #ffd700);
+            opacity: 0.8;
+            box-shadow: 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        /* Thẻ Tiến Trình Tích Điểm */
+        .loyalty-progress-box {
+            background: var(--bg-card, #181a20);
+            border: 1px solid var(--border, rgba(255,255,255,0.1));
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 25px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .points-highlight {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent, #e5a623);
+        }
+
+        .points-label {
+            font-size: 12px;
+            color: var(--text-muted, #8e95a5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .custom-progress-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0 8px;
+        }
+
+        .custom-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e5a623 0%, #ffd700 100%);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .progress-subtext {
+            font-size: 13px;
+            color: var(--text-muted, #8e95a5);
+        }
+
+        /* Bảng Quyền Lợi Hạng */
+        .tier-benefits-table {
+            background: var(--bg-card, #181a20);
+            border: 1px solid var(--border, rgba(255,255,255,0.1));
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .benefit-item:last-child {
+            border-bottom: none;
+        }
+
+        .benefit-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
         }
 
+        /* Card Thông Tin Chi Tiết */
         .profile-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 600px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            background: var(--bg-card, #181a20);
+            border: 1px solid var(--border, rgba(255,255,255,0.1));
+            border-radius: 14px;
+            padding: 32px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
         .profile-title {
-            font-family: var(--font-display);
-            font-size: 32px;
-            color: var(--text-primary);
-            text-align: center;
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }
-
-        .profile-title span {
-            color: var(--accent);
-        }
-
-        .profile-info {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
+            font-family: var(--font-display, sans-serif);
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 24px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            letter-spacing: 0.5px;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
         .info-row:last-child {
@@ -59,14 +275,13 @@
         }
 
         .info-label {
-            color: var(--text-muted);
+            color: var(--text-muted, #8e95a5);
             font-size: 14px;
-            font-weight: 500;
         }
 
         .info-value {
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
         }
 
@@ -78,18 +293,23 @@
 
         .btn-history {
             flex: 1;
-            background: var(--accent);
+            background: var(--accent, #e5a623);
             color: #000;
             text-align: center;
             padding: 12px;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 700;
             text-decoration: none;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-history:hover {
-            background: var(--accent-dim);
+            background: #d4951b;
+            color: #000;
             transform: translateY(-2px);
         }
 
@@ -101,9 +321,13 @@
             padding: 12px;
             border-radius: 8px;
             border: 1px solid rgba(232, 75, 75, 0.3);
-            font-weight: bold;
+            font-weight: 700;
             text-decoration: none;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-logout:hover {
@@ -114,43 +338,152 @@
 }
 
 <div class="profile-container">
-    <div class="profile-card">
-        <h1 class="profile-title">HỒ <span>SƠ</span></h1>
+    <div class="container">
+        <div class="profile-grid">
+            <!-- CỘT TRÁI: THẺ THÀNH VIÊN VÀ TIẾN TRÌNH TÍCH ĐIỂM -->
+            <div>
+                <!-- Thẻ thành viên kỹ thuật số -->
+                <div class="membership-card-wrap">
+                    <div class="digital-card">
+                        <div class="card-header-flex">
+                            <div class="card-brand">CINÉ<span>VERSE</span></div>
+                            <span class="tier-badge">@tier</span>
+                        </div>
 
-        <div class="profile-info">
-            <div class="info-row">
-                <span class="info-label">Mã thành viên</span>
-                <span class="info-value">@Model.MA_KHACH</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Họ và tên</span>
-                <span class="info-value">@Model.HOTEN</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Số điện thoại</span>
-                <span class="info-value">@Model.SDT</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Email</span>
-                <span class="info-value">@(string.IsNullOrEmpty(Model.EMAIL) ? "Chưa cập nhật" : Model.EMAIL)</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">CCCD</span>
-                <span class="info-value">@(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật" : Model.CCCD)</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Hạng thành viên</span>
-                <span class="info-value" style="color: var(--accent);">@Model.VAITRO</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Ngày tham gia</span>
-                <span class="info-value">@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("dd/MM/yyyy") : "N/A")</span>
-            </div>
-        </div>
+                        <div class="card-chip"></div>
 
-        <div class="profile-actions">
-            <a href="/Booking/LichSuVe" class="btn-history"><i class="bi bi-clock-history me-2"></i>Lịch sử đặt vé</a>
-            <a href="/Account/DangXuat" class="btn-logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a>
+                        <div class="card-number">
+                            CV-@(string.IsNullOrEmpty(Model.MA_KHACHHANG) ? "0000" : Model.MA_KHACHHANG.Trim().PadLeft(8, '0'))
+                        </div>
+
+                        <div class="card-bottom-flex">
+                            <div>
+                                <div class="card-holder-label">Chủ thẻ thành viên</div>
+                                <div class="card-holder-name">@Model.HOTEN</div>
+                            </div>
+                            <div class="card-hologram" title="Hologram Authentic"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tiến trình thăng hạng -->
+                <div class="loyalty-progress-box">
+                    <div class="progress-header">
+                        <div>
+                            <div class="points-label">Điểm tích lũy hiện có</div>
+                            <div class="points-highlight">@loyalty.CurrentPoints.ToString("N0") <span style="font-size: 16px; font-weight: normal; color: var(--text-muted);">điểm</span></div>
+                        </div>
+                        <div class="text-end">
+                            <div class="points-label">Hạng tiếp theo</div>
+                            <span class="badge bg-warning text-dark fw-bold">@loyalty.NextTier</span>
+                        </div>
+                    </div>
+
+                    <div class="custom-progress-bar">
+                        <div class="custom-progress-fill" style="width: @loyalty.ProgressPercent%;"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between progress-subtext">
+                        <span>@loyalty.ProgressPercent% hoàn thành</span>
+                        @if (loyalty.PointsNeededForNext > 0)
+                        {
+                            <span>Cần thêm <strong>@loyalty.PointsNeededForNext.ToString("N0")</strong> điểm để thăng hạng</span>
+                        }
+                        else
+                        {
+                            <span class="text-success"><i class="bi bi-star-fill me-1"></i>Hạng cao nhất</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Bảng quyền lợi hạng -->
+                <div class="tier-benefits-table">
+                    <div class="small fw-bold text-warning text-uppercase mb-3">
+                        <i class="bi bi-award-fill me-1"></i> Đặc quyền hạng @tier
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon bg-warning text-dark"><i class="bi bi-percent"></i></div>
+                        <div>
+                            <strong>Chiết khấu giá vé:</strong> 
+                            @(loyalty.DiscountRate > 0 ? $"Giảm {loyalty.DiscountRate * 100}% trực tiếp khi đặt vé" : "Nâng hạng VIP để nhận giảm 5% giá vé")
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon bg-info text-dark"><i class="bi bi-coin"></i></div>
+                        <div>
+                            <strong>Tích lũy điểm thưởng:</strong> Tích lũy 5% giá trị mọi đơn hàng thanh toán
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon bg-success text-dark"><i class="bi bi-gift-fill"></i></div>
+                        <div>
+                            <strong>Ưu đãi sinh nhật:</strong> Tặng combo Bắp ngọt + Nước ngọt trong tháng sinh nhật
+                        </div>
+                    </div>
+
+                    @if (tier == "VVIP")
+                    {
+                        <div class="benefit-item">
+                            <div class="benefit-icon bg-danger text-white"><i class="bi bi-cup-straw"></i></div>
+                            <div>
+                                <strong>Đặc quyền VVIP:</strong> Ưu tiên làn soát vé VIP & phòng chờ cao cấp
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: THÔNG TIN TÀI KHOẢN -->
+            <div>
+                <div class="profile-card">
+                    <h2 class="profile-title"><i class="bi bi-person-badge me-2 text-warning"></i>THÔNG TIN CÁ NHÂN</h2>
+
+                    <div class="info-row">
+                        <span class="info-label">Mã khách hàng</span>
+                        <span class="info-value">@Model.MA_KHACH</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Họ và tên</span>
+                        <span class="info-value">@Model.HOTEN</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Số điện thoại</span>
+                        <span class="info-value">@Model.SDT</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">@(string.IsNullOrEmpty(Model.EMAIL) ? "Chưa cập nhật" : Model.EMAIL)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Căn cước công dân (CCCD)</span>
+                        <span class="info-value">@(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật" : Model.CCCD)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Hạng thành viên</span>
+                        <span class="info-value" style="color: @tierColor;">@tier</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Điểm tích lũy</span>
+                        <span class="info-value text-warning fw-bold">@loyalty.CurrentPoints.ToString("N0") PTS</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày tham gia</span>
+                        <span class="info-value">@(Model.NGAYTAO.HasValue ? Model.NGAYTAO.Value.ToString("dd/MM/yyyy") : "N/A")</span>
+                    </div>
+
+                    <div class="profile-actions">
+                        <a href="/Booking/LichSuVe" class="btn-history">
+                            <i class="bi bi-clock-history"></i> Lịch sử đặt vé
+                        </a>
+                        <a href="/Account/DangXuat" class="btn-logout">
+                            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

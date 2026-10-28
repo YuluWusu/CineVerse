@@ -14,6 +14,7 @@
             <div class="adm-card-body">
                 @using (Html.BeginForm())
                 {
+                    @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.MA_PHONG)
                     @Html.HiddenFor(model => model.SO_HANG)
                     @Html.HiddenFor(model => model.SO_COT)

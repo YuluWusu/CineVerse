@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Đăng ký";
     Layout = "~/Views/Shared/_Khung.cshtml";
 }
@@ -142,6 +142,7 @@
         }
 
     <form action="/Account/DangKy" method="post">
+        @Html.AntiForgeryToken()
         <div class="form-group">
             <label for="HOTEN">Họ và tên *</label>
             <input style="color:white" type="text" id="HOTEN" name="HOTEN" class="form-control" placeholder="Nhập họ và tên" required />

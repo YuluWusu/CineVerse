@@ -1,48 +1,321 @@
+@using DoAn_QuanLyVeXemPhimTrucTiep.Services
 @{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var recentTickets = ViewBag.RecentTickets as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.VE>;
+    var rapList = ViewBag.RapList as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.RAPCHIEU> ?? new List<DoAn_QuanLyVeXemPhimTrucTiep.Models.RAPCHIEU>();
+    var initial = ViewBag.InitialAnalytics as AnalyticsResult ?? new AnalyticsResult();
 }
 
-<!-- STAT CARDS -->
-<div class="stat-grid">
-    <div class="stat-card gold">
-        <div class="stat-label">Tổng doanh thu</div>
-        <div class="stat-value">@String.Format("{0:0,0}", ViewBag.TotalRevenue)</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">VNĐ</div>
-        <i class="bi bi-cash-coin stat-icon"></i>
+@section Styles {
+    <style>
+        .analytics-toolbar {
+            background: var(--bg-card, #181a20);
+            border: 1px solid var(--border, rgba(255,255,255,0.08));
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .filter-btn-group {
+            display: inline-flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .btn-filter-range {
+            background: transparent;
+            border: none;
+            color: var(--text-muted, #8e95a5);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-filter-range.active {
+            background: var(--accent, #e5a623);
+            color: #000;
+            box-shadow: 0 2px 6px rgba(229,166,35,0.3);
+        }
+
+        .btn-filter-range:hover:not(.active) {
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .custom-date-inputs {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-date-inputs input[type="date"] {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .btn-export-csv {
+            background: linear-gradient(135deg, #2ed573 0%, #10ac84 100%);
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-export-csv:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46,213,115,0.3);
+            color: #fff;
+        }
+
+        /* STAT KPI GRID 5 CỘT */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card, #181a20);
+            border: 1px solid var(--border, rgba(255,255,255,0.08));
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .kpi-card.accent { border-left: 4px solid #ffd700; }
+        .kpi-card.cyan { border-left: 4px solid #00d2d3; }
+        .kpi-card.pink { border-left: 4px solid #ff6b81; }
+        .kpi-card.green { border-left: 4px solid #2ed573; }
+        .kpi-card.purple { border-left: 4px solid #a55eea; }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-muted, #8e95a5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            font-family: var(--font-display, sans-serif);
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--text-muted, #8e95a5);
+            margin-top: 4px;
+        }
+
+        .kpi-icon {
+            position: absolute;
+            right: 18px;
+            top: 20px;
+            font-size: 32px;
+            opacity: 0.12;
+            color: #fff;
+        }
+
+        /* CHART BOXES */
+        .chart-box {
+            background: var(--bg-card, #181a20);
+            border: 1px solid var(--border, rgba(255,255,255,0.08));
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .chart-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .chart-box-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-canvas-wrap {
+            position: relative;
+            width: 100%;
+        }
+    </style>
+}
+
+<!-- TOOLBAR BỘ LỌC THỜI GIAN & CỤM RẠP & XUẤT CSV -->
+<div class="analytics-toolbar">
+    <div class="d-flex align-items-center flex-wrap gap-3">
+        <!-- Nhóm nút lọc thời gian -->
+        <div class="filter-btn-group">
+            <button type="button" class="btn-filter-range" data-range="today">Hôm nay</button>
+            <button type="button" class="btn-filter-range active" data-range="7days">7 ngày qua</button>
+            <button type="button" class="btn-filter-range" data-range="month">Tháng này</button>
+            <button type="button" class="btn-filter-range" data-range="all">Tất cả</button>
+            <button type="button" class="btn-filter-range" data-range="custom">Tùy chọn...</button>
+        </div>
+
+        <!-- Khung chọn ngày tùy biến -->
+        <div class="custom-date-inputs" id="customDateWrap">
+            <input type="date" id="inputTuNgay" />
+            <span class="text-muted small">&rarr;</span>
+            <input type="date" id="inputDenNgay" />
+            <button type="button" class="btn btn-sm btn-warning" id="btnApplyCustomDate"><i class="bi bi-check2"></i> Áp dụng</button>
+        </div>
+
+        <!-- Dropdown lọc theo Cụm rạp -->
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-geo-alt text-warning"></i>
+            <select id="selectRap" class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto; min-width: 180px;">
+                <option value="">-- Tất cả cụm rạp --</option>
+                @foreach (var rap in rapList)
+                {
+                    <option value="@rap.MA_RAP.Trim()">@rap.TEN_RAP</option>
+                }
+            </select>
+        </div>
     </div>
-    <div class="stat-card green">
-        <div class="stat-label">Vé bán ra</div>
-        <div class="stat-value">@ViewBag.TotalTickets</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">vé</div>
-        <i class="bi bi-ticket-perforated stat-icon"></i>
+
+    <!-- Nút Xuất báo cáo CSV UTF-8 BOM -->
+    <a href="/Admin/XuatBaoCaoDoanhThu?timeRange=7days" id="btnExportReport" class="btn-export-csv" title="Xuất báo cáo doanh thu & vé ra file Excel / CSV UTF-8">
+        <i class="bi bi-file-earmark-spreadsheet-fill"></i> Xuất Báo Cáo Excel / CSV
+    </a>
+</div>
+
+<!-- THẺ CHỈ SỐ KPI CHÍNH -->
+<div class="kpi-grid">
+    <div class="kpi-card accent">
+        <div class="kpi-label">Tổng doanh thu</div>
+        <div class="kpi-value" id="kpiTotalRevenue">@initial.TotalRevenue.ToString("N0") đ</div>
+        <div class="kpi-sub" id="kpiRevenueSub">Vé + Bắp nước trong kỳ lọc</div>
+        <i class="bi bi-cash-stack kpi-icon"></i>
     </div>
-    <div class="stat-card blue">
-        <div class="stat-label">Tổng số phim</div>
-        <div class="stat-value">@ViewBag.TotalMovies</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">bộ phim</div>
-        <i class="bi bi-film stat-icon"></i>
+    <div class="kpi-card cyan">
+        <div class="kpi-label">Doanh thu Vé xem phim</div>
+        <div class="kpi-value" id="kpiTicketRevenue">@initial.TotalTicketRevenue.ToString("N0") đ</div>
+        <div class="kpi-sub">Doanh số vé phòng chiếu</div>
+        <i class="bi bi-ticket-perforated kpi-icon"></i>
     </div>
-    <div class="stat-card red">
-        <div class="stat-label">Khách hàng</div>
-        <div class="stat-value">@ViewBag.TotalCustomers</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">tài khoản</div>
-        <i class="bi bi-people stat-icon"></i>
+    <div class="kpi-card pink">
+        <div class="kpi-label">Doanh thu Bắp nước &amp; Combo</div>
+        <div class="kpi-value" id="kpiFnBRevenue">@initial.TotalFnBRevenue.ToString("N0") đ</div>
+        <div class="kpi-sub">Dịch vụ ẩm thực F&amp;B</div>
+        <i class="bi bi-cup-straw kpi-icon"></i>
+    </div>
+    <div class="kpi-card green">
+        <div class="kpi-label">Tỷ lệ lấp đầy ghế (Occupancy)</div>
+        <div class="kpi-value" id="kpiOccupancy">@initial.AverageOccupancyRate.ToString("0.0")%</div>
+        <div class="kpi-sub">Ghế có người / Tổng công suất</div>
+        <i class="bi bi-pie-chart-fill kpi-icon"></i>
+    </div>
+    <div class="kpi-card purple">
+        <div class="kpi-label">Vé đã bán ra</div>
+        <div class="kpi-value" id="kpiTicketsSold">@initial.TotalTicketsSold.ToString("N0")</div>
+        <div class="kpi-sub">Vé không tính vé đã hủy</div>
+        <i class="bi bi-people-fill kpi-icon"></i>
     </div>
 </div>
 
-<!-- BẢNG VÉ GẦN NHẤT -->
+<!-- BIỂU ĐỒ 1: DOANH THU VÉ VS BẮP NƯỚC THEO NGÀY (FULL WIDTH) -->
+<div class="chart-box">
+    <div class="chart-box-header">
+        <div class="chart-box-title">
+            <i class="bi bi-graph-up text-warning"></i> Biến động Doanh thu Vé vs Bắp nước (F&amp;B) theo ngày
+        </div>
+        <div class="small text-muted">Đơn vị: VNĐ</div>
+    </div>
+    <div class="chart-canvas-wrap" style="height: 320px;">
+        <canvas id="revenueDualChart"></canvas>
+    </div>
+</div>
+
+<!-- HÀNG BIỂU ĐỒ 2: TOP PHIM & TỶ TRỌNG CỤM RẠP / PHƯƠNG THỨC -->
+<div class="row g-4 mb-4">
+    <!-- Cột trái: Top 5 phim & Occupancy Rate -->
+    <div class="col-lg-7">
+        <div class="chart-box h-100 mb-0">
+            <div class="chart-box-header">
+                <div class="chart-box-title">
+                    <i class="bi bi-trophy-fill text-warning"></i> Top 5 Phim doanh thu cao nhất &amp; Tỷ lệ lấp đầy ghế (%)
+                </div>
+                <div class="small text-muted">Occupancy %</div>
+            </div>
+            <div class="chart-canvas-wrap" style="height: 280px;">
+                <canvas id="topMoviesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cột phải: Tỷ trọng Cụm rạp & Cổng thanh toán -->
+    <div class="col-lg-5">
+        <div class="chart-box h-100 mb-0">
+            <div class="chart-box-header">
+                <div class="chart-box-title">
+                    <i class="bi bi-pie-chart text-info"></i> Tỷ trọng Doanh thu Cụm rạp &amp; Thanh toán
+                </div>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary active" id="btnDoughnutCinema">Theo Rạp</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnDoughnutPayment">Thanh toán</button>
+                </div>
+            </div>
+            <div class="chart-canvas-wrap d-flex justify-content-center" style="height: 280px;">
+                <canvas id="sharesDoughnutChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BẢNG GIAO DỊCH VÉ GẦN NHẤT -->
 <div class="adm-card">
     <div class="adm-card-header">
         <div class="adm-card-title">
-            <i class="bi bi-clock-history"></i> Giao dịch đặt vé gần nhất
+            <i class="bi bi-clock-history text-warning"></i> Giao dịch đặt vé gần nhất
         </div>
         <a href="/Admin/QuanLyVe" class="btn-adm-ghost">
             Xem tất cả <i class="bi bi-arrow-right"></i>
         </a>
     </div>
-    <div class="adm-card-body" style="padding:0">
+    <div class="adm-card-body p-0">
         <div style="overflow-x:auto">
             <table class="adm-table">
                 <thead>
@@ -63,11 +336,11 @@
                         {
                             <tr>
                                 <td><span style="font-family:monospace;font-size:12px;color:var(--accent)">@ve.MA_VE</span></td>
-                                <td><strong>@(ve.DONHANG.KHACHHANG.HOTEN ?? "Khách lẻ")</strong></td>
-                                <td>@ve.LICHCHIEU.PHIM.TEN_PHIM</td>
-                                <td><span style="background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px;font-size:12px">@ve.GHE.SOGHE</span></td>
-                                <td>@ve.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td><strong style="color:var(--accent)">@String.Format("{0:0,0}", ve.DONGIA)đ</strong></td>
+                                <td><strong>@(ve.DONHANG?.KHACHHANG?.HOTEN ?? "Khách lẻ")</strong></td>
+                                <td>@(ve.LICHCHIEU?.PHIM?.TEN_PHIM ?? "N/A")</td>
+                                <td><span style="background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px;font-size:12px">@(ve.GHE?.SOGHE ?? ve.MA_GHE)</span></td>
+                                <td>@(ve.DONHANG != null ? ve.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
+                                <td><strong style="color:var(--accent)">@String.Format("{0:0,0}", ve.DONGIA) đ</strong></td>
                                 <td><span class="adm-badge dang">@ve.TRANGTHAI</span></td>
                             </tr>
                         }
@@ -86,3 +359,319 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Thư viện Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Cấu hình chung Chart.js Dark Theme
+        Chart.defaults.color = '#8e95a5';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+        Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+        var currentRange = '7days';
+        var currentRap = '';
+        var currentTuNgay = '';
+        var currentDenNgay = '';
+        var currentDoughnutMode = 'cinema'; // 'cinema' hoặc 'payment'
+        var cachedAnalyticsData = null;
+
+        var dualChart = null;
+        var topMoviesChart = null;
+        var doughnutChart = null;
+
+        function formatVND(val) {
+            return Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ';
+        }
+
+        // 1. Khởi tạo Biểu đồ kép Doanh thu Vé vs Bắp nước
+        function initDualChart(labels, ticketData, fnbData) {
+            var ctx = document.getElementById('revenueDualChart').getContext('2d');
+            dualChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tiền Vé xem phim',
+                            data: ticketData,
+                            backgroundColor: 'rgba(0, 210, 211, 0.8)',
+                            borderColor: '#00d2d3',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Bắp nước & Combo (F&B)',
+                            data: fnbData,
+                            backgroundColor: 'rgba(255, 107, 129, 0.85)',
+                            borderColor: '#ff6b81',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { boxWidth: 12, font: { weight: '600' } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatVND(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) return (value / 1000000) + 'M';
+                                    if (value >= 1000) return (value / 1000) + 'k';
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Khởi tạo Biểu đồ Top 5 Phim & Occupancy %
+        function initTopMoviesChart(movieItems) {
+            var ctx = document.getElementById('topMoviesChart').getContext('2d');
+            var labels = movieItems.map(function(m) { return m.TenPhim; });
+            var revenues = movieItems.map(function(m) { return m.DoanhThu; });
+            var rates = movieItems.map(function(m) { return m.OccupancyRate; });
+
+            topMoviesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tỷ lệ lấp đầy ghế (%)',
+                            data: rates,
+                            backgroundColor: 'rgba(255, 215, 0, 0.85)',
+                            borderColor: '#ffd700',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var item = movieItems[context.dataIndex];
+                                    return 'Occupancy: ' + item.OccupancyRate + '% | Doanh thu: ' + formatVND(item.DoanhThu) + ' (' + item.SoVeBan + ' vé)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            max: 100,
+                            ticks: {
+                                callback: function(value) { return value + '%'; }
+                            }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Khởi tạo Doughnut Chart Tỷ trọng
+        function initDoughnutChart() {
+            var ctx = document.getElementById('sharesDoughnutChart').getContext('2d');
+            doughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#ffd700', '#00d2d3', '#ff6b81', '#2ed573', '#a55eea', '#54a0ff'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#181a20'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + formatVND(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function updateDoughnutData() {
+            if (!cachedAnalyticsData || !doughnutChart) return;
+            var list = (currentDoughnutMode === 'cinema') ? cachedAnalyticsData.CinemaShares : cachedAnalyticsData.PaymentShares;
+            if (!list || list.length === 0) {
+                doughnutChart.data.labels = ['Chưa có dữ liệu'];
+                doughnutChart.data.datasets[0].data = [1];
+                doughnutChart.data.datasets[0].backgroundColor = ['rgba(255,255,255,0.1)'];
+            } else {
+                doughnutChart.data.labels = list.map(function(item) { return item.Name + ' (' + item.Percentage + '%)'; });
+                doughnutChart.data.datasets[0].data = list.map(function(item) { return item.Value; });
+                doughnutChart.data.datasets[0].backgroundColor = ['#ffd700', '#00d2d3', '#ff6b81', '#2ed573', '#a55eea', '#54a0ff'];
+            }
+            doughnutChart.update();
+        }
+
+        // Tải dữ liệu Analytics qua AJAX
+        function fetchAnalytics() {
+            var url = '/Admin/GetAnalyticsData?timeRange=' + encodeURIComponent(currentRange) + '&maRap=' + encodeURIComponent(currentRap);
+            if (currentRange === 'custom') {
+                url += '&tuNgay=' + encodeURIComponent(currentTuNgay) + '&denNgay=' + encodeURIComponent(currentDenNgay);
+            }
+
+            // Cập nhật link xuất báo cáo CSV
+            var exportUrl = '/Admin/XuatBaoCaoDoanhThu?timeRange=' + encodeURIComponent(currentRange) + '&maRap=' + encodeURIComponent(currentRap);
+            if (currentRange === 'custom') {
+                exportUrl += '&tuNgay=' + encodeURIComponent(currentTuNgay) + '&denNgay=' + encodeURIComponent(currentDenNgay);
+            }
+            document.getElementById('btnExportReport').setAttribute('href', exportUrl);
+
+            fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(result) {
+                    if (!result.success || !result.data) return;
+                    var d = result.data;
+                    cachedAnalyticsData = d;
+
+                    // Cập nhật các KPI Card
+                    document.getElementById('kpiTotalRevenue').textContent = formatVND(d.TotalRevenue);
+                    document.getElementById('kpiTicketRevenue').textContent = formatVND(d.TotalTicketRevenue);
+                    document.getElementById('kpiFnBRevenue').textContent = formatVND(d.TotalFnBRevenue);
+                    document.getElementById('kpiOccupancy').textContent = d.AverageOccupancyRate.toFixed(1) + '%';
+                    document.getElementById('kpiTicketsSold').textContent = d.TotalTicketsSold.toLocaleString();
+
+                    // Cập nhật Dual Chart
+                    if (dualChart) {
+                        dualChart.data.labels = d.DateLabels;
+                        dualChart.data.datasets[0].data = d.TicketRevenues;
+                        dualChart.data.datasets[1].data = d.FnBRevenues;
+                        dualChart.update();
+                    }
+
+                    // Cập nhật Top Movies Chart
+                    if (topMoviesChart) {
+                        topMoviesChart.data.labels = d.TopMovies.map(function(m) { return m.TenPhim; });
+                        topMoviesChart.data.datasets[0].data = d.TopMovies.map(function(m) { return m.OccupancyRate; });
+                        topMoviesChart.options.plugins.tooltip.callbacks.label = function(context) {
+                            var item = d.TopMovies[context.dataIndex];
+                            if (!item) return '';
+                            return 'Occupancy: ' + item.OccupancyRate + '% | Doanh thu: ' + formatVND(item.DoanhThu) + ' (' + item.SoVeBan + ' vé)';
+                        };
+                        topMoviesChart.update();
+                    }
+
+                    // Cập nhật Doughnut Chart
+                    updateDoughnutData();
+                })
+                .catch(function(err) {
+                    console.error('Lỗi khi nạp dữ liệu phân tích:', err);
+                });
+        }
+
+        // Bắt sự kiện
+        document.addEventListener('DOMContentLoaded', function() {
+            // Nạp dữ liệu khởi đầu từ ViewBag
+            var initialLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(initial.DateLabels));
+            var initialTicketRevenues = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(initial.TicketRevenues));
+            var initialFnBRevenues = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(initial.FnBRevenues));
+            var initialTopMovies = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(initial.TopMovies));
+
+            cachedAnalyticsData = {
+                CinemaShares: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(initial.CinemaShares)),
+                PaymentShares: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(initial.PaymentShares))
+            };
+
+            initDualChart(initialLabels, initialTicketRevenues, initialFnBRevenues);
+            initTopMoviesChart(initialTopMovies);
+            initDoughnutChart();
+            updateDoughnutData();
+
+            // Nút lọc thời gian
+            document.querySelectorAll('.btn-filter-range').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.btn-filter-range').forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    currentRange = this.getAttribute('data-range');
+
+                    var customWrap = document.getElementById('customDateWrap');
+                    if (currentRange === 'custom') {
+                        customWrap.style.display = 'inline-flex';
+                    } else {
+                        customWrap.style.display = 'none';
+                        fetchAnalytics();
+                    }
+                });
+            });
+
+            // Nút áp dụng ngày tùy chọn
+            document.getElementById('btnApplyCustomDate').addEventListener('click', function() {
+                currentTuNgay = document.getElementById('inputTuNgay').value;
+                currentDenNgay = document.getElementById('inputDenNgay').value;
+                fetchAnalytics();
+            });
+
+            // Lọc theo Rạp
+            document.getElementById('selectRap').addEventListener('change', function() {
+                currentRap = this.value;
+                fetchAnalytics();
+            });
+
+            // Chuyển tab Doughnut
+            document.getElementById('btnDoughnutCinema').addEventListener('click', function() {
+                currentDoughnutMode = 'cinema';
+                this.classList.add('active');
+                document.getElementById('btnDoughnutPayment').classList.remove('active');
+                updateDoughnutData();
+            });
+
+            document.getElementById('btnDoughnutPayment').addEventListener('click', function() {
+                currentDoughnutMode = 'payment';
+                this.classList.add('active');
+                document.getElementById('btnDoughnutCinema').classList.remove('active');
+                updateDoughnutData();
+            });
+        });
+    </script>
+}

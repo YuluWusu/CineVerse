@@ -19,6 +19,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         {
             this.DONHANG_MONAN = new HashSet<DONHANG_MONAN>();
             this.VEs = new HashSet<VE>();
+            this.CHITIET_BAPNUOC = new HashSet<CHITIET_BAPNUOC>();
         }
     
         public string MA_DONHANG { get; set; }
@@ -32,6 +33,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public decimal TIENGIAM { get; set; }
         public decimal TONGTIEN { get; set; }
         public string TRANGTHAI { get; set; }
+        public string PHUONGTHUCTHANHTOAN { get; set; }
+        public string TRANGTHAITHANHTOAN { get; set; }
+        public string MAGIAODICH { get; set; }
+        public string MACHECKIN { get; set; }
+        public string TRANGTHAISOATVE { get; set; }
+        public Nullable<System.DateTime> THOIGIANCHECKIN { get; set; }
+        public string MANV_SOATVE { get; set; }
+        public string TRANGTHAINHANBAPNUOC { get; set; }
     
         public virtual KHACHHANG KHACHHANG { get; set; }
         public virtual KHUYENMAI KHUYENMAI { get; set; }
@@ -41,5 +50,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public virtual ICollection<DONHANG_MONAN> DONHANG_MONAN { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<VE> VEs { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CHITIET_BAPNUOC> CHITIET_BAPNUOC { get; set; }
     }
 }

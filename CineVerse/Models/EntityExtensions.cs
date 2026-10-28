@@ -128,4 +128,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
             }
         }
     }
+
+    /// <summary>
+    /// Alias class for QL_VEPHIMEntities to support both naming conventions seamlessly.
+    /// </summary>
+    public class QL_VEPHIM2Entities : QL_VEPHIMEntities
+    {
+        public QL_VEPHIM2Entities() : base() { }
+    }
 }

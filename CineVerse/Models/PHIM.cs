@@ -19,6 +19,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         {
             this.LICHCHIEUx = new HashSet<LICHCHIEU>();
             this.THELOAIs = new HashSet<THELOAI>();
+            this.DANHGIAs = new HashSet<DANHGIA>();
         }
     
         public string MA_PHIM { get; set; }
@@ -37,5 +38,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public virtual ICollection<LICHCHIEU> LICHCHIEUx { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<THELOAI> THELOAIs { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DANHGIA> DANHGIAs { get; set; }
     }
 }

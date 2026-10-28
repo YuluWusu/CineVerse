@@ -1,0 +1,178 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.NHANVIEN
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Hồ sơ nhân viên " + Model.MA_NHANVIEN.Trim();
+
+    var tk = Model.TAIKHOAN;
+    var donQuay = ViewBag.DonQuay as List<DONHANG> ?? new List<DONHANG>();
+    var donSoatVe = ViewBag.DonSoatVe as List<DONHANG> ?? new List<DONHANG>();
+    decimal tongDoanhThu = (decimal)(ViewBag.TongDoanhThu ?? 0m);
+    int tongVeDaSoat = (int)(ViewBag.TongVeDaSoat ?? 0);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="text-white fw-bold mb-1">
+            <i class="bi bi-person-lines-fill text-warning me-2"></i>Hồ sơ &amp; Lịch sử Vận hành của Nhân viên
+        </h5>
+        <div class="text-muted small">
+            Nhân viên: <strong class="text-white">@(tk?.HOTEN)</strong> &bull;
+            Mã: <span class="font-monospace text-warning fw-bold">@Model.MA_NHANVIEN.Trim()</span> &bull;
+            Rạp: <span class="badge bg-secondary">@(Model.RAPCHIEU?.TEN_RAP ?? "Chưa gán")</span>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("SuaNhanVien", "Admin", new { id = Model.MA_NHANVIEN.Trim() })" class="btn btn-sm btn-outline-warning">
+            <i class="bi bi-pencil me-1"></i> Chỉnh sửa
+        </a>
+        <a href="@Url.Action("QuanLyNhanVien", "Admin")" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Danh sách
+        </a>
+    </div>
+</div>
+
+<!-- Thẻ thống kê KPI ca trực của nhân viên -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="p-3 rounded" style="background: rgba(229,166,35,0.08); border: 1px solid rgba(229,166,35,0.25);">
+            <div class="text-muted small text-uppercase">Đơn xuất tại quầy POS</div>
+            <div class="fs-3 fw-bold text-warning font-monospace">@donQuay.Count đơn</div>
+            <div class="text-muted" style="font-size:11px;">Ghi nhận qua mã nhân viên @Model.MA_NHANVIEN.Trim()</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 rounded" style="background: rgba(75,232,124,0.08); border: 1px solid rgba(75,232,124,0.25);">
+            <div class="text-muted small text-uppercase">Doanh thu quầy mang lại</div>
+            <div class="fs-3 fw-bold text-success font-monospace">@tongDoanhThu.ToString("#,##0") đ</div>
+            <div class="text-muted" style="font-size:11px;">Tổng tiền thực thu tại quầy vé POS</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 rounded" style="background: rgba(13,110,253,0.08); border: 1px solid rgba(13,110,253,0.25);">
+            <div class="text-muted small text-uppercase">Vé đã soát qua cửa (QR)</div>
+            <div class="fs-3 fw-bold text-primary font-monospace">@tongVeDaSoat vé</div>
+            <div class="text-muted" style="font-size:11px;">@donSoatVe.Count lượt quét Check-in phòng chiếu</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs Lịch sử Bán vé vs Soát vé -->
+<div class="adm-card">
+    <div class="adm-card-header p-0">
+        <ul class="nav nav-tabs border-0 px-3 pt-2" id="staffHistoryTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active bg-transparent text-white border-0 fw-bold border-bottom border-warning border-3" id="tab-pos-tab" data-bs-toggle="tab" data-bs-target="#tab-pos" type="button">
+                    <i class="bi bi-receipt me-1"></i> Đơn đã bán tại quầy POS (@donQuay.Count)
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link bg-transparent text-muted border-0 fw-bold" id="tab-scan-tab" data-bs-toggle="tab" data-bs-target="#tab-scan" type="button">
+                    <i class="bi bi-qr-code-scan me-1"></i> Lượt đã soát vé QR (@donSoatVe.Count)
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="adm-card-body p-0">
+        <div class="tab-content">
+            <!-- TAB 1: ĐƠN BÁN POS -->
+            <div class="tab-pane fade show active" id="tab-pos">
+                <div style="overflow-x:auto;">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Thời gian</th>
+                                <th>Phim / Suất chiếu</th>
+                                <th>Số vé</th>
+                                <th>Tổng tiền</th>
+                                <th>Hình thức</th>
+                                <th style="text-align:right;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!donQuay.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);">
+                                        Nhân viên này chưa xuất đơn bán vé nào tại quầy POS.
+                                    </td>
+                                </tr>
+                            }
+                            @foreach (var d in donQuay)
+                            {
+                                <tr>
+                                    <td><strong class="text-warning font-monospace">@d.MA_DONHANG.Trim()</strong></td>
+                                    <td style="font-size:12px;">@d.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <strong>@(d.LICHCHIEU?.PHIM?.TEN_PHIM)</strong><br />
+                                        <span class="text-muted" style="font-size:11px;">@(d.LICHCHIEU?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm"))</span>
+                                    </td>
+                                    <td><span class="badge bg-secondary">@d.VEs.Count vé</span></td>
+                                    <td class="font-monospace text-success fw-bold">@d.TONGTIEN.ToString("#,##0") đ</td>
+                                    <td><span class="badge bg-dark border">@(d.PHUONGTHUCTHANHTOAN ?? "Tiền mặt")</span></td>
+                                    <td style="text-align:right;">
+                                        <a href="@Url.Action("InVeK80", "NhanVien", new { id = d.MA_DONHANG.Trim() })" target="_blank" class="btn btn-sm btn-outline-warning" title="In lại vé nhiệt K80">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: LƯỢT SOÁT VÉ QR -->
+            <div class="tab-pane fade" id="tab-scan">
+                <div style="overflow-x:auto;">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Thời gian Check-in</th>
+                                <th>Mã Check-in</th>
+                                <th>Mã đơn</th>
+                                <th>Phim / Phòng chiếu</th>
+                                <th>Vị trí ghế</th>
+                                <th>Khách hàng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!donSoatVe.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" style="text-align:center; padding: 24px; color: var(--text-muted);">
+                                        Nhân viên này chưa thực hiện lượt soát vé nào.
+                                    </td>
+                                </tr>
+                            }
+                            @foreach (var s in donSoatVe)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary font-monospace">
+                                            @(s.THOIGIANCHECKIN.HasValue ? s.THOIGIANCHECKIN.Value.ToString("dd/MM/yyyy HH:mm:ss") : "---")
+                                        </span>
+                                    </td>
+                                    <td><span class="font-monospace text-warning fw-bold">@(s.MACHECKIN ?? s.MA_DONHANG)</span></td>
+                                    <td><span class="font-monospace text-light">@s.MA_DONHANG.Trim()</span></td>
+                                    <td>
+                                        <strong>@(s.LICHCHIEU?.PHIM?.TEN_PHIM)</strong><br />
+                                        <span class="text-muted" style="font-size:11px;">@(s.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG)</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-light fw-bold">@string.Join(", ", s.VEs.Select(v => v.GHE?.SOGHE?.Trim()))</span>
+                                    </td>
+                                    <td>
+                                        <span>@(s.KHACHHANG?.HOTEN ?? "Khách vãng lai")</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

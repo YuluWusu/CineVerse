@@ -1,0 +1,102 @@
+@{
+    string toastMessage = TempData["ToastMessage"] as string;
+    string rawType = TempData["ToastType"] as string;
+    string toastType = !string.IsNullOrEmpty(rawType) ? rawType.ToLowerInvariant() : "info";
+
+    if (string.IsNullOrEmpty(toastMessage))
+    {
+        if (TempData["Success"] != null)
+        {
+            toastMessage = TempData["Success"].ToString();
+            toastType = "success";
+        }
+        else if (TempData["CheckInOk"] != null)
+        {
+            toastMessage = TempData["CheckInOk"].ToString();
+            toastType = "success";
+        }
+        else if (TempData["Error"] != null)
+        {
+            toastMessage = TempData["Error"].ToString();
+            toastType = "error";
+        }
+        else if (TempData["Loi"] != null)
+        {
+            toastMessage = TempData["Loi"].ToString();
+            toastType = "error";
+        }
+        else if (TempData["CheckInLoi"] != null)
+        {
+            toastMessage = TempData["CheckInLoi"].ToString();
+            toastType = "error";
+        }
+        else if (TempData["Warning"] != null)
+        {
+            toastMessage = TempData["Warning"].ToString();
+            toastType = "warning";
+        }
+        else if (TempData["Info"] != null)
+        {
+            toastMessage = TempData["Info"].ToString();
+            toastType = "info";
+        }
+    }
+}
+
+@if (!string.IsNullOrEmpty(toastMessage))
+{
+    string borderColor = "rgba(255,255,255,0.15)";
+    string iconClass = "bi-info-circle-fill text-primary";
+    string titleText = "Thông báo";
+
+    switch (toastType)
+    {
+        case "success":
+            borderColor = "rgba(75, 232, 124, 0.5)";
+            iconClass = "bi-check-circle-fill text-success";
+            titleText = "Thành công";
+            break;
+        case "error":
+        case "danger":
+            borderColor = "rgba(232, 75, 75, 0.5)";
+            iconClass = "bi-exclamation-triangle-fill text-danger";
+            titleText = "Lỗi";
+            break;
+        case "warning":
+            borderColor = "rgba(232, 184, 75, 0.5)";
+            iconClass = "bi-exclamation-circle-fill text-warning";
+            titleText = "Cảnh báo";
+            break;
+        case "info":
+        default:
+            borderColor = "rgba(75, 139, 232, 0.5)";
+            iconClass = "bi-info-circle-fill text-info";
+            titleText = "Thông tin";
+            break;
+    }
+
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090; margin-top: 75px;">
+        <div id="cvAppToast" class="toast align-items-center text-white" role="alert" aria-live="assertive" aria-atomic="true"
+             style="background: #151522; border: 1px solid @borderColor; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); min-width: 320px;">
+            <div class="d-flex p-3 align-items-start">
+                <i class="bi @iconClass me-2 fs-5"></i>
+                <div class="toast-body p-0 flex-grow-1" style="font-size: 14px; line-height: 1.5; color: #f0eff5;">
+                    <div style="font-weight: 700; margin-bottom: 2px;">@titleText</div>
+                    <div>@toastMessage</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toastEl = document.getElementById('cvAppToast');
+            if (toastEl && typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+                var toast = new bootstrap.Toast(toastEl, { delay: 4500 });
+                toast.show();
+            }
+        });
+    </script>
+}
+

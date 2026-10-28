@@ -1,0 +1,200 @@
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
+@model DONHANG
+@{
+    Layout = null; // Dùng làm partial view trong modal POS hoặc in độc lập
+
+    var lc = Model.LICHCHIEU;
+    var phim = lc?.PHIM;
+    var phong = lc?.PHONGCHIEU;
+    var rap = phong?.RAPCHIEU;
+    var danhSachGhe = Model.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+    var chiTietBapNuoc = Model.CHITIET_BAPNUOC.ToList();
+    string maCheckIn = !string.IsNullOrEmpty(Model.MACHECKIN) ? Model.MACHECKIN.Trim() : ("CKI-" + Model.MA_DONHANG.Trim());
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>In vé nhiệt K80 - @Model.MA_DONHANG.Trim()</title>
+    <style>
+        /* Khổ in nhiệt 80mm K80 chuẩn quầy rạp POS */
+        @@page {
+            size: 80mm auto;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace, 'Arial', sans-serif;
+            color: #000;
+            background: #fff;
+            margin: 0 auto;
+            padding: 8px 12px;
+            width: 76mm;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .text-start { text-align: left; }
+        .fw-bold { font-weight: bold; }
+        .text-uppercase { text-transform: uppercase; }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+        .brand-title {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .receipt-divider {
+            border-bottom: 1px dashed #000;
+            margin: 6px 0;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .qr-box {
+            text-align: center;
+            margin: 8px 0;
+        }
+        .qr-box img {
+            width: 120px;
+            height: 120px;
+            display: block;
+            margin: 0 auto 4px;
+        }
+        .checkin-code-txt {
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .receipt-total {
+            font-size: 14px;
+            font-weight: 900;
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            padding: 5px 0;
+            margin: 6px 0;
+        }
+
+        @@media print {
+            body {
+                width: 76mm;
+                padding: 4px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-header">
+        <div class="brand-title">CINÉVERSE CINEMAS</div>
+        <div class="fw-bold">@(rap?.TEN_RAP ?? "CinéVerse Central")</div>
+        <div style="font-size:10px;">Hotline: 1900 8888 &bull; www.cineverse.vn</div>
+        <div class="receipt-divider"></div>
+        <div class="fw-bold text-uppercase" style="font-size:12px;">HÓA ĐƠN &amp; VÉ XEM PHIM</div>
+        <div style="font-size:10px;">Số HĐ: <strong>@Model.MA_DONHANG.Trim()</strong> &bull; Thu ngân: @(Model.NHANVIEN?.TAIKHOAN?.HOTEN ?? Model.MA_NHANVIEN ?? "Quầy POS")</div>
+        <div style="font-size:10px;">Ngày in: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</div>
+    </div>
+
+    <!-- Thông tin Suất chiếu -->
+    <div>
+        <div class="fw-bold text-uppercase" style="font-size:13px; margin-bottom: 2px;">
+            @(phim?.TEN_PHIM ?? "Phim điện ảnh")
+        </div>
+        <div class="receipt-row">
+            <span>Rạp/Phòng:</span>
+            <span class="fw-bold">@(phong?.TEN_PHONG ?? "Phòng 1")</span>
+        </div>
+        <div class="receipt-row">
+            <span>Suất chiếu:</span>
+            <span class="fw-bold">@(lc?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm") ?? "19:00") &bull; @(lc?.NGAYCHIEU.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy"))</span>
+        </div>
+        <div class="receipt-row">
+            <span>Ghế ngồi (@danhSachGhe.Count vé):</span>
+            <span class="fw-bold" style="font-size:13px;">@string.Join(", ", danhSachGhe)</span>
+        </div>
+        <div class="receipt-row">
+            <span>Khách hàng:</span>
+            <span>@(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")</span>
+        </div>
+    </div>
+
+    <div class="receipt-divider"></div>
+
+    <!-- Chi tiết Bắp nước nếu có -->
+    @if (chiTietBapNuoc.Any())
+    {
+        <div class="fw-bold" style="margin-bottom:2px;">BẮP NƯỚC &amp; COMBO:</div>
+        foreach (var ct in chiTietBapNuoc)
+        {
+            <div class="receipt-row" style="font-size:10px;">
+                <span>@(ct.BAPNUOC?.TEN_SANPHAM ?? "Món") x@(ct.SOLUONG)</span>
+                <span>@ct.THANHTIEN.ToString("#,##0") đ</span>
+            </div>
+        }
+        <div class="receipt-divider"></div>
+    }
+
+    <!-- Chi tiết Thanh toán -->
+    <div class="receipt-row">
+        <span>Tiền vé xem phim:</span>
+        <span>@Model.TIENVE.ToString("#,##0") đ</span>
+    </div>
+    @if (Model.TIENMONAN > 0)
+    {
+        <div class="receipt-row">
+            <span>Tiền bắp nước:</span>
+            <span>@Model.TIENMONAN.ToString("#,##0") đ</span>
+        </div>
+    }
+    @if (Model.TIENGIAM > 0)
+    {
+        <div class="receipt-row">
+            <span>Giảm giá khuyến mãi:</span>
+            <span>-@Model.TIENGIAM.ToString("#,##0") đ</span>
+        </div>
+    }
+
+    <div class="receipt-row receipt-total">
+        <span>TỔNG THANH TOÁN:</span>
+        <span>@Model.TONGTIEN.ToString("#,##0") đ</span>
+    </div>
+
+    <div class="receipt-row" style="font-size:10px;">
+        <span>Hình thức:</span>
+        <span class="fw-bold">@(Model.PHUONGTHUCTHANHTOAN == "VietQR" ? "Chuyển khoản VietQR" : "Tiền mặt tại quầy")</span>
+    </div>
+    <div class="receipt-row" style="font-size:10px;">
+        <span>Trạng thái:</span>
+        <span class="fw-bold">ĐÃ THANH TOÁN</span>
+    </div>
+
+    <!-- Mã QR Check-In tại cửa soát vé -->
+    <div class="qr-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=@Uri.EscapeDataString(maCheckIn)&margin=0" alt="QR Code" />
+        <div class="checkin-code-txt">@maCheckIn</div>
+        <div style="font-size:9px;">Quét mã này tại cửa phòng chiếu</div>
+    </div>
+
+    <div class="receipt-divider"></div>
+    <div class="text-center" style="font-size:9px; font-style:italic;">
+        Cảm ơn quý khách và chúc quý khách xem phim vui vẻ!<br />
+        (Vé chỉ có giá trị trong ngày và suất chiếu được in)
+    </div>
+</body>
+</html>
+

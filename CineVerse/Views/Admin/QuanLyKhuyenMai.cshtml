@@ -157,6 +157,7 @@
                                 </a>
                                 <form action="/Admin/XoaKhuyenMai" method="post" style="display:inline"
                                       onsubmit="return confirm('Xóa khuyến mãi \"@km.TEN_KM\"?')">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@km.MA_KM" />
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-trash"></i>

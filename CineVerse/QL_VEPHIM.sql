@@ -1,4 +1,4 @@
-/* ============================================================================
+﻿﻿/* ============================================================================
    HỆ THỐNG QUẢN LÝ VÉ PHIM (QL_VEPHIM)
    ----------------------------------------------------------------------------
     */
@@ -494,4 +494,224 @@ GO
 
 INSERT INTO DONHANG_MONAN VALUES 
 ('DH001', 'MN004', 1, 89000);
+GO
+
+
+-- =========================================================================
+-- Phase 2: BAPNUOC & CHITIET_BAPNUOC
+-- =========================================================================
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BAPNUOC')
+BEGIN
+    CREATE TABLE [dbo].[BAPNUOC] (
+        [MA_SANPHAM] NCHAR(5) NOT NULL,
+        [TEN_SANPHAM] NVARCHAR(100) NOT NULL,
+        [MOTA] NVARCHAR(500) NULL,
+        [PHANLOAI] NVARCHAR(20) NOT NULL,
+        [GIABAN] DECIMAL(12, 0) NOT NULL,
+        [HINHANH] NVARCHAR(255) NULL,
+        [SOLUONGTON] INT NOT NULL CONSTRAINT [DF_BAPNUOC_SOLUONGTON] DEFAULT (100),
+        [TRANGTHAI] NVARCHAR(20) NOT NULL CONSTRAINT [DF_BAPNUOC_TRANGTHAI] DEFAULT (N'DangBan'),
+        CONSTRAINT [PK_BAPNUOC] PRIMARY KEY CLUSTERED ([MA_SANPHAM] ASC),
+        CONSTRAINT [CK_BAPNUOC_PHANLOAI] CHECK ([PHANLOAI] IN (N'Combo', N'Bắp', N'Nước', N'Snack')),
+        CONSTRAINT [CK_BAPNUOC_GIABAN] CHECK ([GIABAN] >= 0),
+        CONSTRAINT [CK_BAPNUOC_SOLUONGTON] CHECK ([SOLUONGTON] >= 0),
+        CONSTRAINT [CK_BAPNUOC_TRANGTHAI] CHECK ([TRANGTHAI] IN (N'DangBan', N'NgungBan'))
+    );
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CHITIET_BAPNUOC')
+BEGIN
+    CREATE TABLE [dbo].[CHITIET_BAPNUOC] (
+        [MA_CHITIET] NCHAR(10) NOT NULL,
+        [MA_DONHANG] NCHAR(5) NOT NULL,
+        [MA_SANPHAM] NCHAR(5) NOT NULL,
+        [SOLUONG] INT NOT NULL,
+        [DONGIA] DECIMAL(12, 0) NOT NULL,
+        [THANHTIEN] DECIMAL(12, 0) NOT NULL,
+        CONSTRAINT [PK_CHITIET_BAPNUOC] PRIMARY KEY CLUSTERED ([MA_CHITIET] ASC),
+        CONSTRAINT [FK_CHITIET_BAPNUOC_DONHANG] FOREIGN KEY ([MA_DONHANG]) REFERENCES [dbo].[DONHANG] ([MA_DONHANG]) ON DELETE CASCADE,
+        CONSTRAINT [FK_CHITIET_BAPNUOC_BAPNUOC] FOREIGN KEY ([MA_SANPHAM]) REFERENCES [dbo].[BAPNUOC] ([MA_SANPHAM]),
+        CONSTRAINT [CK_CHITIET_BAPNUOC_SOLUONG] CHECK ([SOLUONG] > 0),
+        CONSTRAINT [CK_CHITIET_BAPNUOC_DONGIA] CHECK ([DONGIA] >= 0),
+        CONSTRAINT [CK_CHITIET_BAPNUOC_THANHTIEN] CHECK ([THANHTIEN] >= 0)
+    );
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[BAPNUOC] WHERE [MA_SANPHAM] = N'CB001')
+BEGIN
+    INSERT INTO [dbo].[BAPNUOC] ([MA_SANPHAM], [TEN_SANPHAM], [MOTA], [PHANLOAI], [GIABAN], [HINHANH], [SOLUONGTON], [TRANGTHAI])
+    VALUES 
+    (N'CB001', N'Combo Solo Đậm Vị', N'1 Bắp vừa tự chọn (Ngọt/Mặn) + 1 Nước ngọt có ga lớn 32oz', N'Combo', 79000, N'combo-solo.png', 150, N'DangBan'),
+    (N'CB002', N'Combo Couple Ngọt Ngào', N'1 Bắp lớn 2 vị đặc biệt (Caramel + Phô mai) + 2 Nước ngọt có ga lớn 32oz', N'Combo', 109000, N'combo-couple.png', 200, N'DangBan'),
+    (N'CB003', N'Combo Family Trọn Vẹn', N'2 Bắp khổng lồ (Caramel & Phô mai) + 3 Nước lớn + 1 Snack Khoai tây giòn', N'Combo', 169000, N'combo-family.png', 80, N'DangBan'),
+    (N'CB004', N'Combo CineVIP Signature', N'1 Bắp Caramel thượng hạng + 2 Trà đào cam sả thanh mát + 1 Xúc xích xông khói', N'Combo', 149000, N'combo-vip.png', 90, N'DangBan'),
+    (N'BP001', N'Bắp Rang Bơ Truyền Thống (Lớn)', N'Hạt bắp nổ giòn rụm ngào bơ thơm ngát quyến rũ', N'Bắp', 55000, N'bap-bo.png', 300, N'DangBan'),
+    (N'BP002', N'Bắp Phô Mai Thượng Hạng (Lớn)', N'Lớp bột phô mai béo ngậy mặn mặn đậm đà chuẩn vị rạp chiếu', N'Bắp', 65000, N'bap-phomai.png', 250, N'DangBan'),
+    (N'BP003', N'Bắp Caramel Đậm Đà (Lớn)', N'Sốt caramel nâu óng ánh phủ đều từng hạt bắp giòn ngọt', N'Bắp', 65000, N'bap-caramel.png', 250, N'DangBan'),
+    (N'BP004', N'Bắp Rang Socola Đen (Lớn)', N'Hương vị socola đen tinh tế dành cho tín đồ mê ngọt dịu', N'Bắp', 69000, N'bap-socola.png', 120, N'DangBan'),
+    (N'NU001', N'Pepsi Tươi Mát Lạnh (32oz)', N'Ly nước ngọt có ga sảng khoái đánh tan cơn khát', N'Nước', 35000, N'pepsi.png', 500, N'DangBan'),
+    (N'NU002', N'Coca-Cola Zero Sugar (32oz)', N'Không đường thanh nhẹ, giữ dáng trọn vẹn', N'Nước', 35000, N'coca-zero.png', 400, N'DangBan'),
+    (N'NU003', N'7Up Chanh Tươi Mát Lạnh (32oz)', N'Vị chanh tự nhiên tươi mới, cực kỳ đã khát', N'Nước', 35000, N'7up.png', 350, N'DangBan'),
+    (N'NU004', N'Trà Đào Cam Sả Tươi (24oz)', N'Vị thanh mát của trà, lát đào giòn ngọt và hương sả nồng nàn', N'Nước', 45000, N'tra-dao.png', 150, N'DangBan'),
+    (N'NU005', N'Nước Suối Khoáng Aquafina (500ml)', N'Nước khoáng tinh khiết đóng chai tiện lợi', N'Nước', 20000, N'aquafina.png', 400, N'DangBan'),
+    (N'SN001', N'Snack Khoai Tây Lay''s Giòn Tan', N'Vị tảo biển Nori thơm ngon giòn rụm', N'Snack', 25000, N'snack-lays.png', 200, N'DangBan'),
+    (N'SN002', N'Xúc Xích Xông Khói Phô Mai Nóng', N'Thịt heo xông khói nhân phô mai tan chảy khi cắn', N'Snack', 35000, N'xuc-xich.png', 100, N'DangBan');
+END
+GO
+
+
+-- =========================================================================
+-- Phase 4: Bổ sung các cột thanh toán và vé điện tử vào DONHANG
+-- =========================================================================
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[DONHANG]') AND name = 'PHUONGTHUCTHANHTOAN')
+BEGIN
+    ALTER TABLE [dbo].[DONHANG] ADD [PHUONGTHUCTHANHTOAN] NVARCHAR(50) NULL;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[DONHANG]') AND name = 'TRANGTHAITHANHTOAN')
+BEGIN
+    ALTER TABLE [dbo].[DONHANG] ADD [TRANGTHAITHANHTOAN] NVARCHAR(50) NULL;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[DONHANG]') AND name = 'MAGIAODICH')
+BEGIN
+    ALTER TABLE [dbo].[DONHANG] ADD [MAGIAODICH] NVARCHAR(100) NULL;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[DONHANG]') AND name = 'MACHECKIN')
+BEGIN
+    ALTER TABLE [dbo].[DONHANG] ADD [MACHECKIN] NVARCHAR(50) NULL;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[DONHANG]') AND name = 'TRANGTHAISOATVE')
+BEGIN
+    ALTER TABLE [dbo].[DONHANG] ADD [TRANGTHAISOATVE] NVARCHAR(50) NULL CONSTRAINT [DF_DONHANG_TRANGTHAISOATVE] DEFAULT (N'ChuaSoat');
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[DONHANG]') AND name = 'THOIGIANCHECKIN')
+BEGIN
+    ALTER TABLE [dbo].[DONHANG] ADD [THOIGIANCHECKIN] DATETIME NULL;
+END
+GO
+-- ===================================================================
+-- GIAI ĐOẠN 5: NÂNG CẤP PHÂN HỆ VẬN HÀNH RẠP CHO NHÂN VIÊN (POS & QR SCANNER)
+-- Bổ sung cột lưu vết nhân viên soát vé và trạng thái nhận bắp nước
+-- ===================================================================
+USE QL_VEPHIM;
+GO
+
+-- 1. Thêm cột MANV_SOATVE vào bảng DONHANG nếu chưa tồn tại
+IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'DONHANG' AND COLUMN_NAME = 'MANV_SOATVE'
+)
+BEGIN
+    ALTER TABLE DONHANG ADD MANV_SOATVE NVARCHAR(20) NULL;
+    PRINT N'Đã thêm cột MANV_SOATVE vào bảng DONHANG.';
+END
+GO
+
+-- 2. Thêm cột TRANGTHAINHANBAPNUOC vào bảng DONHANG nếu chưa tồn tại
+IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'DONHANG' AND COLUMN_NAME = 'TRANGTHAINHANBAPNUOC'
+)
+BEGIN
+    ALTER TABLE DONHANG ADD TRANGTHAINHANBAPNUOC NVARCHAR(50) NULL DEFAULT N'ChuaNhan';
+    PRINT N'Đã thêm cột TRANGTHAINHANBAPNUOC vào bảng DONHANG.';
+END
+GO
+
+-- Cập nhật giá trị mặc định cho các đơn hàng cũ
+UPDATE DONHANG 
+SET TRANGTHAINHANBAPNUOC = N'ChuaNhan'
+WHERE TRANGTHAINHANBAPNUOC IS NULL;
+GO
+-- ===================================================================
+-- GIAI ĐOẠN 6: HOÀN THIỆN TOÀN DIỆN HỆ THỐNG CINÉVERSE
+-- 1. Bổ sung bảng Đánh giá & Bình luận phim xác thực (DANHGIA)
+-- 2. Bổ sung tích điểm & hạng thành viên cho KHACHHANG
+-- ===================================================================
+USE QL_VEPHIM;
+GO
+
+-- 1. Thêm cột DIEMTICHLUY và HANGTHANHVIEN vào KHACHHANG nếu chưa có
+IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'KHACHHANG' AND COLUMN_NAME = 'DIEMTICHLUY'
+)
+BEGIN
+    ALTER TABLE KHACHHANG ADD DIEMTICHLUY INT NOT NULL DEFAULT 0;
+    PRINT N'Đã thêm cột DIEMTICHLUY vào bảng KHACHHANG.';
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'KHACHHANG' AND COLUMN_NAME = 'HANGTHANHVIEN'
+)
+BEGIN
+    ALTER TABLE KHACHHANG ADD HANGTHANHVIEN NVARCHAR(20) NOT NULL DEFAULT N'Member';
+    PRINT N'Đã thêm cột HANGTHANHVIEN vào bảng KHACHHANG.';
+END
+GO
+
+-- Cập nhật dữ liệu hạng ban đầu cho khách hàng
+UPDATE KHACHHANG
+SET DIEMTICHLUY = ISNULL(DIEMTICHLUY, 0),
+    HANGTHANHVIEN = ISNULL(HANGTHANHVIEN, N'Member')
+WHERE HANGTHANHVIEN IS NULL;
+GO
+
+-- 2. Tạo bảng DANHGIA nếu chưa có
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DANHGIA')
+BEGIN
+    CREATE TABLE DANHGIA (
+        MA_DANHGIA NVARCHAR(10) NOT NULL,
+        MA_PHIM NCHAR(5) NOT NULL,
+        MA_KHACHHANG NCHAR(5) NOT NULL,
+        SOSAO INT NOT NULL CONSTRAINT CK_DANHGIA_SOSAO CHECK (SOSAO BETWEEN 1 AND 5),
+        NOIDUNG NVARCHAR(1000) NULL,
+        NGAYDANHGIA DATETIME NOT NULL CONSTRAINT DF_DANHGIA_NGAY DEFAULT GETDATE(),
+        TRANGTHAI NVARCHAR(20) NOT NULL CONSTRAINT DF_DANHGIA_TRANGTHAI DEFAULT N'HienThi',
+        CONSTRAINT PK_DANHGIA PRIMARY KEY (MA_DANHGIA),
+        CONSTRAINT FK_DANHGIA_PHIM FOREIGN KEY (MA_PHIM) REFERENCES PHIM(MA_PHIM) ON DELETE CASCADE,
+        CONSTRAINT FK_DANHGIA_KHACHHANG FOREIGN KEY (MA_KHACHHANG) REFERENCES KHACHHANG(MA_KHACHHANG) ON DELETE CASCADE
+    );
+    PRINT N'Đã tạo bảng DANHGIA thành công.';
+END
+GO
+
+-- 3. Seed dữ liệu đánh giá mẫu chân thực
+IF NOT EXISTS (SELECT 1 FROM DANHGIA WHERE MA_DANHGIA = 'DG001')
+BEGIN
+    -- Lấy mã phim đầu tiên
+    DECLARE @FirstFilm NCHAR(5) = (SELECT TOP 1 MA_PHIM FROM PHIM ORDER BY MA_PHIM);
+    DECLARE @SecondFilm NCHAR(5) = (SELECT TOP 1 MA_PHIM FROM PHIM WHERE MA_PHIM != @FirstFilm ORDER BY MA_PHIM);
+    DECLARE @Cust1 NCHAR(5) = (SELECT TOP 1 MA_KHACHHANG FROM KHACHHANG ORDER BY MA_KHACHHANG);
+
+    IF @FirstFilm IS NOT NULL AND @Cust1 IS NOT NULL
+    BEGIN
+        INSERT INTO DANHGIA (MA_DANHGIA, MA_PHIM, MA_KHACHHANG, SOSAO, NOIDUNG, NGAYDANHGIA, TRANGTHAI)
+        VALUES 
+        ('DG001', @FirstFilm, @Cust1, 5, N'Phim đỉnh cao visual và âm thanh cực kỳ choáng ngợp! Rạp CinéVerse chiếu màn hình to xem rất đã mắt, bắp phô mai nóng giòn.', DATEADD(day, -2, GETDATE()), N'HienThi'),
+        ('DG002', @FirstFilm, @Cust1, 4, N'Diễn xuất của diễn viên chính rất cảm xúc, nhạc phim hoành tráng. Đoạn cuối hơi nhanh một chút nhưng tổng thể xứng đáng 9/10.', DATEADD(day, -1, GETDATE()), N'HienThi');
+    END
+
+    IF @SecondFilm IS NOT NULL AND @Cust1 IS NOT NULL
+    BEGIN
+        INSERT INTO DANHGIA (MA_DANHGIA, MA_PHIM, MA_KHACHHANG, SOSAO, NOIDUNG, NGAYDANHGIA, TRANGTHAI)
+        VALUES 
+        ('DG003', @SecondFilm, @Cust1, 5, N'Kịch bản chặt chẽ, nhiều nút thắt bất ngờ khó đoán. Ghế VIP ngồi êm và suất chiếu rất đúng giờ.', GETDATE(), N'HienThi');
+    END
+
+    PRINT N'Đã seed dữ liệu đánh giá mẫu.';
+END
 GO

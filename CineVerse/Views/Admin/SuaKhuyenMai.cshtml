@@ -22,6 +22,7 @@
 <div class="card" style="max-width: 680px;">
     <div class="card-body p-4">
         <form action="/Admin/SuaKhuyenMai/@Model.MA_KM" method="post">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="MA_KM" value="@Model.MA_KM" />
             <input type="hidden" name="SO_LUOT_DADUNG" value="@Model.SO_LUOT_DADUNG" />
 

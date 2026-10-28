@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="..\packages\EntityFramework.6.5.2\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.props')" />
@@ -159,6 +159,17 @@
     <Compile Include="Models\LOAIGHE.cs">
       <DependentUpon>QL_RapPhim.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\BAPNUOC.cs">
+      <DependentUpon>QL_RapPhim.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CHITIET_BAPNUOC.cs">
+      <DependentUpon>QL_RapPhim.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DANHGIA.cs">
+      <DependentUpon>QL_RapPhim.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Services\FnBService.cs" />
+    <Compile Include="Services\SeatHoldService.cs" />
     <Compile Include="Models\MONAN.cs">
       <DependentUpon>QL_RapPhim.tt</DependentUpon>
     </Compile>
@@ -215,6 +226,16 @@
     <Compile Include="Services\ScheduleService.cs" />
     <Compile Include="Services\SeatService.cs" />
     <Compile Include="Services\TicketService.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Filters\AdminAuthorizeAttribute.cs" />
+    <Compile Include="Filters\CustomerAuthorizeAttribute.cs" />
+    <Compile Include="Helpers\PasswordHelper.cs" />
+    <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\PricingService.cs" />
+    <Compile Include="Controllers\PaymentController.cs" />
+    <Compile Include="Helpers\VnPayLibrary.cs" />
+    <Compile Include="Services\EmailService.cs" />
+    <Compile Include="Services\LoyaltyService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />
@@ -325,15 +346,23 @@
     <Content Include="Views\NhanVien\ChonGhe.cshtml" />
     <Content Include="Views\NhanVien\HoaDon.cshtml" />
     <Content Include="Views\NhanVien\LichSuBan.cshtml" />
+    <Content Include="Views\NhanVien\InVeK80.cshtml" />
     <Content Include="Views\Shared\_Khung.cshtml" />
     <Content Include="Views\Home\GioiThieu.cshtml" />
     <Content Include="Views\Home\TrangChu.cshtml" />
     <Content Include="Views\Booking\DatVeThanhCong.cshtml" />
     <Content Include="Views\Booking\LichSuVe.cshtml" />
     <Content Include="Views\Booking\ThanhToan.cshtml" />
+    <Content Include="Views\Payment\VietQR.cshtml" />
+    <Content Include="Views\Payment\PaymentFailed.cshtml" />
+    <Content Include="Views\Payment\ETicket.cshtml" />
     <Content Include="Views\Admin\ChiTietKhachHang.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\QuanLyKhachHang.cshtml" />
+    <Content Include="Views\Admin\QuanLyNhanVien.cshtml" />
+    <Content Include="Views\Admin\ThemNhanVien.cshtml" />
+    <Content Include="Views\Admin\SuaNhanVien.cshtml" />
+    <Content Include="Views\Admin\ChiTietNhanVien.cshtml" />
     <Content Include="Views\Admin\QuanLyLichChieu.cshtml" />
     <Content Include="Views\Admin\QuanLyPhim.cshtml" />
     <Content Include="Views\Admin\QuanLyPhong.cshtml" />
@@ -366,11 +395,20 @@
     <Content Include="Views\Admin\ThemTheLoai.cshtml" />
     <Content Include="Views\Admin\SuaTheLoai.cshtml" />
     <Content Include="Views\Admin\EditLoaiGhe.cshtml" />
+    <Content Include="Views\Admin\QuanLyBapNuoc.cshtml" />
+    <Content Include="Views\Admin\ThemBapNuoc.cshtml" />
+    <Content Include="Views\Admin\SuaBapNuoc.cshtml" />
+    <Content Include="Views\Admin\QuanLyDanhGia.cshtml" />
     <Content Include="Views\Booking\ChonMonAn.cshtml" />
     <Content Include="Views\Booking\ChonGhe.cshtml" />
+    <Content Include="Views\Error\NotFound.cshtml" />
+    <Content Include="Views\Error\Forbidden.cshtml" />
+    <Content Include="Views\Error\InternalServerError.cshtml" />
+    <Content Include="Views\Shared\_ToastNotification.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\img\fnb\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

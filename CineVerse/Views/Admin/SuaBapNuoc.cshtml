@@ -1,0 +1,118 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.BAPNUOC
+@{
+    ViewBag.Title = "Chỉnh sửa Bắp nước / Combo: " + Model.TEN_SANPHAM;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    string currentImg = Url.Content("~/Content/img/fnb/" + (Model.HINHANH ?? "fnb-default.png"));
+}
+
+<div class="adm-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="adm-card-header d-flex justify-content-between align-items-center">
+        <div class="adm-card-title">
+            <i class="bi bi-pencil-square text-warning me-2"></i> Chỉnh sửa Bắp nước / Combo
+        </div>
+        <a href="@Url.Action("QuanLyBapNuoc", "Admin")" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger m-3" style="background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px; padding:12px 16px;">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        </div>
+    }
+
+    <div class="adm-card-body p-4">
+        @using (Html.BeginForm("SuaBapNuoc", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label text-light fw-semibold">Mã sản phẩm</label>
+                    <input type="text" name="MA_SANPHAM" class="form-control bg-secondary text-white border-secondary font-monospace"
+                           value="@Model.MA_SANPHAM.Trim()" readonly />
+                    <small class="text-muted">Mã định danh không thể thay đổi</small>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="form-label text-light fw-semibold">Tên sản phẩm / Combo <span class="text-danger">*</span></label>
+                    <input type="text" name="TEN_SANPHAM" class="form-control bg-dark text-white border-secondary"
+                           value="@Model.TEN_SANPHAM" required />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label text-light fw-semibold">Phân loại <span class="text-danger">*</span></label>
+                    <select name="PHANLOAI" class="form-select bg-dark text-white border-secondary">
+                        <option value="Combo" @(Model.PHANLOAI == "Combo" ? "selected" : "")>Combo Ưu Đãi</option>
+                        <option value="Bắp" @(Model.PHANLOAI == "Bắp" ? "selected" : "")>Bắp Rang</option>
+                        <option value="Nước" @(Model.PHANLOAI == "Nước" ? "selected" : "")>Nước Uống & Trà</option>
+                        <option value="Snack" @(Model.PHANLOAI == "Snack" ? "selected" : "")>Snack & Đồ Ăn Vặt</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label text-light fw-semibold">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                    <input type="number" name="GIABAN" class="form-control bg-dark text-white border-secondary"
+                           value="@Convert.ToInt64(Model.GIABAN)" min="0" step="1000" required />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label text-light fw-semibold">Số lượng tồn kho <span class="text-danger">*</span></label>
+                    <input type="number" name="SOLUONGTON" class="form-control bg-dark text-white border-secondary"
+                           value="@Model.SOLUONGTON" min="0" required />
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label text-light fw-semibold">Mô tả chi tiết combo / sản phẩm</label>
+                    <textarea name="MOTA" rows="3" class="form-control bg-dark text-white border-secondary">@Model.MOTA</textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label text-light fw-semibold">Trạng thái kinh doanh</label>
+                    <select name="TRANGTHAI" class="form-select bg-dark text-white border-secondary">
+                        <option value="DangBan" @(Model.TRANGTHAI == "DangBan" ? "selected" : "")>Đang bán (Mở bán ngay)</option>
+                        <option value="NgungBan" @(Model.TRANGTHAI == "NgungBan" ? "selected" : "")>Ngừng bán (Tạm ẩn)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label text-light fw-semibold">Thay đổi hình ảnh minh họa</label>
+                    <input type="file" name="hinhAnhFile" id="fnbEditImageInput" class="form-control bg-dark text-white border-secondary" accept="image/*" />
+                    <small class="text-muted">Để trống nếu muốn giữ nguyên ảnh hiện tại</small>
+                </div>
+
+                <div class="col-12 mt-2">
+                    <label class="form-label text-muted d-block small">Hình ảnh hiện tại:</label>
+                    <div class="p-2 border border-secondary rounded bg-black d-inline-block">
+                        <img id="currentImagePreview" src="@currentImg" alt="@Model.TEN_SANPHAM" style="max-height: 140px; border-radius: 6px;" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e232a/e5a623?text=F%26B';" />
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex gap-2 justify-content-end">
+                    <a href="@Url.Action("QuanLyBapNuoc", "Admin")" class="btn btn-secondary px-4">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-warning px-4 fw-semibold">
+                        <i class="bi bi-check-lg me-1"></i> Cập nhật sản phẩm
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('fnbEditImageInput').addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (evt) {
+                var preview = document.getElementById('currentImagePreview');
+                preview.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+}
+

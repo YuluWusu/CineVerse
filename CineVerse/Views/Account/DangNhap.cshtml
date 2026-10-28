@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Đăng nhập";
     Layout = "~/Views/Shared/_Khung.cshtml";
 }
@@ -125,6 +125,11 @@
         }
 
         <form action="/Account/DangNhap" method="post">
+            @Html.AntiForgeryToken()
+            @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl as string))
+            {
+                <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            }
             <div class="form-group">
                 <label for="SDT">Số điện thoại</label>
                 <input style="color:white" type="tel" id="SDT" name="SDT" class="form-control" placeholder="Nhập số điện thoại" required />

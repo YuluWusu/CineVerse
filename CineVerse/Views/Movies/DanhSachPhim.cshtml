@@ -350,7 +350,7 @@
 <div class="movies-page">
     <div class="container">
         @{
-            var phims = ViewBag.DanhSachPhim as List<PHIM>;
+            var phims = (ViewBag.DanhSachPhim as List<PHIM>) ?? (Model as List<PHIM>) ?? new List<PHIM>();
             var trangThai = ViewBag.TrangThai as string ?? "Đang chiếu";
             var searchKeyword = ViewBag.Search as string;
         }

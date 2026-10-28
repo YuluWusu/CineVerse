@@ -1,0 +1,209 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.NHANVIEN>
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Quản lý Nhân viên";
+
+    var dsRap = ViewBag.DanhSachRap as List<RAPCHIEU> ?? new List<RAPCHIEU>();
+    var dsVaiTro = ViewBag.DanhSachVaiTro as List<VAITRO> ?? new List<VAITRO>();
+    string search = ViewBag.Search as string ?? "";
+    string selectedRap = ViewBag.MaRap as string ?? "";
+    string selectedVaiTro = ViewBag.VaiTro as string ?? "";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="text-white fw-bold mb-1"><i class="bi bi-person-badge text-warning me-2"></i>Quản lý Nhân sự &amp; Phân quyền</h5>
+        <div class="text-muted small">Quản lý danh sách nhân viên quầy POS, nhân viên soát vé và tài khoản quản trị hệ thống</div>
+    </div>
+    <a href="@Url.Action("ThemNhanVien", "Admin")" class="btn-adm-primary">
+        <i class="bi bi-plus-circle me-1"></i> Thêm nhân viên mới
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3" style="background: rgba(75,232,124,.15); color: var(--green); border: 1px solid var(--green);">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3" style="background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Bộ lọc tìm kiếm -->
+<div class="adm-card mb-3">
+    <div class="adm-card-body p-3">
+        <form method="get" action="@Url.Action("QuanLyNhanVien", "Admin")" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="search" value="@search" class="adm-input" placeholder="Tìm theo Mã NV, Họ tên, SĐT, Email..." />
+            </div>
+            <div class="col-md-3">
+                <select name="maRap" class="adm-select">
+                    <option value="">-- Tất cả rạp chiếu --</option>
+                    @foreach (var r in dsRap)
+                    {
+                        <option value="@r.MA_RAP.Trim()" @(r.MA_RAP.Trim() == selectedRap ? "selected" : "")>@r.TEN_RAP</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="vaiTro" class="adm-select">
+                    <option value="">-- Tất cả vai trò --</option>
+                    @foreach (var vt in dsVaiTro)
+                    {
+                        <option value="@vt.MA_VAITRO.Trim()" @(vt.MA_VAITRO.Trim() == selectedVaiTro ? "selected" : "")>@vt.TEN_VAITRO (@vt.MA_VAITRO.Trim())</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn-adm-primary w-100"><i class="bi bi-search"></i> Lọc</button>
+                <a href="@Url.Action("QuanLyNhanVien", "Admin")" class="btn-adm-ghost" title="Làm mới"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng nhân viên -->
+<div class="adm-card">
+    <div class="adm-card-header d-flex justify-content-between align-items-center">
+        <div class="adm-card-title">
+            <i class="bi bi-people"></i> Danh sách nhân sự (@Model.Count())
+        </div>
+    </div>
+    <div class="adm-card-body p-0">
+        <div style="overflow-x:auto;">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã NV</th>
+                        <th>Họ và Tên</th>
+                        <th>Thông tin liên hệ</th>
+                        <th>Rạp công tác</th>
+                        <th>Lương</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align:right;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding: 30px; color: var(--text-muted);">
+                                Không tìm thấy nhân viên nào phù hợp với điều kiện lọc.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model)
+                    {
+                        var tk = item.TAIKHOAN;
+                        var vaiTroList = tk?.VAITROes.Select(v => v.MA_VAITRO.Trim()).ToList() ?? new List<string>();
+                        bool isAdmin = vaiTroList.Contains("ADMIN");
+                        bool isLocked = string.Equals(tk?.TRANGTHAI?.Trim(), "Khoa", StringComparison.OrdinalIgnoreCase);
+
+                        <tr id="row_@item.MA_NHANVIEN.Trim()">
+                            <td>
+                                <span style="font-family:monospace; font-size:12px; color: var(--accent); font-weight:700;">
+                                    @item.MA_NHANVIEN.Trim()
+                                </span>
+                            </td>
+                            <td>
+                                <strong class="text-white">@(tk?.HOTEN ?? "Chưa đặt tên")</strong><br />
+                                <span style="font-size:11px; color: var(--text-muted);">Ngày vào: @item.NGAYVAOLAM.ToString("dd/MM/yyyy")</span>
+                            </td>
+                            <td>
+                                <div><i class="bi bi-telephone text-muted me-1"></i>@(tk?.SDT ?? "—")</div>
+                                <div style="font-size:11px; color: var(--text-muted);"><i class="bi bi-envelope text-muted me-1"></i>@(tk?.EMAIL ?? "—")</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary">
+                                    @(item.RAPCHIEU?.TEN_RAP ?? "Chưa gán rạp")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="font-monospace text-light">@item.LUONG.ToString("#,##0") đ</span>
+                            </td>
+                            <td>
+                                @if (isAdmin)
+                                {
+                                    <span class="adm-badge sap"><i class="bi bi-shield-shaded me-1"></i> Quản trị viên</span>
+                                }
+                                else
+                                {
+                                    <span class="adm-badge xong"><i class="bi bi-person-fill me-1"></i> Nhân viên (Staff)</span>
+                                }
+                            </td>
+                            <td>
+                                <span id="status_@item.MA_NHANVIEN.Trim()" class="badge @(isLocked ? "bg-danger" : "bg-success")">
+                                    @(isLocked ? "Đã khóa" : "Hoạt động")
+                                </span>
+                            </td>
+                            <td style="text-align:right;">
+                                <div class="d-inline-flex gap-1">
+                                    <a href="@Url.Action("ChiTietNhanVien", "Admin", new { id = item.MA_NHANVIEN.Trim() })" class="btn btn-sm btn-outline-info" title="Lịch sử bán & soát vé">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="@Url.Action("SuaNhanVien", "Admin", new { id = item.MA_NHANVIEN.Trim() })" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa thông tin">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm @(isLocked ? "btn-outline-success" : "btn-outline-danger")" id="btnLock_@item.MA_NHANVIEN.Trim()" 
+                                            onclick="toggleLockStaff('@item.MA_NHANVIEN.Trim()')" title="@(isLocked ? "Mở khóa tài khoản" : "Khóa tài khoản")">
+                                        <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleLockStaff(maNv) {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái Khóa / Mở khóa của nhân viên [' + maNv + ']?')) return;
+
+        $.ajax({
+            url: '@Url.Action("DoiTrangThaiNhanVien", "Admin")',
+            type: 'POST',
+            data: { id: maNv },
+            success: function(res) {
+                if (res.success) {
+                    var statusBadge = document.getElementById('status_' + maNv);
+                    var btn = document.getElementById('btnLock_' + maNv);
+                    var isLocked = (res.newStatus.toLowerCase() === 'khoa');
+
+                    if (isLocked) {
+                        statusBadge.className = 'badge bg-danger';
+                        statusBadge.innerText = 'Đã khóa';
+                        btn.className = 'btn btn-sm btn-outline-success';
+                        btn.innerHTML = '<i class="bi bi-unlock-fill"></i>';
+                        btn.title = 'Mở khóa tài khoản';
+                    } else {
+                        statusBadge.className = 'badge bg-success';
+                        statusBadge.innerText = 'Hoạt động';
+                        btn.className = 'btn btn-sm btn-outline-danger';
+                        btn.innerHTML = '<i class="bi bi-lock-fill"></i>';
+                        btn.title = 'Khóa tài khoản';
+                    }
+                    alert(res.message);
+                } else {
+                    alert(res.message);
+                }
+            },
+            error: function() {
+                alert('Lỗi kết nối khi thay đổi trạng thái.');
+            }
+        });
+    }
+</script>
+}
+

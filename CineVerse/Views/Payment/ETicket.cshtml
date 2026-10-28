@@ -1,0 +1,472 @@
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
+@model DONHANG
+@{
+    ViewBag.Title = "Vé điện tử (E-Ticket) - " + Model.MA_DONHANG.Trim();
+    Layout = "~/Views/Shared/_Khung.cshtml";
+
+    var lichChieu = Model.LICHCHIEU;
+    var phim = lichChieu?.PHIM;
+    var phong = lichChieu?.PHONGCHIEU;
+    var rap = phong?.RAPCHIEU;
+    var khungGio = lichChieu?.KHUNGGIO;
+    var danhSachGhe = Model.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+    var danhSachBapNuoc = Model.CHITIET_BAPNUOC.ToList();
+    string maCheckIn = !string.IsNullOrEmpty(Model.MACHECKIN) ? Model.MACHECKIN.Trim() : ("CKI-" + Model.MA_DONHANG.Trim());
+    bool daSoatVe = string.Equals(Model.TRANGTHAISOATVE?.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
+}
+
+@section Styles {
+<style>
+    .eticket-wrapper {
+        min-height: 85vh;
+        padding: 40px 0 80px;
+        background: radial-gradient(circle at 50% 10%, rgba(229,166,35,0.08) 0%, rgba(10,12,18,0.98) 75%);
+    }
+
+    /* Cinematic Perforated Ticket Card */
+    .cinema-ticket {
+        background: #141724;
+        border: 1px solid rgba(229,166,35,0.3);
+        border-radius: 20px;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.7);
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+        max-width: 900px;
+    }
+
+    @@media (max-width: 850px) {
+        .cinema-ticket {
+            flex-direction: column;
+        }
+    }
+
+    .ticket-main {
+        flex: 1;
+        padding: 32px;
+        position: relative;
+    }
+
+    /* Perforated Stub Divider (Rãnh xé vé) */
+    .ticket-divider {
+        width: 1px;
+        position: relative;
+        background: repeating-linear-gradient(to bottom, transparent, transparent 6px, rgba(255,255,255,0.18) 6px, rgba(255,255,255,0.18) 12px);
+    }
+    .ticket-divider::before,
+    .ticket-divider::after {
+        content: '';
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        background: #0a0c12;
+        border-radius: 50%;
+        left: -14px;
+        z-index: 2;
+        border: 1px solid rgba(229,166,35,0.3);
+    }
+    .ticket-divider::before {
+        top: -14px;
+    }
+    .ticket-divider::after {
+        bottom: -14px;
+    }
+
+    @@media (max-width: 850px) {
+        .ticket-divider {
+            width: 100%;
+            height: 1px;
+            background: repeating-linear-gradient(to right, transparent, transparent 6px, rgba(255,255,255,0.18) 6px, rgba(255,255,255,0.18) 12px);
+        }
+        .ticket-divider::before {
+            top: -14px;
+            left: -14px;
+        }
+        .ticket-divider::after {
+            top: -14px;
+            right: -14px;
+            left: auto;
+            bottom: auto;
+        }
+    }
+
+    .ticket-stub {
+        width: 290px;
+        background: #10121b;
+        padding: 32px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+    }
+
+    @@media (max-width: 850px) {
+        .ticket-stub {
+            width: 100%;
+        }
+    }
+
+    .ticket-logo {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 20px;
+        color: #e5a623;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .movie-poster-thumb {
+        width: 110px;
+        height: 155px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+        margin-right: 24px;
+    }
+
+    .ticket-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .ticket-field-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+    .ticket-field-value {
+        font-size: 15px;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .seat-pill {
+        background: rgba(229,166,35,0.2);
+        color: #e5a623;
+        border: 1px solid rgba(229,166,35,0.5);
+        padding: 2px 10px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        display: inline-block;
+        margin: 2px;
+    }
+
+    .qr-box {
+        background: #ffffff;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        margin-bottom: 14px;
+        display: inline-block;
+    }
+    .qr-img {
+        width: 160px;
+        height: 160px;
+        display: block;
+    }
+
+    .checkin-code {
+        font-family: var(--font-display);
+        letter-spacing: 2px;
+        font-weight: 800;
+        color: #e5a623;
+        font-size: 17px;
+    }
+
+    .status-badge {
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .status-paid {
+        background: rgba(75, 232, 124, 0.15);
+        color: #4be87c;
+        border: 1px solid rgba(75, 232, 124, 0.4);
+    }
+    .status-counter {
+        background: rgba(229,166,35,0.15);
+        color: #e5a623;
+        border: 1px solid rgba(229,166,35,0.4);
+    }
+    .status-checked {
+        background: rgba(13, 110, 253, 0.2);
+        color: #0d6efd;
+        border: 1px solid rgba(13, 110, 253, 0.5);
+    }
+
+    /* Print styles */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        .eticket-wrapper,
+        .cinema-ticket,
+        .cinema-ticket * {
+            visibility: visible;
+        }
+        .eticket-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: white !important;
+            padding: 0;
+        }
+        .cinema-ticket {
+            box-shadow: none;
+            border: 2px solid #000;
+            background: white !important;
+            color: black !important;
+        }
+        .ticket-stub {
+            background: #f8f9fa !important;
+        }
+        .ticket-field-value,
+        .ticket-logo,
+        h3, h4, span {
+            color: black !important;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+}
+
+<div class="eticket-wrapper">
+    <div class="container">
+        <!-- Thông báo thành công & các nút điều hướng -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 no-print gap-3">
+            <div>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="bi bi-house me-1"></i> Trang chủ
+                </a>
+                <a href="@Url.Action("LichSuDatVe", "Booking")" class="btn btn-outline-warning btn-sm">
+                    <i class="bi bi-clock-history me-1"></i> Lịch sử đặt vé
+                </a>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-warning btn-sm fw-bold" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> In vé / Lưu PDF
+                </button>
+                <button type="button" class="btn btn-outline-info btn-sm" onclick="demoSimulateScan()">
+                    <i class="bi bi-upc-scan me-1"></i> Giả lập Soát vé QR
+                </button>
+            </div>
+        </div>
+
+        @if (TempData["ThongBao"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4 no-print" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["ThongBao"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Cinematic Perforated Ticket -->
+        <div class="cinema-ticket">
+            <!-- Phần Chính (Thân vé) -->
+            <div class="ticket-main">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="ticket-logo">
+                        <i class="bi bi-camera-reels-fill"></i> CINÉVERSE CINEMAS
+                    </div>
+                    <div>
+                        @if (daSoatVe)
+                        {
+                            <span class="status-badge status-checked" id="ticketStatusBadge">
+                                <i class="bi bi-check-all"></i> Đã soát vé
+                            </span>
+                        }
+                        else if (Model.TRANGTHAITHANHTOAN == "DaThanhToan")
+                        {
+                            <span class="status-badge status-paid" id="ticketStatusBadge">
+                                <i class="bi bi-patch-check-fill"></i> Đã thanh toán
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-counter" id="ticketStatusBadge">
+                                <i class="bi bi-cash"></i> Thanh toán tại quầy
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-3">
+                    @if (phim != null)
+                    {
+                        string posterUrl = !string.IsNullOrEmpty(phim.POSTER) ? Url.Content(phim.POSTER) : "/Content/images/default-poster.jpg";
+                        <img src="@posterUrl" alt="@phim.TEN_PHIM" class="movie-poster-thumb d-none d-sm-block" onerror="this.src='/Content/images/default-poster.jpg'" />
+                    }
+                    <div>
+                        <h3 class="text-white fw-bold mb-1">@(phim != null ? phim.TEN_PHIM : "Vé xem phim")</h3>
+                        <div class="text-muted small mb-2">
+                            <span><i class="bi bi-clock me-1"></i> @(phim?.THOILUONG ?? 120) phút</span> &bull;
+                            <span class="badge bg-danger ms-1">@(phim?.GIOIHANTUOI ?? "16+")</span> &bull;
+                            <span class="text-warning ms-1">@(lichChieu?.DINHDANG ?? "2D Phụ đề")</span>
+                        </div>
+                        <div class="text-light" style="font-size: 14px;">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                            <strong>@(rap?.TEN_RAP ?? "CinéVerse Central")</strong> &bull; @(phong?.TEN_PHONG ?? "Phòng Chiếu")
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid Thông tin Suất chiếu & Ghế -->
+                <div class="ticket-info-grid">
+                    <div>
+                        <div class="ticket-field-label">Ngày chiếu</div>
+                        <div class="ticket-field-value text-warning">
+                            <i class="bi bi-calendar-event me-1"></i> @(lichChieu != null ? lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") : DateTime.Now.ToString("dd/MM/yyyy"))
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="ticket-field-label">Giờ bắt đầu</div>
+                        <div class="ticket-field-value text-warning">
+                            <i class="bi bi-clock-fill me-1"></i> @(khungGio != null ? khungGio.GIOBATDAU.ToString(@"hh\:mm") : "19:00")
+                        </div>
+                    </div>
+
+                    <div style="grid-column: span 2;">
+                        <div class="ticket-field-label">Vị trí ghế (@danhSachGhe.Count vé)</div>
+                        <div>
+                            @foreach (var ghe in danhSachGhe)
+                            {
+                                <span class="seat-pill">@ghe</span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (danhSachBapNuoc.Any())
+                    {
+                        <div style="grid-column: span 2;">
+                            <div class="ticket-field-label">Bắp nước &amp; Combo đi kèm</div>
+                            <div class="small text-light">
+                                @foreach (var fnb in danhSachBapNuoc)
+                                {
+                                    <span class="badge bg-secondary me-1 mb-1">
+                                        @(fnb.BAPNUOC?.TEN_SANPHAM ?? "Sản phẩm") x@(fnb.SOLUONG)
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div>
+                        <div class="ticket-field-label">Khách hàng</div>
+                        <div class="ticket-field-value small">
+                            @(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="ticket-field-label">Tổng thanh toán</div>
+                        <div class="ticket-field-value text-success fw-bold font-monospace" style="font-size: 17px;">
+                            @Model.TONGTIEN.ToString("#,##0") đ
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rãnh Xé Răng Cưa Divider -->
+            <div class="ticket-divider"></div>
+
+            <!-- Cuống vé (Stub) kèm QR Check-In -->
+            <div class="ticket-stub">
+                <div class="text-muted small text-uppercase fw-semibold mb-2" style="letter-spacing: 1px;">Mã Soát Vé Check-in</div>
+
+                <!-- QR Code Image tạo trực tiếp từ mã Check-in duy nhất -->
+                <div class="qr-box">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=@Uri.EscapeDataString(maCheckIn)&margin=0" 
+                         alt="QR Check-in Code" class="qr-img" id="ticketQrImage" />
+                </div>
+
+                <div class="checkin-code mb-2" id="ticketCheckinCode">@maCheckIn</div>
+
+                <div class="text-muted small mb-3" style="font-size: 11px; line-height: 1.4;">
+                    Vui lòng xuất trình mã QR này tại cổng soát vé hoặc máy quét trước giờ chiếu 15 phút.
+                </div>
+
+                <div class="p-2 rounded w-100 text-start" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); font-size: 12px;">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Đơn hàng:</span>
+                        <span class="text-light fw-bold">@Model.MA_DONHANG.Trim()</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Thanh toán:</span>
+                        <span class="text-warning">@(Model.PHUONGTHUCTHANHTOAN ?? "Tại quầy")</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Soát vé:</span>
+                        <span id="scanStatusText" class="@(daSoatVe ? "text-primary fw-bold" : "text-muted")">
+                            @(daSoatVe ? "Đã soát vé" : "Chưa soát")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hướng dẫn sử dụng vé -->
+        <div class="row justify-content-center mt-4 no-print">
+            <div class="col-md-9 text-muted small text-center">
+                <i class="bi bi-info-circle me-1"></i> Vé điện tử đã được xác thực an toàn trên hệ thống CinéVerse. Bạn có thể chụp màn hình vé này hoặc lưu lại email xác nhận để làm thủ tục check-in vào phòng chiếu.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Hàm giả lập kiểm tra soát vé tức thì phục vụ demo bảo vệ đồ án
+    function demoSimulateScan() {
+        var checkInCode = '@maCheckIn';
+        if (confirm("Giả lập thao tác nhân viên rạp quét mã QR soát vé [" + checkInCode + "]?")) {
+            $.ajax({
+                url: '@Url.Action("XacNhanSoatVe", "Payment")',
+                type: 'POST',
+                data: { maCheckIn: checkInCode },
+                success: function(res) {
+                    if (res.success) {
+                        alert(res.message + "\nThời gian soát vé: " + res.thoiGianCheckIn);
+                        // Cập nhật giao diện vé tức thì
+                        var badge = document.getElementById("ticketStatusBadge");
+                        badge.className = "status-badge status-checked";
+                        badge.innerHTML = '<i class="bi bi-check-all"></i> Đã soát vé';
+
+                        var scanTxt = document.getElementById("scanStatusText");
+                        scanTxt.className = "text-primary fw-bold";
+                        scanTxt.innerText = "Đã soát vé (" + res.thoiGianCheckIn + ")";
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function() {
+                    alert("Lỗi kết nối khi gửi yêu cầu soát vé.");
+                }
+            });
+        }
+    }
+</script>
+}
+

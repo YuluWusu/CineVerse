@@ -1,16 +1,18 @@
-﻿@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.GHE>
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.GHE>
 @using System
 @using System.Collections.Generic
 @using System.Linq
 @using DoAn_QuanLyVeXemPhimTrucTiep.Services
 @using DoAn_QuanLyVeXemPhimTrucTiep.Models
 @{
-    ViewBag.Title = "Chọn ghế và bắp nước";
-    Layout = "~/Views/Shared/_Khung.cshtml"; // Dùng chung layout trang chủ của khách
+    ViewBag.Title = "Chọn ghế ngồi - " + ((LICHCHIEU)ViewBag.LichChieu).PHIM.TEN_PHIM;
+    Layout = "~/Views/Shared/_Khung.cshtml";
     var lichChieu = ViewBag.LichChieu as LICHCHIEU;
-    var gheDaDat = ViewBag.GheDaDat as List<string>;
-    var danhSachMon = ViewBag.DanhSachMon as List<MONAN>;
-    decimal phuTroi = lichChieu.GIATVE_PHUTROI ?? 0;
+    var gheDaDat = ViewBag.GheDaDat as List<string> ?? new List<string>();
+    var otherHeldSeats = ViewBag.OtherHeldSeats as List<string> ?? new List<string>();
+    var myHeldSeats = ViewBag.MyHeldSeats as List<string> ?? new List<string>();
+    int remainingSeconds = (int)(ViewBag.RemainingSeconds ?? 0);
+    decimal phuTroi = lichChieu.GIATVE_PHUTROI ?? 0m;
     var cacHang = Model.GroupBy(g => g.SO_HANG).OrderBy(h => h.Key).ToList();
 }
 
@@ -19,19 +21,19 @@
         .checkout-container {
             padding: 40px 0 80px;
             background: var(--bg-void);
-            min-height: 80vh;
+            min-height: 85vh;
         }
 
         .seat-wrap {
             overflow-x: auto;
-            padding: 10px 0 20px;
+            padding: 16px 0 24px;
         }
 
         .screen-bar {
             height: 6px;
             border-radius: 6px;
             background: var(--accent);
-            opacity: .7;
+            opacity: .8;
             margin: 0 auto 26px;
             max-width: 520px;
             box-shadow: 0 8px 30px var(--accent-glow);
@@ -40,21 +42,22 @@
         .screen-label {
             text-align: center;
             font-size: 11px;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             color: var(--text-muted);
             margin-bottom: 18px;
+            font-weight: 700;
         }
 
         .seat-row {
             display: flex;
             justify-content: center;
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 7px;
+            margin-bottom: 7px;
         }
 
         .seat {
             min-width: 38px;
-            height: 34px;
+            height: 36px;
             border-radius: 6px;
             border: 1px solid var(--border);
             background: var(--bg-hover);
@@ -62,62 +65,90 @@
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .seat:hover:not(.taken):not(.held) {
+            transform: scale(1.1);
+            border-color: #e5a623;
+            color: #fff;
+            z-index: 2;
         }
 
-            .seat.vip {
-                border-color: rgba(232,184,75,.5);
-            }
+        .seat.vip {
+            border-color: rgba(229,166,35,.5);
+        }
 
-            .seat.doi {
-                min-width: 62px;
-                border-color: rgba(75,139,232,.5);
-            }
+        .seat.doi {
+            min-width: 66px;
+            border-color: rgba(75,139,232,.6);
+        }
 
-            .seat.taken {
-                background: rgba(232,75,75,.15);
-                color: var(--text-muted);
-                cursor: not-allowed;
-                text-decoration: line-through;
-            }
+        .seat.taken {
+            background: rgba(232,75,75,.15) !important;
+            border-color: rgba(232,75,75,.3) !important;
+            color: var(--text-muted) !important;
+            cursor: not-allowed !important;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
 
-            .seat.chon {
-                background: var(--accent);
-                color: #111;
-                border-color: var(--accent);
-            }
+        /* Ghế đang được phiên khác giữ chỗ */
+        .seat.held {
+            background: rgba(255, 140, 0, 0.22) !important;
+            border-color: rgba(255, 140, 0, 0.7) !important;
+            color: #ffaa44 !important;
+            cursor: not-allowed !important;
+            animation: pulsateHeld 2.2s infinite ease-in-out;
+        }
+        .seat.held::after {
+            content: "⏳";
+            font-size: 8px;
+            position: absolute;
+            top: 1px;
+            right: 2px;
+        }
+        @@keyframes pulsateHeld {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; border-color: rgba(255, 140, 0, 0.95); }
+            100% { opacity: 0.7; }
+        }
+
+        /* Ghế do chính bạn đang chọn */
+        .seat.chon {
+            background: var(--accent) !important;
+            color: #111 !important;
+            border-color: var(--accent) !important;
+            font-weight: 700;
+            box-shadow: 0 0 12px rgba(229,166,35,0.45);
+            transform: scale(1.05);
+        }
 
         .legend {
             display: flex;
-            gap: 18px;
+            gap: 16px;
             justify-content: center;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-sec);
             flex-wrap: wrap;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
         }
 
-            .legend i {
-                display: inline-block;
-                width: 14px;
-                height: 14px;
-                border-radius: 4px;
-                vertical-align: -2px;
-                margin-right: 6px;
-                border: 1px solid var(--border);
-                background: var(--bg-hover);
-            }
-
-        .mon-row {
+        .legend-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
+            gap: 6px;
         }
 
-            .mon-row input {
-                width: 80px;
-            }
+        .legend-box {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg-hover);
+        }
 
         .tong-tien {
             font-size: 26px;
@@ -144,7 +175,7 @@
 
         .adm-card-title {
             font-size: 16px;
-            color: var(--text-pri);
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -155,170 +186,385 @@
             padding: 20px;
         }
 
-        .adm-input {
-            background: rgba(255,255,255,.04);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            padding: 10px 14px;
-            color: #fff;
-        }
-
         .btn-adm-primary {
-            background: var(--accent);
-            color: #000;
+            background: #e5a623;
+            color: #111;
+            padding: 12px 24px;
             font-weight: 700;
-            padding: 10px 24px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-adm-primary:hover:not(:disabled) {
+            background: #f0b938;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(229,166,35,0.4);
+        }
+        .btn-adm-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .btn-adm-ghost {
             background: rgba(255,255,255,.05);
             color: var(--text-sec);
-            padding: 10px 16px;
+            padding: 12px 20px;
             border-radius: 8px;
             border: 1px solid var(--border);
             text-decoration: none;
+            display: inline-block;
+        }
+        .btn-adm-ghost:hover {
+            color: #fff;
+            background: rgba(255,255,255,.1);
+        }
+
+        /* Real-time Indicator */
+        .live-status-pill {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(75,232,124,0.15);
+            color: #4be87c;
+            border: 1px solid rgba(75,232,124,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4be87c;
+            box-shadow: 0 0 8px #4be87c;
+            animation: pulseDot 1.5s infinite;
+        }
+        @@keyframes pulseDot {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
         }
     </style>
 }
 
 <div class="checkout-container">
-    <div class="container" style="max-width: 900px;">
-        <h2 style="font-family:'Bebas Neue'; letter-spacing:2px; margin-bottom: 24px; color: var(--accent); text-align:center;">ĐẶT VÉ & CHỌN BẮP NƯỚC</h2>
-
-        @if (TempData["Loi"] != null)
-        {
-            <div style="background:rgba(232,75,75,.12);border:1px solid rgba(232,75,75,.4);color:var(--red);padding:12px 16px;border-radius:8px;margin-bottom:16px">
-                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Loi"]
+    <div class="container" style="max-width: 960px;">
+        
+        <!-- Booking Stepper -->
+        <div class="d-flex justify-content-center align-items-center gap-2 mb-4 flex-wrap">
+            <div class="px-3 py-2 rounded-pill fw-bold text-dark bg-warning d-flex align-items-center gap-2 shadow-sm" style="font-size:14px;">
+                <i class="bi bi-grid-3x3-gap-fill"></i> 1. Chọn ghế
             </div>
-        }
-
-        <div class="adm-card" style="margin-bottom:20px">
-            <div class="adm-card-body" style="padding:15px 20px">
-                <strong style="font-size:18px; color:#fff;">@lichChieu.PHIM.TEN_PHIM</strong><br />
-                <span style="color:var(--text-sec)">
-                    @lichChieu.PHONGCHIEU.TEN_PHONG · @lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP · @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") · @lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")
-                </span>
+            <i class="bi bi-chevron-right text-muted"></i>
+            <div class="px-3 py-2 rounded-pill fw-semibold text-secondary border border-secondary border-opacity-25 d-flex align-items-center gap-2" style="font-size:14px; background:rgba(255,255,255,0.03);">
+                <i class="bi bi-cup-straw"></i> 2. Bắp nước &amp; Combo
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+            <div class="px-3 py-2 rounded-pill fw-semibold text-secondary border border-secondary border-opacity-25 d-flex align-items-center gap-2" style="font-size:14px; background:rgba(255,255,255,0.03);">
+                <i class="bi bi-credit-card"></i> 3. Thanh toán
             </div>
         </div>
 
-        <!-- Chuyển action sang phương thức POST để gọi đến Action ThanhToan trong BookingController -->
-        <form method="post" action="/Booking/ThanhToan">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="maLichChieu" value="@lichChieu.MA_LICHCHIEU.Trim()" />
-            <input type="hidden" name="selectedSeats" id="selectedSeats" value="" />
+        @if (TempData["Loi"] != null)
+        {
+            <div class="alert alert-danger mb-3" style="background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Loi"]
+            </div>
+        }
 
-            <div class="adm-card" style="margin-bottom:20px">
-                <div class="adm-card-header">
-                    <div class="adm-card-title"><i class="bi bi-grid-3x3-gap-fill"></i> Sơ đồ ghế ngồi</div>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger mb-3" style="background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            </div>
+        }
+
+        <div id="seatRuleAlert" class="alert alert-warning mb-3 d-none" style="background:rgba(229,166,35,0.15); color:#e5a623; border:1px solid rgba(229,166,35,0.4); border-radius:8px;">
+            <i class="bi bi-exclamation-octagon-fill me-2"></i> <span id="seatRuleMsg"></span>
+        </div>
+
+        <!-- Thông tin phim & suất chiếu -->
+        <div class="adm-card" style="margin-bottom:20px">
+            <div class="adm-card-body d-flex flex-wrap justify-content-between align-items-center gap-2" style="padding:15px 20px">
+                <div>
+                    <strong style="font-size:18px; color:#fff;">@lichChieu.PHIM.TEN_PHIM</strong><br />
+                    <span style="color:var(--text-sec); font-size:14px;">
+                        <i class="bi bi-building me-1"></i> @lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP &nbsp;·&nbsp;
+                        <i class="bi bi-door-open me-1"></i> @lichChieu.PHONGCHIEU.TEN_PHONG &nbsp;·&nbsp;
+                        <i class="bi bi-calendar3 me-1"></i> @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") &nbsp;·&nbsp;
+                        <i class="bi bi-clock me-1"></i> @lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")
+                    </span>
                 </div>
-                <div class="adm-card-body">
-                    <div class="screen-label">MÀN HÌNH</div>
-                    <div class="screen-bar"></div>
-                    <div class="seat-wrap">
-                        @foreach (var hang in cacHang)
-                        {
-                            <div class="seat-row">
-                                @foreach (var ghe in hang.OrderBy(g => g.SO_COT))
-                                {
-                                    string maGhe = ghe.MA_GHE.Trim();
-                                    bool daDat = gheDaDat.Contains(maGhe);
-                                    string tenLoai = ghe.LOAIGHE.TEN_LOAIGHE.Trim();
-                                    string lop = "seat" + (tenLoai == "VIP" ? " vip" : (tenLoai == "Đôi" ? " doi" : "")) + (daDat ? " taken" : "");
-                                    string gia = (ghe.LOAIGHE.GIATVE + phuTroi).ToString("0");
-                                    string tieuDeGhe = tenLoai + " - " + String.Format("{0:0,0}", ghe.LOAIGHE.GIATVE + phuTroi) + "đ";
-                                    <button type="button" class="@lop" data-ma="@maGhe" data-gia="@gia" @(daDat ? "disabled" : "") title="@tieuDeGhe">@ghe.SOGHE</button>
-                                }
-                            </div>
-                        }
-                    </div>
-                    <div class="legend" style="margin-top: 15px;">
-                        <span><i></i>Ghế thường</span>
-                        <span><i style="border-color:rgba(232,184,75,.7)"></i>VIP</span>
-                        <span><i style="border-color:rgba(75,139,232,.7)"></i>Ghế đôi</span>
-                        <span><i style="background:var(--accent)"></i>Đang chọn</span>
-                        <span><i style="background:rgba(232,75,75,.3)"></i>Đã có người đặt</span>
-                    </div>
+                <div class="live-status-pill">
+                    <span class="pulse-dot"></span> Khóa ghế thời gian thực (Live)
                 </div>
             </div>
+        </div>
 
-            @if (danhSachMon != null && danhSachMon.Count > 0)
-            {
-                <div class="adm-card" style="margin-bottom:20px">
-                    <div class="adm-card-header">
-                        <div class="adm-card-title"><i class="bi bi-cup-straw"></i> Chọn Bắp Nước & Đồ Ăn Kèm (Tùy chọn)</div>
-                    </div>
-                    <div class="adm-card-body">
-                        @foreach (var mon in danhSachMon)
-                        {
-                            <div class="mon-row">
-                                <div>
-                                    <strong style="color:#fff;">@mon.TEN_MON</strong><br />
-                                    <span style="font-size:12px;color:var(--accent)">@String.Format("{0:0,0}", mon.GIA)đ</span>
-                                </div>
-                                <input type="number" min="0" max="10" value="0" class="adm-input mon-sl" name="mon_@mon.MA_MON.Trim()" data-gia="@mon.GIA.ToString("0")" />
-                            </div>
-                        }
-                    </div>
+        <!-- Sơ đồ ghế ngồi -->
+        <div class="adm-card" style="margin-bottom:20px">
+            <div class="adm-card-header">
+                <div class="adm-card-title"><i class="bi bi-grid-3x3-gap-fill text-warning"></i> Sơ đồ ghế ngồi</div>
+                <small class="text-muted"><i class="bi bi-shield-check me-1"></i> Ghế được bảo lưu 7 phút khi bạn tiếp tục</small>
+            </div>
+            <div class="adm-card-body">
+                <div class="screen-label">MÀN HÌNH CHIẾU</div>
+                <div class="screen-bar"></div>
+
+                <div class="seat-wrap">
+                    @foreach (var hang in cacHang)
+                    {
+                        <div class="seat-row" data-hang="@hang.Key">
+                            @foreach (var ghe in hang.OrderBy(g => g.SO_COT))
+                            {
+                                string maGhe = ghe.MA_GHE.Trim().ToUpper();
+                                bool daDat = gheDaDat.Contains(maGhe);
+                                bool otherHold = otherHeldSeats.Contains(maGhe);
+                                bool myHold = myHeldSeats.Contains(maGhe);
+                                string tenLoai = ghe.LOAIGHE?.TEN_LOAIGHE?.Trim() ?? "Thường";
+                                bool laVIP = (tenLoai == "VIP");
+                                bool laDoi = (tenLoai.Contains("Đôi") || ghe.MA_LOAIGHE?.Trim() == "LG03");
+
+                                string lop = "seat";
+                                if (laVIP) { lop += " vip"; }
+                                if (laDoi) { lop += " doi"; }
+
+                                if (daDat) { lop += " taken"; }
+                                else if (otherHold) { lop += " held"; }
+                                else if (myHold) { lop += " chon"; }
+
+                                string soGheHienThi = !string.IsNullOrEmpty(ghe.SOGHE) ? ghe.SOGHE.Trim() : maGhe;
+                                decimal donGiaGhe = (ghe.LOAIGHE != null ? ghe.LOAIGHE.GIATVE : 0m) + phuTroi;
+                                string gia = donGiaGhe.ToString("0");
+                                string tieuDeGhe = tenLoai + " (" + soGheHienThi + ") - " + String.Format("{0:0,0}", donGiaGhe) + "đ";
+                                if (daDat) { tieuDeGhe += " [Đã bán]"; }
+                                else if (otherHold) { tieuDeGhe += " [Đang có người giữ]"; }
+
+                                <button type="button"
+                                        class="@lop"
+                                        id="btn-seat-@maGhe"
+                                        data-ma="@maGhe"
+                                        data-soghe="@soGheHienThi"
+                                        data-hang="@ghe.SO_HANG"
+                                        data-cot="@ghe.SO_COT"
+                                        data-loai="@tenLoai"
+                                        data-gia="@gia"
+                                        @(daDat || otherHold ? "disabled" : "")
+                                        title="@tieuDeGhe">
+                                    @soGheHienThi
+                                </button>
+                            }
+                        </div>
+                    }
                 </div>
-            }
 
-            <div class="adm-card">
-                <div class="adm-card-body" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-                    <div>
-                        <div style="font-size:12px;color:var(--text-muted)">Tổng tạm tính</div>
-                        <div class="tong-tien" id="tongTien">0đ</div>
-                        <div style="font-size:13px;color:var(--text-sec);margin-top:4px" id="gheDangChon">Chưa chọn ghế</div>
-                    </div>
-                    <div>
-                        <a href="/Movies/ChiTietPhim/@lichChieu.MA_PHIM.Trim()" class="btn-adm-ghost" style="margin-right: 10px;">Quay lại</a>
-                        <button type="submit" class="btn-adm-primary" id="nutThanhToan" disabled><i class="bi bi-arrow-right"></i> Tiếp tục thanh toán</button>
-                    </div>
+                <!-- Bảng Chú Thích (4 Trạng thái trực quan) -->
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-box"></span> Ghế thường</div>
+                    <div class="legend-item"><span class="legend-box" style="border-color:rgba(229,166,35,.7)"></span> VIP</div>
+                    <div class="legend-item"><span class="legend-box" style="border-color:rgba(75,139,232,.7); width:28px;"></span> Ghế đôi</div>
+                    <div class="legend-item"><span class="legend-box" style="background:#e5a623; border-color:#e5a623;"></span> Đang chọn (Bạn)</div>
+                    <div class="legend-item"><span class="legend-box" style="background:rgba(255,140,0,0.3); border-color:#ff9800;"></span> Đang giữ chỗ (Người khác ⏳)</div>
+                    <div class="legend-item"><span class="legend-box" style="background:rgba(232,75,75,.3); border-color:rgba(232,75,75,.5); text-decoration:line-through;"></span> Đã bán</div>
                 </div>
             </div>
-        </form>
+        </div>
+
+        <!-- Thanh Tóm Tắt & Nút Tiếp Tục -->
+        <div class="adm-card">
+            <div class="adm-card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <div style="font-size:12px;color:var(--text-muted)">Tổng tiền ghế ngồi:</div>
+                    <div class="tong-tien" id="tongTien">0 đ</div>
+                    <div style="font-size:13px;color:var(--text-sec);margin-top:4px" id="gheDangChon">Chưa chọn ghế</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="/Movies/ChiTietPhim/@lichChieu.MA_PHIM.Trim()" class="btn-adm-ghost">Quay lại</a>
+                    <button type="button" class="btn-adm-primary" id="nutThanhToan" disabled onclick="tiepTucChonBapNuoc()">
+                        <i class="bi bi-cup-straw me-1"></i> Tiếp tục: Chọn Bắp nước &amp; Combo <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 @section Scripts {
     <script>
         (function () {
+            var maLichChieu = "@lichChieu.MA_LICHCHIEU.Trim()";
             var daChon = [];
-            var hidden = document.getElementById('selectedSeats');
             var nut = document.getElementById('nutThanhToan');
+            var alertDiv = document.getElementById('seatRuleAlert');
+            var alertMsg = document.getElementById('seatRuleMsg');
+
+            // Khởi tạo các ghế đã giữ của chính khách (nếu F5 tải lại)
+            @if (myHeldSeats != null && myHeldSeats.Any())
+            {
+                foreach (var s in myHeldSeats)
+                {
+                    <text>daChon.push("@s.Trim().ToUpper()");</text>
+                }
+            }
 
             function dinhDang(so) {
-                return so.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + 'đ';
+                return so.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ';
+            }
+
+            function anCanhBao() {
+                alertDiv.classList.add('d-none');
+                alertMsg.textContent = '';
+            }
+
+            function hienCanhBao(msg) {
+                alertMsg.textContent = msg;
+                alertDiv.classList.remove('d-none');
             }
 
             function capNhat() {
                 var tong = 0;
-                document.querySelectorAll('.seat.chon').forEach(function (s) { tong += parseInt(s.getAttribute('data-gia'), 10); });
-                document.querySelectorAll('.mon-sl').forEach(function (o) {
-                    var sl = parseInt(o.value, 10);
-                    if (!isNaN(sl) && sl > 0) tong += sl * parseInt(o.getAttribute('data-gia'), 10);
+                var tenGheArr = [];
+
+                document.querySelectorAll('.seat.chon').forEach(function (s) {
+                    tong += parseInt(s.getAttribute('data-gia'), 10);
+                    tenGheArr.push(s.getAttribute('data-soghe') || s.getAttribute('data-ma'));
                 });
-                hidden.value = daChon.join(',');
+
                 document.getElementById('tongTien').textContent = dinhDang(tong);
-                document.getElementById('gheDangChon').textContent = daChon.length ? ('Ghế đã chọn: ' + daChon.join(', ')) : 'Chưa chọn ghế';
-                nut.disabled = daChon.length === 0;
+                document.getElementById('gheDangChon').textContent = daChon.length ? ('Ghế đã chọn: ' + tenGheArr.join(', ')) : 'Chưa chọn ghế';
+                nut.disabled = (daChon.length === 0);
             }
 
+            // Click chọn ghế
             document.querySelectorAll('.seat').forEach(function (s) {
                 s.addEventListener('click', function () {
-                    if (s.classList.contains('taken')) return;
-                    var ma = s.getAttribute('data-ma');
+                    if (s.classList.contains('taken') || s.classList.contains('held')) return;
+                    anCanhBao();
+
+                    var ma = (s.getAttribute('data-ma') || '').toUpperCase();
                     var vt = daChon.indexOf(ma);
-                    if (vt >= 0) { daChon.splice(vt, 1); s.classList.remove('chon'); }
-                    else { daChon.push(ma); s.classList.add('chon'); }
+                    if (vt >= 0) {
+                        daChon.splice(vt, 1);
+                        s.classList.remove('chon');
+                    } else {
+                        daChon.push(ma);
+                        s.classList.add('chon');
+                    }
                     capNhat();
                 });
             });
 
-            document.querySelectorAll('.mon-sl').forEach(function (o) { o.addEventListener('input', capNhat); });
+            // Polling cập nhật trạng thái ghế theo chu kỳ 3.5 giây
+            function pollSeatStatus() {
+                fetch('/Booking/GetSeatStatus?maLichChieu=' + encodeURIComponent(maLichChieu) + '&_t=' + new Date().getTime(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function (response) { return response.json(); })
+                .then(function (res) {
+                    if (res && res.success) {
+                        var sold = res.soldSeats || [];
+                        var held = res.otherHeldSeats || [];
+
+                        document.querySelectorAll('.seat').forEach(function (btn) {
+                            var ma = (btn.getAttribute('data-ma') || '').toUpperCase();
+
+                            // Nếu ghế đã bán
+                            if (sold.indexOf(ma) >= 0) {
+                                btn.classList.add('taken');
+                                btn.classList.remove('held', 'chon');
+                                btn.disabled = true;
+                                var idx = daChon.indexOf(ma);
+                                if (idx >= 0) daChon.splice(idx, 1);
+                            }
+                            // Nếu ghế đang bị người khác giữ
+                            else if (held.indexOf(ma) >= 0) {
+                                btn.classList.add('held');
+                                btn.classList.remove('chon');
+                                btn.disabled = true;
+                                var idx = daChon.indexOf(ma);
+                                if (idx >= 0) daChon.splice(idx, 1);
+                            }
+                            // Nếu ghế tự do
+                            else {
+                                btn.classList.remove('taken', 'held');
+                                if (daChon.indexOf(ma) >= 0) {
+                                    btn.classList.add('chon');
+                                    btn.disabled = false;
+                                } else {
+                                    btn.disabled = false;
+                                }
+                            }
+                        });
+                        capNhat();
+                    }
+                })
+                .catch(function (e) {
+                    // Bỏ qua lỗi polling mạng ngầm
+                });
+            }
+
+            var pollInterval = setInterval(pollSeatStatus, 3500);
+
+            // Xử lý giữ ghế trước khi chuyển bước (Sử dụng fetch fail-safe chống treo spinner)
+            window.tiepTucChonBapNuoc = function () {
+                if (!daChon || daChon.length === 0) {
+                    hienCanhBao('Vui lòng chọn ít nhất một ghế ngồi.');
+                    return;
+                }
+
+                nut.disabled = true;
+                nut.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Đang giữ chỗ...';
+                anCanhBao();
+
+                function resetNut() {
+                    nut.disabled = false;
+                    nut.innerHTML = '<i class="bi bi-cup-straw me-1"></i> Tiếp tục: Chọn Bắp nước &amp; Combo <i class="bi bi-arrow-right ms-1"></i>';
+                }
+
+                var formData = new URLSearchParams();
+                formData.append('maLichChieu', maLichChieu);
+                formData.append('selectedSeats', daChon.join(','));
+
+                fetch('/Booking/HoldSeats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData.toString()
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Mã phản hồi từ máy chủ: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function (res) {
+                    if (res && res.success) {
+                        if (typeof pollInterval !== 'undefined') clearInterval(pollInterval);
+                        window.location.href = '/Booking/ChonMonAn?maLichChieu=' + encodeURIComponent(maLichChieu) + '&selectedSeats=' + encodeURIComponent(daChon.join(','));
+                    } else {
+                        resetNut();
+                        hienCanhBao((res && res.message) ? res.message : 'Không thể giữ ghế.');
+                        pollSeatStatus();
+                    }
+                })
+                .catch(function (err) {
+                    console.error('Lỗi khi giữ ghế:', err);
+                    resetNut();
+                    hienCanhBao('Lỗi kết nối máy chủ khi thực hiện giữ ghế. Vui lòng thử lại!');
+                });
+            };
+
+            // Chạy cập nhật lần đầu
             capNhat();
         })();
     </script>

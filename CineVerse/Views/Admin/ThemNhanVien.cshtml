@@ -1,0 +1,81 @@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Thêm nhân viên mới";
+    var dsRap = ViewBag.DanhSachRap as SelectList;
+    var dsVaiTro = ViewBag.DanhSachVaiTro as SelectList;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="text-white fw-bold mb-1"><i class="bi bi-person-plus-fill text-warning me-2"></i>Thêm hồ sơ nhân viên mới</h5>
+        <div class="text-muted small">Cấp phát tài khoản đăng nhập và phân quyền nhân sự hệ thống CinéVerse</div>
+    </div>
+    <a href="@Url.Action("QuanLyNhanVien", "Admin")" class="btn-adm-ghost">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title"><i class="bi bi-card-text"></i> Thông tin tài khoản &amp; Hồ sơ nhân viên</div>
+            </div>
+            <div class="adm-card-body p-4">
+                @using (Html.BeginForm("ThemNhanVien", "Admin", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Họ và Tên *</label>
+                            <input type="text" name="hoTen" class="adm-input" required placeholder="Ví dụ: Nguyễn Văn An" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Số điện thoại *</label>
+                            <input type="tel" name="sdt" class="adm-input" required placeholder="Ví dụ: 0987654321" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Email công tác</label>
+                            <input type="email" name="email" class="adm-input" placeholder="nhanvien@cineverse.vn" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Mật khẩu đăng nhập (mặc định: 123456)</label>
+                            <input type="text" name="matKhau" class="adm-input font-monospace" value="123456" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Rạp trực / Công tác *</label>
+                            @Html.DropDownList("maRap", dsRap, "-- Chọn rạp chiếu --", new { @class = "adm-select", @required = "required" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Vai trò &amp; Phân quyền *</label>
+                            @Html.DropDownList("maVaiTro", dsVaiTro, new { @class = "adm-select", @required = "required" })
+                            <div class="small text-muted mt-1" style="font-size:11px;">
+                                Staff: chỉ vào POS &amp; Soát vé QR; Admin: toàn quyền quản trị.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Mức lương cơ bản (VNĐ) *</label>
+                            <input type="number" name="luong" class="adm-input" value="6500000" min="1000000" step="100000" required />
+                        </div>
+
+                        <div class="col-12 border-top border-secondary border-opacity-25 pt-3 mt-3 d-flex justify-content-end gap-2">
+                            <a href="@Url.Action("QuanLyNhanVien", "Admin")" class="btn-adm-ghost">Hủy</a>
+                            <button type="submit" class="btn-adm-primary px-4">
+                                <i class="bi bi-check-circle-fill me-1"></i> Lưu &amp; Cấp tài khoản
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

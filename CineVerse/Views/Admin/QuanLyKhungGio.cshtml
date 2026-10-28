@@ -79,6 +79,7 @@
                                 </a>
                                 <form action="/Admin/XoaKhungGio" method="post" style="display:inline"
                                       onsubmit="return confirm('Bạn có chắc muốn xóa khung giờ này?')">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@kg.MA_KHUNGGIO" />
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-trash"></i> Xóa

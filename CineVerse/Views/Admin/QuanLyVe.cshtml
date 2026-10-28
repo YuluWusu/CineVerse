@@ -73,6 +73,7 @@
                             </td>
                             <td style="text-align:right">
                                 <form action="/Admin/CapNhatTrangThaiVe" method="post" style="display:inline; margin-right:5px;">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@item.MA_VE" />
                                     <select name="status" class="adm-select" style="width: auto; padding: 5px; font-size:11px;" onchange="this.form.submit()">
                                         <option value="Đã đặt" @(item.TRANGTHAI == "Đã đặt" ? "selected" : "")>Đã đặt</option>
@@ -83,6 +84,7 @@
                                 </form>
                                 
                                 <form action="/Admin/XoaVe/@item.MA_VE" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vé này (Sẽ khôi phục lại chỗ trống)?');">
+                                    @Html.AntiForgeryToken()
                                     <button type="submit" class="btn-icon del" title="Xóa vé">
                                         <i class="bi bi-trash3"></i>
                                     </button>

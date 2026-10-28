@@ -22,6 +22,7 @@
             <div class="adm-card-body">
                 @using (Html.BeginForm())
                 {
+                    @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.MA_LICHCHIEU)
 
                     <div class="adm-form-group">

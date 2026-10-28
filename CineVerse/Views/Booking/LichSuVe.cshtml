@@ -7,7 +7,7 @@
 @section Styles {
     <style>
         .history-container {
-            padding: 80px 0;
+            padding: 60px 0 80px;
             background: var(--bg-void);
             min-height: 80vh;
         }
@@ -29,7 +29,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            max-width: 800px;
+            max-width: 860px;
             margin: 0 auto;
         }
 
@@ -51,6 +51,7 @@
         .ticket-poster {
             width: 140px;
             flex-shrink: 0;
+            background: #15181f;
         }
 
         .ticket-poster img {
@@ -95,8 +96,8 @@
         .ticket-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
         .detail-item {
@@ -193,8 +194,8 @@
             <div class="empty-state">
                 <i class="bi bi-ticket-perforated"></i>
                 <h3>Chưa có giao dịch nào</h3>
-                <p>Bạn chưa đặt vé nào trên hệ thống. Hãy chọn cho mình một bộ phim hay ngay nhé!</p>
-                <a href="/Movies/DanhSachPhim" class="btn-book">Xem phim ngay</a>
+                <p>Bạn chưa đặt vé nào trên hệ thống CinéVerse. Hãy chọn cho mình một bộ phim hay ngay nhé!</p>
+                <a href="/Movies/DanhSachPhim" class="btn-book">Khám phá phim ngay</a>
             </div>
         }
         else
@@ -205,7 +206,7 @@
                     <div class="ticket-card">
                         <div class="ticket-poster">
                             <img src="~/Content/HinhAnh/@ve.LICHCHIEU.PHIM.POSTER" 
-                                 onerror="this.src='https://placehold.co/140x210/1a1a28/555?text=No+Image'" 
+                                 onerror="this.src='https://placehold.co/140x210/1a1a28/555?text=No+Poster'" 
                                  alt="@ve.LICHCHIEU.PHIM.TEN_PHIM" />
                         </div>
                         <div class="ticket-info">
@@ -225,17 +226,48 @@
                                     </div>
                                     <div class="detail-item">
                                         <i class="bi bi-person-video"></i>
-                                        <span>Ghế: <strong style="color:#fff">@ve.GHE.SOGHE</strong></span>
+                                        <span>Ghế: <strong style="color:#fff">@ve.GHE.SOGHE</strong> (@(ve.GHE.LOAIGHE?.TEN_LOAIGHE?.Trim() ?? "Thường"))</span>
                                     </div>
                                     <div class="detail-item">
                                         <i class="bi bi-upc-scan"></i>
-                                        <span>Mã vé: @ve.MA_VE</span>
+                                        <span>Mã vé: <strong class="font-monospace text-warning">@ve.MA_VE.Trim()</strong></span>
                                     </div>
                                 </div>
+
+                                <!-- Danh sách bắp nước đi kèm nếu có (Safe check tránh NullReferenceException) -->
+                                @if (ve.DONHANG != null && ve.DONHANG.CHITIET_BAPNUOC != null && ve.DONHANG.CHITIET_BAPNUOC.Any())
+                                {
+                                    <div class="p-2 rounded mb-2" style="background: rgba(229,166,35,0.06); border: 1px dashed rgba(229,166,35,0.25);">
+                                        <div class="small text-warning fw-semibold mb-1">
+                                            <i class="bi bi-cup-straw me-1"></i> Bắp nước &amp; Combo đi kèm:
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach (var ct in ve.DONHANG.CHITIET_BAPNUOC)
+                                            {
+                                                <span class="badge bg-dark text-light border border-secondary" style="font-size:12px;">
+                                                    @(ct.BAPNUOC != null ? ct.BAPNUOC.TEN_SANPHAM : ct.MA_SANPHAM.Trim()) 
+                                                    <span class="text-warning fw-bold">x@(ct.SOLUONG)</span>
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             </div>
                             <div class="ticket-footer">
-                                <span class="booking-date">Đặt lúc: @ve.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</span>
-                                <span class="ticket-price">@String.Format("{0:0,0}", ve.DONGIA)đ</span>
+                                <span class="booking-date">
+                                    <i class="bi bi-clock me-1"></i>Đặt lúc: @(ve.DONHANG != null ? ve.DONHANG.NGAYDAT.ToString("dd/MM/yyyy HH:mm") : "N/A")
+                                    @if (ve.DONHANG != null)
+                                    {
+                                        <span class="ms-2 badge bg-secondary" style="font-size:10px;">Đơn: @ve.DONHANG.MA_DONHANG.Trim()</span>
+                                    }
+                                </span>
+                                <div class="text-end">
+                                    <div class="ticket-price">@String.Format("{0:0,0}", ve.DONGIA) đ</div>
+                                    @if (ve.DONHANG != null && ve.DONHANG.TIENMONAN > 0)
+                                    {
+                                        <small class="text-muted d-block" style="font-size:11px;">(Tổng đơn: @String.Format("{0:0,0}", ve.DONHANG.TONGTIEN) đ)</small>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,164 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.DANHGIA>
+@{
+    ViewBag.Title = "Quản lý đánh giá phim";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var phimList = ViewBag.PhimList as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM> ?? new List<DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM>();
+    string selectedPhim = ViewBag.SelectedPhim as string ?? "";
+    string selectedTrangThai = ViewBag.SelectedTrangThai as string ?? "";
+}
+
+<div class="adm-card mb-4">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-star-half text-warning"></i> Quản lý Đánh giá &amp; Bình luận Phim xác thực
+        </div>
+        <div class="small text-muted">
+            Tổng cộng: <strong class="text-white">@Model.Count</strong> đánh giá
+        </div>
+    </div>
+    <div class="adm-card-body">
+        <!-- BỘ LỌC TÌM KIẾM -->
+        <form method="get" action="/Admin/QuanLyDanhGia" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label text-muted small">Lọc theo bộ phim:</label>
+                <select name="maPhim" class="adm-input form-select bg-dark text-white border-secondary">
+                    <option value="">-- Tất cả phim --</option>
+                    @foreach (var p in phimList)
+                    {
+                        <option value="@p.MA_PHIM.Trim()" @(selectedPhim == p.MA_PHIM.Trim() ? "selected" : "")>
+                            @p.TEN_PHIM
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-muted small">Trạng thái kiểm duyệt:</label>
+                <select name="trangThai" class="adm-input form-select bg-dark text-white border-secondary">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="HienThi" @(selectedTrangThai == "HienThi" ? "selected" : "")>Đang hiển thị</option>
+                    <option value="An" @(selectedTrangThai == "An" ? "selected" : "")>Đã ẩn (Vi phạm)</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn-adm-primary flex-fill">
+                    <i class="bi bi-funnel-fill me-1"></i> Lọc dữ liệu
+                </button>
+                <a href="/Admin/QuanLyDanhGia" class="btn-adm-ghost" title="Đặt lại bộ lọc">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- BẢNG DANH SÁCH ĐÁNH GIÁ -->
+<div class="adm-card">
+    <div class="adm-card-body p-0">
+        <div class="table-responsive">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Mã</th>
+                        <th>Phim</th>
+                        <th>Khán giả (Đã mua vé)</th>
+                        <th style="width: 120px;">Xếp hạng</th>
+                        <th>Nội dung bình luận</th>
+                        <th style="width: 130px;">Thời gian</th>
+                        <th style="width: 110px;">Trạng thái</th>
+                        <th style="width: 100px; text-align: center;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var dg in Model)
+                        {
+                            string tenKhach = dg.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khách hàng";
+                            string sdtKhach = dg.KHACHHANG?.TAIKHOAN?.SDT ?? "";
+                            bool isHienThi = dg.TRANGTHAI == "HienThi";
+                            <tr>
+                                <td>
+                                    <span class="font-monospace text-warning small">@dg.MA_DANHGIA</span>
+                                </td>
+                                <td>
+                                    <strong class="text-white">@(dg.PHIM?.TEN_PHIM ?? dg.MA_PHIM)</strong>
+                                </td>
+                                <td>
+                                    <div><strong>@tenKhach</strong></div>
+                                    <div class="text-muted small">@sdtKhach</div>
+                                </td>
+                                <td>
+                                    <div class="text-warning">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= dg.SOSAO)
+                                            {
+                                                <i class="bi bi-star-fill"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-star text-muted"></i>
+                                            }
+                                        }
+                                        <span class="small text-white ms-1 fw-bold">(@dg.SOSAO)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="max-width: 380px; font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.85);">
+                                        @dg.NOIDUNG
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="small text-muted">@dg.NGAYDANHGIA.ToString("dd/MM/yyyy HH:mm")</span>
+                                </td>
+                                <td>
+                                    @if (isHienThi)
+                                    {
+                                        <span class="badge bg-success bg-opacity-25 text-success border border-success">
+                                            <i class="bi bi-check-circle me-1"></i>Hiển thị
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger">
+                                            <i class="bi bi-eye-slash me-1"></i>Đã ẩn
+                                        </span>
+                                    }
+                                </td>
+                                <td style="text-align: center;">
+                                    @using (Html.BeginForm("DoiTrangThaiDanhGia", "Admin", FormMethod.Post, new { style = "display:inline;" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="maDanhGia" value="@dg.MA_DANHGIA.Trim()" />
+                                        if (isHienThi)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Ẩn bình luận này vì vi phạm quy chuẩn" onclick="return confirm('Bạn có chắc chắn muốn ẩn bình luận này khỏi trang phim?');">
+                                                <i class="bi bi-eye-slash"></i> Ẩn
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Hiển thị lại bình luận này">
+                                                <i class="bi bi-eye"></i> Mở
+                                            </button>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox" style="font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.4;"></i>
+                                Không tìm thấy đánh giá nào phù hợp với điều kiện lọc.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

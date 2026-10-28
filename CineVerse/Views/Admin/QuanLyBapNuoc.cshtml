@@ -1,0 +1,263 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.BAPNUOC>
+@{
+    ViewBag.Title = "Quản lý Bắp nước & Combo (F&B)";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    string currentPhanLoai = ViewBag.CurrentPhanLoai as string ?? "TatCa";
+    string currentSearch = ViewBag.CurrentSearch as string ?? "";
+}
+
+<style>
+    .fnb-filter-btn {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #aaa;
+        background: rgba(255,255,255,0.04);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .fnb-filter-btn:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.3);
+    }
+    .fnb-filter-btn.active {
+        color: #0d0f12;
+        background: #e5a623;
+        border-color: #e5a623;
+        font-weight: 600;
+        box-shadow: 0 0 12px rgba(229,166,35,0.35);
+    }
+    .fnb-thumb {
+        width: 52px;
+        height: 52px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: #1a1e24;
+    }
+    .badge-fnb-combo { background: rgba(229,166,35,0.18); color: #f0b938; border: 1px solid rgba(229,166,35,0.35); }
+    .badge-fnb-bap { background: rgba(255,140,0,0.18); color: #ff9800; border: 1px solid rgba(255,140,0,0.35); }
+    .badge-fnb-nuoc { background: rgba(33,150,243,0.18); color: #42a5f5; border: 1px solid rgba(33,150,243,0.35); }
+    .badge-fnb-snack { background: rgba(156,39,176,0.18); color: #ba68c8; border: 1px solid rgba(156,39,176,0.35); }
+    .status-toggle {
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s;
+    }
+    .status-toggle:hover {
+        opacity: 0.85;
+        transform: scale(1.03);
+    }
+</style>
+
+<div class="adm-card">
+    <div class="adm-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="adm-card-title">
+            <i class="bi bi-cup-straw text-warning me-2"></i> Danh mục Bắp nước & Combo F&B
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="@Url.Action("ThemBapNuoc", "Admin")" class="btn-adm-primary">
+                <i class="bi bi-plus-circle me-1"></i> Thêm sản phẩm / Combo
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success m-3" style="background:rgba(75,232,124,.15); color:var(--green); border:1px solid var(--green); border-radius:8px; padding:12px 16px;">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger m-3" style="background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px; padding:12px 16px;">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        </div>
+    }
+
+    <!-- Thanh lọc & tìm kiếm -->
+    <div class="p-3 border-bottom border-secondary border-opacity-25 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="@Url.Action("QuanLyBapNuoc", "Admin", new { phanLoai = "TatCa", search = currentSearch })" class="fnb-filter-btn @(currentPhanLoai == "TatCa" ? "active" : "")">
+                <i class="bi bi-grid-fill"></i> Tất cả
+            </a>
+            <a href="@Url.Action("QuanLyBapNuoc", "Admin", new { phanLoai = "Combo", search = currentSearch })" class="fnb-filter-btn @(currentPhanLoai == "Combo" ? "active" : "")">
+                <i class="bi bi-stars"></i> Combo ưu đãi
+            </a>
+            <a href="@Url.Action("QuanLyBapNuoc", "Admin", new { phanLoai = "Bắp", search = currentSearch })" class="fnb-filter-btn @(currentPhanLoai == "Bắp" ? "active" : "")">
+                <i class="bi bi-circle-fill"></i> Bắp rang
+            </a>
+            <a href="@Url.Action("QuanLyBapNuoc", "Admin", new { phanLoai = "Nước", search = currentSearch })" class="fnb-filter-btn @(currentPhanLoai == "Nước" ? "active" : "")">
+                <i class="bi bi-cup-straw"></i> Nước ngọt & Trà
+            </a>
+            <a href="@Url.Action("QuanLyBapNuoc", "Admin", new { phanLoai = "Snack", search = currentSearch })" class="fnb-filter-btn @(currentPhanLoai == "Snack" ? "active" : "")">
+                <i class="bi bi-egg-fried"></i> Snack & Ăn vặt
+            </a>
+        </div>
+
+        <form method="get" action="@Url.Action("QuanLyBapNuoc", "Admin")" class="d-flex gap-2">
+            <input type="hidden" name="phanLoai" value="@currentPhanLoai" />
+            <div class="input-group input-group-sm" style="max-width: 280px;">
+                <input type="text" name="search" class="form-control bg-dark text-white border-secondary" placeholder="Tìm tên bắp nước..." value="@currentSearch" />
+                <button class="btn btn-outline-warning" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(currentSearch))
+            {
+                <a href="@Url.Action("QuanLyBapNuoc", "Admin", new { phanLoai = currentPhanLoai })" class="btn btn-sm btn-outline-secondary" title="Xóa tìm kiếm">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
+        </form>
+    </div>
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px; text-align: center;">Hình ảnh</th>
+                        <th style="width: 100px;">Mã SP</th>
+                        <th>Tên sản phẩm / Combo</th>
+                        <th style="width: 120px;">Phân loại</th>
+                        <th style="width: 130px; text-align: right;">Đơn giá</th>
+                        <th style="width: 110px; text-align: center;">Tồn kho</th>
+                        <th style="width: 140px; text-align: center;">Trạng thái</th>
+                        <th style="width: 140px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            string badgeClass = "badge-fnb-combo";
+                            if (item.PHANLOAI == "Bắp") { badgeClass = "badge-fnb-bap"; }
+                            else if (item.PHANLOAI == "Nước") { badgeClass = "badge-fnb-nuoc"; }
+                            else if (item.PHANLOAI == "Snack") { badgeClass = "badge-fnb-snack"; }
+
+                            string imgSrc = Url.Content("~/Content/img/fnb/" + (item.HINHANH ?? "fnb-default.png"));
+                            bool isDangBan = (item.TRANGTHAI == "DangBan");
+
+                            <tr id="row-@item.MA_SANPHAM.Trim()">
+                                <td style="text-align: center;">
+                                    <img src="@imgSrc" alt="@item.TEN_SANPHAM" class="fnb-thumb" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e232a/e5a623?text=F%26B';" />
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary font-monospace">@item.MA_SANPHAM.Trim()</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-white">@item.TEN_SANPHAM</div>
+                                    @if (!string.IsNullOrEmpty(item.MOTA))
+                                    {
+                                        <small class="text-muted d-block text-truncate" style="max-width: 320px;" title="@item.MOTA">
+                                            @item.MOTA
+                                        </small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @badgeClass rounded-pill px-2 py-1">@item.PHANLOAI</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <span class="fw-bold text-warning">@item.GIABAN.ToString("#,##0") đ</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if (item.SOLUONGTON <= 10)
+                                    {
+                                        <span class="badge bg-danger">@item.SOLUONGTON (Sắp hết)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-dark text-light border border-secondary">@item.SOLUONGTON</span>
+                                    }
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="badge status-toggle @(isDangBan ? "bg-success" : "bg-secondary")"
+                                          data-id="@item.MA_SANPHAM.Trim()"
+                                          id="status-badge-@item.MA_SANPHAM.Trim()"
+                                          title="Nhấn để đổi trạng thái nhanh">
+                                        <i class="bi @(isDangBan ? "bi-check-circle-fill" : "bi-slash-circle") me-1"></i>
+                                        <span class="status-text">@(isDangBan ? "Đang bán" : "Ngừng bán")</span>
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="@Url.Action("SuaBapNuoc", "Admin", new { id = item.MA_SANPHAM.Trim() })" class="btn btn-sm btn-outline-info" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form method="post" action="@Url.Action("XoaBapNuoc", "Admin")" onsubmit="return confirm('Bạn có chắc chắn muốn xóa/ngừng bán sản phẩm @item.TEN_SANPHAM?');" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.MA_SANPHAM.Trim()" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                Không tìm thấy sản phẩm bắp nước nào phù hợp điều kiện lọc.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        // Xử lý AJAX Toggle trạng thái Đang bán / Ngừng bán
+        $('.status-toggle').on('click', function () {
+            var $badge = $(this);
+            var id = $badge.data('id');
+
+            $badge.css('pointer-events', 'none').css('opacity', '0.6');
+
+            $.ajax({
+                url: '@Url.Action("CapNhatTrangThaiBapNuoc", "Admin")',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        if (res.newStatus === 'DangBan') {
+                            $badge.removeClass('bg-secondary').addClass('bg-success');
+                            $badge.html('<i class="bi bi-check-circle-fill me-1"></i><span class="status-text">Đang bán</span>');
+                        } else {
+                            $badge.removeClass('bg-success').addClass('bg-secondary');
+                            $badge.html('<i class="bi bi-slash-circle me-1"></i><span class="status-text">Ngừng bán</span>');
+                        }
+                        if (window.showToast) {
+                            window.showToast('Thành công', res.message, 'success');
+                        }
+                    } else {
+                        alert(res.message || 'Lỗi khi cập nhật trạng thái');
+                    }
+                },
+                error: function () {
+                    alert('Lỗi kết nối máy chủ khi cập nhật trạng thái!');
+                },
+                complete: function () {
+                    $badge.css('pointer-events', '').css('opacity', '');
+                }
+            });
+        });
+    });
+</script>
+}
+

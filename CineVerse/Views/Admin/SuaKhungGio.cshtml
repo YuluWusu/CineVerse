@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Sửa Khung Giờ";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
@@ -17,6 +17,7 @@
 <div class="card" style="max-width: 500px;">
     <div class="card-body p-4">
         <form action="/Admin/SuaKhungGio/@Model.MA_KHUNGGIO" method="post">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="id" value="@Model.MA_KHUNGGIO" />
             <div class="mb-4">
                 <label class="form-label">Giờ Bắt Đầu <span class="text-danger">*</span></label>

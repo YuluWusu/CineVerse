@@ -1,41 +1,575 @@
-﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    var lichChieu = ViewBag.LichChieu as DoAn_QuanLyVeXemPhimTrucTiep.Models.LICHCHIEU;
-    var danhSachMon = ViewBag.DanhSachMon as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.MONAN>;
-    string selectedSeats = ViewBag.SelectedSeats as string;
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
+@{
+    Layout = "~/Views/Shared/_Khung.cshtml";
+    ViewBag.Title = "Chọn Bắp nước & Combo";
+
+    var lichChieu = ViewBag.LichChieu as LICHCHIEU;
+    string selectedSeats = ViewBag.SelectedSeats as string ?? "";
+    var danhSachGhe = ViewBag.DanhSachGhe as List<GHE> ?? new List<GHE>();
+    decimal tongTienVe = (decimal)(ViewBag.TongTienVe ?? 0m);
+    var danhSachBapNuoc = ViewBag.DanhSachBapNuoc as List<BAPNUOC> ?? new List<BAPNUOC>();
+    var selectedFnB = ViewBag.SelectedFnB as Dictionary<string, int> ?? new Dictionary<string, int>();
+    int remainingSeconds = (int)(ViewBag.RemainingSeconds ?? 420);
 }
 
-<div class="container" style="padding-top: 40px; padding-bottom: 40px; max-width: 800px;">
-    <h2 style="font-family:'Bebas Neue'; letter-spacing:2px; margin-bottom: 24px; color: var(--accent);">CHỌN BẮP NƯỚC & ĐỒ ĂN KÈM</h2>
+@section Styles {
+<style>
+    .booking-container {
+        padding: 40px 0 80px;
+        background: var(--bg-void);
+        min-height: 85vh;
+    }
 
-    <form method="post" action="/Booking/XacNhanChonMon">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="maLichChieu" value="@lichChieu.MA_LICHCHIEU.Trim()" />
-        <input type="hidden" name="selectedSeats" value="@selectedSeats" />
+    /* Countdown Timer Bar */
+    .timer-bar {
+        background: rgba(229,166,35,0.08);
+        border: 1px solid rgba(229,166,35,0.3);
+        border-radius: 12px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        transition: all 0.3s ease;
+    }
+    .timer-bar.warning-low {
+        background: rgba(232,75,75,0.15) !important;
+        border-color: rgba(232,75,75,0.5) !important;
+        animation: pulseTimer 1.2s infinite;
+    }
+    @@keyframes pulseTimer {
+        0% { box-shadow: 0 0 5px rgba(232,75,75,0.3); }
+        50% { box-shadow: 0 0 20px rgba(232,75,75,0.6); }
+        100% { box-shadow: 0 0 5px rgba(232,75,75,0.3); }
+    }
+    .timer-digits {
+        font-family: var(--font-display);
+        font-size: 26px;
+        font-weight: 800;
+        color: #e5a623;
+        letter-spacing: 2px;
+    }
+    .timer-bar.warning-low .timer-digits {
+        color: #e84b4b !important;
+    }
 
-        <div class="adm-card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-            @if (danhSachMon != null && danhSachMon.Count > 0)
-            {
-                foreach (var mon in danhSachMon)
-                {
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
-                        <div>
-                            <strong style="font-size: 15px;">@mon.TEN_MON</strong><br />
-                            <span style="color: var(--accent); font-size: 13px;">@String.Format("{0:0,0}", mon.GIA)đ</span>
-                        </div>
-                        <input type="number" min="0" max="10" value="0" name="mon_@mon.MA_MON.Trim()" class="form-control" style="width: 80px; background: rgba(255,255,255,.05); color: #fff; border-color: var(--border);" />
+    .fnb-tab-btn {
+        padding: 8px 18px;
+        border-radius: 24px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #aaa;
+        background: rgba(255,255,255,0.04);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .fnb-tab-btn:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.3);
+    }
+    .fnb-tab-btn.active {
+        color: #0d0f12;
+        background: #e5a623;
+        border-color: #e5a623;
+        box-shadow: 0 0 15px rgba(229,166,35,0.35);
+    }
+
+    .fnb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .fnb-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .fnb-card:hover {
+        border-color: rgba(229,166,35,0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .fnb-card.selected {
+        border-color: #e5a623;
+        box-shadow: 0 0 16px rgba(229,166,35,0.25);
+    }
+
+    .fnb-img-wrap {
+        width: 100%;
+        height: 160px;
+        background: #14171d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+    .fnb-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+    .fnb-card:hover .fnb-img-wrap img {
+        transform: scale(1.05);
+    }
+
+    .fnb-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        backdrop-filter: blur(4px);
+    }
+    .badge-Combo { background: rgba(229,166,35,0.85); color: #000; }
+    .badge-Bắp { background: rgba(255,140,0,0.85); color: #fff; }
+    .badge-Nước { background: rgba(33,150,243,0.85); color: #fff; }
+    .badge-Snack { background: rgba(156,39,176,0.85); color: #fff; }
+
+    .fnb-body {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .fnb-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+        line-height: 1.3;
+    }
+    .fnb-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+        line-height: 1.4;
+        min-height: 36px;
+    }
+    .fnb-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .fnb-price {
+        font-size: 16px;
+        font-weight: 700;
+        color: #e5a623;
+    }
+
+    .qty-controls {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 20px;
+        padding: 2px;
+    }
+    .qty-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    .qty-btn:hover {
+        background: #e5a623;
+        color: #000;
+    }
+    .qty-val {
+        width: 32px;
+        text-align: center;
+        font-weight: 700;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        position: sticky;
+        top: 20px;
+    }
+    .summary-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #e5a623;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 10px;
+        color: var(--text-sec);
+    }
+    .summary-row strong {
+        color: #fff;
+    }
+    .fnb-summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        padding: 6px 0;
+        border-bottom: 1px dashed rgba(255,255,255,0.08);
+    }
+    .total-box {
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 2px solid rgba(229,166,35,0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+    .total-price {
+        font-size: 24px;
+        font-weight: 800;
+        color: #4be87c;
+        font-family: var(--font-display);
+    }
+</style>
+}
+
+<div class="booking-container">
+    <div class="container" style="max-width: 1140px;">
+
+        <!-- Countdown Timer Bar (Real-time Seat Hold) -->
+        <div class="timer-bar" id="seatTimerBar">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-clock-history fs-3 text-warning"></i>
+                <div>
+                    <div class="fw-bold text-white small">Thời gian giữ chỗ còn lại</div>
+                    <div class="small text-muted">Ghế của bạn sẽ tự động giải phóng khi đồng hồ về 00:00</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="timer-digits" id="countdownDisplay">07:00</span>
+            </div>
+        </div>
+        
+        <!-- Stepper -->
+        <div class="d-flex justify-content-center align-items-center gap-2 mb-4 flex-wrap">
+            <div class="px-3 py-2 rounded-pill fw-semibold text-success border border-success border-opacity-50 d-flex align-items-center gap-2" style="font-size:14px; background:rgba(75,232,124,0.1);">
+                <i class="bi bi-check-circle-fill"></i> 1. Đã chọn ghế
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+            <div class="px-3 py-2 rounded-pill fw-bold text-dark bg-warning d-flex align-items-center gap-2 shadow-sm" style="font-size:14px;">
+                <i class="bi bi-cup-straw"></i> 2. Bắp nước &amp; Combo
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+            <div class="px-3 py-2 rounded-pill fw-semibold text-secondary border border-secondary border-opacity-25 d-flex align-items-center gap-2" style="font-size:14px; background:rgba(255,255,255,0.03);">
+                <i class="bi bi-credit-card"></i> 3. Thanh toán
+            </div>
+        </div>
+
+        @if (TempData["Loi"] != null)
+        {
+            <div class="alert alert-danger mb-4" style="background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Loi"]
+            </div>
+        }
+
+        <form method="post" action="@Url.Action("XacNhanChonMon", "Booking")" id="fnbForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="maLichChieu" id="hiddenMaLichChieu" value="@lichChieu.MA_LICHCHIEU.Trim()" />
+            <input type="hidden" name="selectedSeats" value="@selectedSeats" />
+
+            <div class="row g-4">
+                <!-- Cột Trái: Danh Sách Bắp Nước & Combo -->
+                <div class="col-lg-8">
+                    <!-- Tabs phân loại -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <button type="button" class="fnb-tab-btn active" data-filter="all">
+                            <i class="bi bi-grid-fill"></i> Tất cả
+                        </button>
+                        <button type="button" class="fnb-tab-btn" data-filter="Combo">
+                            <i class="bi bi-stars"></i> Combo ưu đãi
+                        </button>
+                        <button type="button" class="fnb-tab-btn" data-filter="Bắp">
+                            <i class="bi bi-circle-fill"></i> Bắp rang
+                        </button>
+                        <button type="button" class="fnb-tab-btn" data-filter="Nước">
+                            <i class="bi bi-cup-straw"></i> Nước &amp; Trà
+                        </button>
+                        <button type="button" class="fnb-tab-btn" data-filter="Snack">
+                            <i class="bi bi-egg-fried"></i> Snack ăn vặt
+                        </button>
                     </div>
-                }
-            }
-            else
-            {
-                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Hiện không có bắp nước nào.</p>
-            }
-        </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <a href="/Booking/ChonGhe?maLichChieu=@lichChieu.MA_LICHCHIEU.Trim()" class="btn btn-secondary">Quay lại chọn ghế</a>
-            <button type="submit" class="btn btn-warning" style="font-weight: bold; background: var(--accent); border: none;">Tiếp tục đến thanh toán <i class="bi bi-arrow-right"></i></button>
-        </div>
-    </form>
+                    <!-- Lưới sản phẩm -->
+                    <div class="fnb-grid">
+                        @if (danhSachBapNuoc != null && danhSachBapNuoc.Any())
+                        {
+                            foreach (var item in danhSachBapNuoc)
+                            {
+                                string maSp = item.MA_SANPHAM.Trim();
+                                int currentQty = selectedFnB.ContainsKey(maSp) ? selectedFnB[maSp] : 0;
+                                string imgSrc = Url.Content("~/Content/img/fnb/" + (item.HINHANH ?? "fnb-default.png"));
+
+                                <div class="fnb-card @(currentQty > 0 ? "selected" : "")" data-category="@item.PHANLOAI" id="card-@maSp">
+                                    <div class="fnb-img-wrap">
+                                        <span class="fnb-badge badge-@item.PHANLOAI">@item.PHANLOAI</span>
+                                        <img src="@imgSrc" alt="@item.TEN_SANPHAM" onerror="this.onerror=null; this.src='https://placehold.co/300x200/1e232a/e5a623?text=F%26B';" />
+                                    </div>
+                                    <div class="fnb-body">
+                                        <div>
+                                            <div class="fnb-title">@item.TEN_SANPHAM</div>
+                                            <div class="fnb-desc">@item.MOTA</div>
+                                        </div>
+                                        <div class="fnb-footer">
+                                            <div class="fnb-price">@item.GIABAN.ToString("#,##0") đ</div>
+                                            <div class="qty-controls">
+                                                <button type="button" class="qty-btn btn-minus" data-id="@maSp">-</button>
+                                                <span class="qty-val" id="qty-val-@maSp">@currentQty</span>
+                                                <button type="button" class="qty-btn btn-plus" data-id="@maSp">+</button>
+                                                <input type="hidden" name="fnb_@maSp" id="input-@maSp" value="@currentQty" data-price="@item.GIABAN" data-name="@item.TEN_SANPHAM" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12 text-center text-muted py-5">
+                                <i class="bi bi-cup-straw fs-1 d-block mb-2"></i>
+                                Hiện tại rạp chưa có danh mục bắp nước trực tuyến.
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Cột Phải: Tóm Tắt Đơn Hàng (Realtime Sticky Summary) -->
+                <div class="col-lg-4">
+                    <div class="summary-card">
+                        <div class="summary-title">
+                            <i class="bi bi-receipt"></i> Tóm tắt đơn hàng
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="fw-bold text-white fs-6">@lichChieu.PHIM.TEN_PHIM</div>
+                            <div class="small text-muted">@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</div>
+                            <div class="small text-warning">Suất chiếu: @lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") | @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</div>
+                        </div>
+
+                        <hr style="border-color: rgba(255,255,255,0.1);" />
+
+                        <!-- Tiền vé -->
+                        <div class="summary-row">
+                            <span>Ghế đang giữ:</span>
+                            <strong class="text-warning">
+                                @string.Join(", ", danhSachGhe.Select(g => g.SOGHE?.Trim()))
+                            </strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tổng tiền vé:</span>
+                            <strong id="summaryTienVe" data-tienve="@tongTienVe">@tongTienVe.ToString("#,##0") đ</strong>
+                        </div>
+
+                        <hr style="border-color: rgba(255,255,255,0.1);" />
+
+                        <!-- Danh sách bắp nước realtime -->
+                        <div class="mb-2">
+                            <span class="small text-muted fw-semibold">Bắp nước &amp; Combo đi kèm:</span>
+                        </div>
+                        <div id="fnbSummaryContainer">
+                            <div class="text-muted small py-2 fst-italic" id="fnbEmptyNote">Chưa chọn phần bắp nước nào.</div>
+                        </div>
+
+                        <!-- Tổng tiền bắp nước -->
+                        <div class="summary-row mt-2 pt-2 border-top border-secondary border-opacity-25">
+                            <span>Tiền bắp nước:</span>
+                            <strong id="summaryTienFnB" class="text-info">0 đ</strong>
+                        </div>
+
+                        <!-- Tổng thanh toán dự kiến -->
+                        <div class="total-box">
+                            <span class="fw-bold text-white">Tạm tính:</span>
+                            <div class="total-price" id="summaryTongThanhToan">@tongTienVe.ToString("#,##0") đ</div>
+                        </div>
+
+                        <div class="mt-4 d-grid gap-2">
+                            <button type="submit" class="btn btn-warning py-2 fw-bold" id="btnContinueCheckout">
+                                Tiếp tục: Thanh toán <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary py-2" onclick="cancelBooking()">
+                                <i class="bi bi-arrow-left me-1"></i> Quay lại chọn ghế khác
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
 </div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        var tienVe = parseFloat($('#summaryTienVe').data('tienve')) || 0;
+        var maLichChieu = $('#hiddenMaLichChieu').val();
+        var timeLeft = @remainingSeconds;
+
+        function formatMoney(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ";
+        }
+
+        function formatTimer(sec) {
+            var m = Math.floor(sec / 60);
+            var s = sec % 60;
+            return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+        }
+
+        // Đếm ngược từng giây
+        var timerInterval = setInterval(function () {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                $('#countdownDisplay').text("00:00");
+                alert("Đã hết thời gian giữ ghế (7 phút)! Ghế của bạn đã được giải phóng để nhường cho khách hàng khác.");
+                window.location.href = '/Booking/ChonGhe?maLichChieu=' + encodeURIComponent(maLichChieu);
+                return;
+            }
+
+            $('#countdownDisplay').text(formatTimer(timeLeft));
+
+            // Dưới 2 phút đổi màu cảnh báo
+            if (timeLeft <= 120) {
+                $('#seatTimerBar').addClass('warning-low');
+            }
+        }, 1000);
+
+        $('#countdownDisplay').text(formatTimer(timeLeft));
+
+        // Cập nhật giao diện tóm tắt realtime
+        function updateSummary() {
+            var tongTienFnB = 0;
+            var html = '';
+            var countItems = 0;
+
+            $('input[id^="input-"]').each(function () {
+                var $input = $(this);
+                var qty = parseInt($input.val()) || 0;
+                var price = parseFloat($input.data('price')) || 0;
+                var name = $input.data('name');
+
+                if (qty > 0) {
+                    countItems++;
+                    var itemSubTotal = qty * price;
+                    tongTienFnB += itemSubTotal;
+                    html += '<div class="fnb-summary-item">' +
+                                '<div><span class="text-white">' + name + '</span> <span class="text-warning">x' + qty + '</span></div>' +
+                                '<div class="fw-semibold text-light">' + formatMoney(itemSubTotal) + '</div>' +
+                            '</div>';
+                }
+            });
+
+            if (countItems > 0) {
+                $('#fnbSummaryContainer').html(html);
+            } else {
+                $('#fnbSummaryContainer').html('<div class="text-muted small py-2 fst-italic">Chưa chọn phần bắp nước nào.</div>');
+            }
+
+            $('#summaryTienFnB').text(formatMoney(tongTienFnB));
+            var tongCong = tienVe + tongTienFnB;
+            $('#summaryTongThanhToan').text(formatMoney(tongCong));
+        }
+
+        // Tăng số lượng
+        $(document).on('click', '.btn-plus', function () {
+            var id = $(this).data('id');
+            var $input = $('#input-' + id);
+            var $val = $('#qty-val-' + id);
+            var $card = $('#card-' + id);
+
+            var cur = parseInt($input.val()) || 0;
+            if (cur < 20) {
+                cur++;
+                $input.val(cur);
+                $val.text(cur);
+                $card.addClass('selected');
+                updateSummary();
+            }
+        });
+
+        // Giảm số lượng
+        $(document).on('click', '.btn-minus', function () {
+            var id = $(this).data('id');
+            var $input = $('#input-' + id);
+            var $val = $('#qty-val-' + id);
+            var $card = $('#card-' + id);
+
+            var cur = parseInt($input.val()) || 0;
+            if (cur > 0) {
+                cur--;
+                $input.val(cur);
+                $val.text(cur);
+                if (cur === 0) {
+                    $card.removeClass('selected');
+                }
+                updateSummary();
+            }
+        });
+
+        // Tabs lọc phân loại
+        $('.fnb-tab-btn').on('click', function () {
+            $('.fnb-tab-btn').removeClass('active');
+            $(this).addClass('active');
+
+            var filter = $(this).data('filter');
+            if (filter === 'all') {
+                $('.fnb-card').fadeIn(200);
+            } else {
+                $('.fnb-card').hide();
+                $('.fnb-card[data-category="' + filter + '"]').fadeIn(200);
+            }
+        });
+
+        // Hủy đặt vé / quay lại sơ đồ ghế
+        window.cancelBooking = function () {
+            if (confirm("Bạn có chắc chắn muốn quay lại? Ghế hiện tại của bạn sẽ được giữ trong thời gian còn lại.")) {
+                window.location.href = '/Booking/ChonGhe?maLichChieu=' + encodeURIComponent(maLichChieu);
+            }
+        };
+
+        // Chạy khởi tạo ban đầu
+        updateSummary();
+    });
+</script>
+}

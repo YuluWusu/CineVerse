@@ -1,0 +1,69 @@
+@{
+    ViewBag.Title = "Thanh toán không thành công";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+
+    string orderId = ViewBag.OrderId as string ?? "";
+    string errorCode = ViewBag.ErrorCode as string ?? "";
+    string errorMsg = ViewBag.ErrorMessage as string ?? "Giao dịch bị gián đoạn hoặc khách hàng đã hủy thanh toán.";
+    string txnNo = ViewBag.TransactionNo as string ?? "";
+}
+
+<div class="container py-5 my-5" style="min-height: 70vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6 text-center">
+            <div class="p-4 p-md-5 rounded-4 shadow-lg" style="background: #141722; border: 1px solid rgba(232, 75, 75, 0.3);">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background: rgba(232, 75, 75, 0.15); color: #e84b4b; font-size: 40px;">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+                </div>
+
+                <h3 class="text-white fw-bold mb-2">Thanh toán không thành công</h3>
+                <p class="text-danger small mb-4">@errorMsg</p>
+
+                <div class="p-3 rounded mb-4 text-start font-monospace small" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+                    @if (!string.IsNullOrEmpty(orderId))
+                    {
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Mã đơn hàng:</span>
+                            <span class="text-warning fw-bold">@orderId</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(errorCode))
+                    {
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Mã phản hồi cổng:</span>
+                            <span class="text-danger">@errorCode</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(txnNo))
+                    {
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Mã giao dịch cổng:</span>
+                            <span class="text-light">@txnNo</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Trạng thái ghế:</span>
+                        <span class="text-warning">Đã tự động giải phóng</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning text-start small mb-4 border-0" style="background: rgba(229,166,35,0.1); color: #e5a623;">
+                    <i class="bi bi-info-circle-fill me-1"></i>
+                    Do giao dịch chưa hoàn tất, vị trí ghế tạm giữ đã được giải phóng để nhường quyền ưu tiên cho các lượt đặt tiếp theo. Quý khách vui lòng chọn lại suất chiếu và tiến hành đặt vé mới.
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="@Url.Action("Index", "Movies")" class="btn btn-warning fw-bold px-4 py-2">
+                        <i class="bi bi-film me-1"></i> Đặt vé lại
+                    </a>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary px-4 py-2">
+                        <i class="bi bi-house me-1"></i> Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -2,60 +2,962 @@
 @using System
 @using System.Collections.Generic
 @using System.Linq
+@using DoAn_QuanLyVeXemPhimTrucTiep.Models
 @using DoAn_QuanLyVeXemPhimTrucTiep.Services
 @{
     Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
-    var thongKeSuat = ViewBag.ThongKeSuat as Dictionary<string, ThongKeSuat>;
+    ViewBag.Title = "Bán vé tại quầy (Box Office POS)";
+
+    var dsRap = ViewBag.DanhSachRap as List<RAPCHIEU> ?? new List<RAPCHIEU>();
+    string selectedRap = ViewBag.SelectedRap as string ?? "";
+    var dsBapNuoc = ViewBag.DanhSachBapNuoc as List<BAPNUOC> ?? new List<BAPNUOC>();
+    var dsKM = ViewBag.DanhSachKM as List<KHUYENMAI> ?? new List<KHUYENMAI>();
+    var thongKeSuat = ViewBag.ThongKeSuat as Dictionary<string, ThongKeSuat> ?? new Dictionary<string, ThongKeSuat>();
 }
 
-@if (TempData["Loi"] != null)
-{
-    <div style="background:rgba(232,75,75,.12);border:1px solid rgba(232,75,75,.4);color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
-        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Loi"]
-    </div>
-}
-@if (ViewBag.CanhBao != null)
-{
-    <div style="background:rgba(232,184,75,.12);border:1px solid rgba(232,184,75,.4);color:var(--accent);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
-        <i class="bi bi-info-circle-fill"></i> @ViewBag.CanhBao
-    </div>
+@section Styles {
+<style>
+    /* POS Full-Screen Workflow Layout */
+    .pos-container {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 20px;
+        align-items: start;
+    }
+    @@media (max-width: 1200px) {
+        .pos-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Schedules Bar */
+    .schedule-strip {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: 20px;
+    }
+    .schedule-card {
+        flex: 0 0 auto;
+        width: 210px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .schedule-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+    .schedule-card.active {
+        border-color: var(--accent);
+        background: rgba(232,184,75,0.08);
+        box-shadow: 0 0 15px rgba(232,184,75,0.2);
+    }
+    .schedule-card .movie-name {
+        font-weight: 700;
+        font-size: 13px;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+    }
+    .schedule-card .time-badge {
+        font-family: var(--font-display);
+        font-size: 18px;
+        color: var(--accent);
+        letter-spacing: 1px;
+    }
+
+    /* Screen and Seats Map */
+    .seat-map-wrapper {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .cinema-screen {
+        width: 75%;
+        height: 6px;
+        background: linear-gradient(90deg, transparent, #e8b84b, transparent);
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        box-shadow: 0 4px 15px rgba(232,184,75,0.5);
+    }
+    .screen-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+    }
+
+    .seat-matrix {
+        display: inline-block;
+        max-width: 100%;
+        overflow-x: auto;
+        padding: 10px 0;
+    }
+    .seat-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    .row-label {
+        width: 24px;
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+    .seat-btn {
+        width: 32px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.04);
+        color: var(--text-sec);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+    }
+    .seat-btn:hover:not(.booked) {
+        border-color: var(--accent);
+        color: #fff;
+    }
+    .seat-btn.selected {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #000 !important;
+        font-weight: 800;
+        transform: scale(1.08);
+    }
+    .seat-btn.booked {
+        background: rgba(255,255,255,0.02) !important;
+        border-color: transparent !important;
+        color: #444356 !important;
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+    .seat-btn.seat-vip {
+        border-color: rgba(232,75,75,0.4);
+        color: #ff8e8e;
+    }
+    .seat-btn.seat-couple {
+        width: 68px;
+        border-color: rgba(232,75,180,0.4);
+        color: #ffa1dc;
+    }
+
+    /* Concessions / F&B Tabs */
+    .fnb-panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+    }
+    .fnb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .fnb-item-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .fnb-item-card:hover {
+        border-color: rgba(232,184,75,0.3);
+    }
+    .fnb-thumb {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .fnb-counter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
+    }
+    .btn-qty {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.08);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    .btn-qty:hover {
+        background: var(--accent);
+        color: #000;
+    }
+
+    /* Right Checkout Sidebar */
+    .pos-cart {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        position: sticky;
+        top: 80px;
+    }
+    .cart-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+    }
+    .cart-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .change-display {
+        background: rgba(75, 232, 124, 0.1);
+        border: 1px solid rgba(75, 232, 124, 0.3);
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: var(--green);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    .btn-pos-pay {
+        background: linear-gradient(135deg, var(--accent), #ffc857);
+        color: #000;
+        border: none;
+        width: 100%;
+        padding: 14px;
+        font-weight: 800;
+        font-size: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(232,184,75,0.4);
+        transition: all 0.2s;
+        margin-top: 16px;
+    }
+    .btn-pos-pay:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(232,184,75,0.6);
+    }
+    .btn-pos-pay:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Quick Cash Suggestion Buttons */
+    .quick-cash-btn {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border);
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        cursor: pointer;
+    }
+    .quick-cash-btn:hover {
+        background: rgba(232,184,75,0.2);
+        border-color: var(--accent);
+    }
+
+    /* K80 Print Styles inside Modal */
+    #receiptPrintArea {
+        font-family: 'Courier New', Courier, monospace;
+        color: #000;
+        background: #fff;
+        padding: 16px;
+        max-width: 320px;
+        margin: 0 auto;
+        font-size: 12px;
+        line-height: 1.35;
+    }
+</style>
 }
 
-<div class="adm-card">
-    <div class="adm-card-header">
-        <div class="adm-card-title"><i class="bi bi-cash-coin"></i> Chọn suất chiếu để bán vé</div>
+<!-- Top Rạp Bar & Filter -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small"><i class="bi bi-geo-alt-fill text-danger"></i> Rạp đang trực:</span>
+        <select class="form-select form-select-sm bg-dark text-white border-secondary w-auto" id="selectRap" onchange="changeCinema(this.value)">
+            @foreach (var r in dsRap)
+            {
+                <option value="@r.MA_RAP.Trim()" @(r.MA_RAP.Trim() == selectedRap ? "selected" : "")>@r.TEN_RAP</option>
+            }
+        </select>
+        <span class="badge bg-secondary ms-2"><i class="bi bi-calendar3"></i> Hôm nay: @DateTime.Today.ToString("dd/MM/yyyy")</span>
     </div>
-    <div class="adm-card-body" style="padding:0">
-        <div style="overflow-x:auto">
-            <table class="adm-table">
-                <thead>
-                    <tr>
-                        <th>Ngày / Giờ</th>
-                        <th>Phim</th>
-                        <th>Phòng</th>
-                        <th>Vé đã bán</th>
-                        <th style="text-align:right">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Count == 0)
+
+    <div>
+        <a href="@Url.Action("LichSuBan", "NhanVien")" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="bi bi-receipt me-1"></i> Đơn đã bán
+        </a>
+        <a href="@Url.Action("CheckIn", "NhanVien")" class="btn btn-sm btn-outline-warning">
+            <i class="bi bi-qr-code-scan me-1"></i> Soát vé QR
+        </a>
+    </div>
+</div>
+
+<div class="pos-container">
+    
+    <!-- CỘT TRÁI: SUẤT CHIẾU, SƠ ĐỒ GHẾ & BẮP NƯỚC -->
+    <div>
+        <!-- 1. Danh sách Suất chiếu trong ngày -->
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <div class="fw-bold text-white small text-uppercase" style="letter-spacing:1px;">
+                <i class="bi bi-camera-reels text-warning me-1"></i> Chọn suất chiếu đang mở bán (@Model.Count)
+            </div>
+            <span class="text-muted small" id="lblSelectedSchedule">Chưa chọn suất</span>
+        </div>
+
+        <div class="schedule-strip" id="schedulesStrip">
+            @if (!Model.Any())
+            {
+                <div class="text-muted small p-3 bg-dark rounded border border-secondary border-opacity-25 w-100 text-center">
+                    Rạp hiện không có suất chiếu nào còn mở bán trong ngày hôm nay.
+                </div>
+            }
+            @foreach (var lc in Model)
+            {
+                int daBan = thongKeSuat.ContainsKey(lc.MA_LICHCHIEU.Trim()) ? thongKeSuat[lc.MA_LICHCHIEU.Trim()].DaBan : 0;
+                <div class="schedule-card" onclick="selectSchedule('@lc.MA_LICHCHIEU.Trim()', this)">
+                    <div class="time-badge">@lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</div>
+                    <div class="movie-name" title="@lc.PHIM.TEN_PHIM">@lc.PHIM.TEN_PHIM</div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size:11px;">
+                        <span><i class="bi bi-door-closed"></i> @lc.PHONGCHIEU.TEN_PHONG</span>
+                        <span class="text-warning">Đã bán: @daBan</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- 2. Sơ đồ Ghế tương tác (Nạp động qua AJAX khi chọn suất) -->
+        <div class="seat-map-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="text-start">
+                    <h6 class="text-white fw-bold mb-0" id="mapMovieTitle">Vui lòng chọn 1 suất chiếu ở trên</h6>
+                    <small class="text-muted" id="mapRoomSubtitle">Sơ đồ ghế sẽ xuất hiện tức thì</small>
+                </div>
+                <!-- Chú thích loại ghế -->
+                <div class="d-flex gap-3 small">
+                    <span class="d-inline-flex align-items-center gap-1"><span class="seat-btn" style="width:16px;height:16px;"></span> Trống</span>
+                    <span class="d-inline-flex align-items-center gap-1"><span class="seat-btn selected" style="width:16px;height:16px;"></span> Đang chọn</span>
+                    <span class="d-inline-flex align-items-center gap-1"><span class="seat-btn booked" style="width:16px;height:16px;"></span> Đã bán</span>
+                    <span class="d-inline-flex align-items-center gap-1"><span class="seat-btn seat-vip" style="width:16px;height:16px;"></span> VIP</span>
+                    <span class="d-inline-flex align-items-center gap-1"><span class="seat-btn seat-couple" style="width:24px;height:16px;"></span> Đôi</span>
+                </div>
+            </div>
+
+            <div class="cinema-screen"></div>
+            <div class="screen-label">MÀN HÌNH CHIẾU (SCREEN)</div>
+
+            <div class="seat-matrix" id="seatMatrixContainer">
+                <div class="text-muted py-5">
+                    <i class="bi bi-hand-index-thumb display-6 d-block mb-2 text-secondary"></i>
+                    Bấm vào một thẻ suất chiếu phía trên để hiển thị sơ đồ ghế.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Chọn nhanh Bắp Nước & Combo -->
+        <div class="fnb-panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="card-section-title mb-0 border-0 p-0">
+                    <i class="bi bi-cup-straw text-warning me-1"></i> Bắp nước &amp; Combo F&amp;B
+                </div>
+                <div class="text-muted small">Nhấn +/- để thêm nhanh vào đơn</div>
+            </div>
+
+            <div class="fnb-grid">
+                @foreach (var sp in dsBapNuoc)
+                {
+                    string img = !string.IsNullOrEmpty(sp.HINHANH) ? Url.Content(sp.HINHANH) : "/Content/images/default-fnb.jpg";
+                    <div class="fnb-item-card" data-code="@sp.MA_SANPHAM.Trim()" data-name="@sp.TEN_SANPHAM" data-price="@sp.GIABAN">
+                        <div>
+                            <img src="@img" alt="@sp.TEN_SANPHAM" class="fnb-thumb" onerror="this.src='/Content/images/default-fnb.jpg'" />
+                            <div class="text-white fw-bold small text-truncate" title="@sp.TEN_SANPHAM">@sp.TEN_SANPHAM</div>
+                            <div class="text-warning fw-bold small">@sp.GIABAN.ToString("#,##0") đ</div>
+                        </div>
+                        <div class="fnb-counter">
+                            <button type="button" class="btn-qty" onclick="changeFnbQty('@sp.MA_SANPHAM.Trim()', -1)">-</button>
+                            <span class="fw-bold text-white small" id="fnb_qty_@sp.MA_SANPHAM.Trim()">0</span>
+                            <button type="button" class="btn-qty" onclick="changeFnbQty('@sp.MA_SANPHAM.Trim()', 1)">+</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- CỘT PHẢI: HÓA ĐƠN & THANH TOÁN POS TỨC THÌ -->
+    <div>
+        <div class="pos-cart shadow-lg">
+            <div class="cart-section-title d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-receipt-cutoff me-1"></i> Hóa đơn POS</span>
+                <span class="badge bg-warning text-dark font-monospace" id="cartSeatCount">0 vé</span>
+            </div>
+
+            <!-- Khách hàng -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="text-muted small fw-bold">Khách hàng:</label>
+                    <div class="form-check form-switch mb-0" style="min-height:auto;">
+                        <input class="form-check-input" type="checkbox" id="chkWalkIn" checked onchange="toggleWalkIn(this.checked)">
+                        <label class="form-check-label text-light small" for="chkWalkIn">Khách vãng lai</label>
+                    </div>
+                </div>
+
+                <div id="memberBox" style="display:none;" class="mt-2">
+                    <div class="input-group input-group-sm mb-1">
+                        <input type="tel" class="form-control bg-dark text-white border-secondary" id="txtCustPhone" placeholder="Nhập SĐT khách hàng..." maxlength="12" />
+                        <button type="button" class="btn btn-outline-warning" onclick="lookupMember()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div id="memberInfo" class="small text-muted" style="min-height:18px;"></div>
+                </div>
+            </div>
+
+            <!-- Danh sách ghế đã chọn -->
+            <div class="mb-2">
+                <div class="d-flex justify-content-between text-muted small mb-1">
+                    <span>Ghế chọn:</span>
+                    <span class="text-white fw-bold" id="cartSeatNames">Chưa chọn</span>
+                </div>
+                <div class="d-flex justify-content-between text-muted small">
+                    <span>Tiền vé:</span>
+                    <span class="text-light fw-bold" id="cartTicketTotal">0 đ</span>
+                </div>
+            </div>
+
+            <!-- Danh sách Bắp nước đã chọn -->
+            <div class="mb-2 border-top border-secondary border-opacity-25 pt-2">
+                <div class="d-flex justify-content-between text-muted small mb-1">
+                    <span>Bắp nước &amp; Combo:</span>
+                    <span class="text-warning fw-bold" id="cartFnbTotal">0 đ</span>
+                </div>
+                <div id="cartFnbDetails" class="small text-muted" style="max-height:80px; overflow-y:auto;">
+                    <div class="text-muted" style="font-size:11px;">Không có bắp nước</div>
+                </div>
+            </div>
+
+            <!-- Khuyến mãi -->
+            <div class="mb-3 border-top border-secondary border-opacity-25 pt-2">
+                <div class="d-flex justify-content-between text-muted small mb-1">
+                    <span>Mã giảm giá:</span>
+                    <span class="text-success fw-bold" id="cartDiscount">-0 đ</span>
+                </div>
+                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="selPromotion" onchange="calculatePosTotal()">
+                    <option value="">-- Không áp dụng voucher --</option>
+                    @foreach (var km in dsKM)
                     {
-                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Hiện không có suất chiếu nào còn bán vé được.</td></tr>
+                        <option value="@km.MA_KM.Trim()" data-pct="@km.GIAMGIA_PHANTRAM" data-max="@(km.GIAMGIA_TOIDA ?? 9999999)">
+                            @km.MA_CODE (Giảm @km.GIAMGIA_PHANTRAM%@(km.GIAMGIA_TOIDA.HasValue ? " max " + km.GIAMGIA_TOIDA.Value.ToString("#,##0") + "đ" : ""))
+                        </option>
                     }
-                    @foreach (var lc in Model)
-                    {
-                        <tr>
-                            <td><strong>@StaffService.GioChieu(lc)</strong><br /><span style="font-size:11px;color:var(--text-muted)">@lc.NGAYCHIEU.ToString("dd/MM/yyyy")</span></td>
-                            <td>@lc.PHIM.TEN_PHIM</td>
-                            <td>@lc.PHONGCHIEU.TEN_PHONG<br /><span style="font-size:11px;color:var(--text-muted)">@lc.PHONGCHIEU.RAPCHIEU.TEN_RAP</span></td>
-                            <td>@thongKeSuat[lc.MA_LICHCHIEU.Trim()].DaBan</td>
-                            <td style="text-align:right">
-                                <a href="/NhanVien/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU.Trim()" class="btn-adm-primary">Chọn ghế <i class="bi bi-arrow-right"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                </select>
+            </div>
+
+            <!-- Tổng thanh toán to rõ -->
+            <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-white fw-bold">TỔNG THANH TOÁN:</span>
+                    <span class="font-monospace fw-bold text-warning" style="font-size:22px;" id="cartGrandTotal">0 đ</span>
+                </div>
+            </div>
+
+            <!-- Phương thức thanh toán & Tiền thối lại -->
+            <div class="mb-3">
+                <label class="text-muted small fw-bold mb-1">Phương thức:</label>
+                <div class="btn-group w-100 mb-2" role="group">
+                    <input type="radio" class="btn-check" name="posPayMethod" id="payCash" value="TienMat" checked onchange="togglePayMethod('cash')">
+                    <label class="btn btn-outline-warning btn-sm" for="payCash"><i class="bi bi-cash-stack me-1"></i> Tiền mặt</label>
+
+                    <input type="radio" class="btn-check" name="posPayMethod" id="payVietQR" value="VietQR" onchange="togglePayMethod('qr')">
+                    <label class="btn btn-outline-warning btn-sm" for="payVietQR"><i class="bi bi-qr-code me-1"></i> VietQR</label>
+                </div>
+
+                <!-- Tiền khách đưa (Chỉ hiện khi chọn Tiền mặt) -->
+                <div id="cashBox">
+                    <div class="input-group input-group-sm mb-1">
+                        <span class="input-group-text bg-dark text-muted border-secondary">Khách đưa:</span>
+                        <input type="number" class="form-control bg-dark text-white border-secondary text-end font-monospace" id="txtCashGiven" placeholder="0" oninput="calcChangeDue()" />
+                        <span class="input-group-text bg-dark text-muted border-secondary">đ</span>
+                    </div>
+
+                    <!-- Nút gợi ý tiền nhanh -->
+                    <div class="d-flex gap-1 flex-wrap mb-2">
+                        <button type="button" class="quick-cash-btn" onclick="setCashExact()">Đủ tiền</button>
+                        <button type="button" class="quick-cash-btn" onclick="setCash(100000)">100k</button>
+                        <button type="button" class="quick-cash-btn" onclick="setCash(200000)">200k</button>
+                        <button type="button" class="quick-cash-btn" onclick="setCash(500000)">500k</button>
+                    </div>
+
+                    <!-- Tiền thối lại -->
+                    <div class="change-display">
+                        <span class="small">Tiền thối lại:</span>
+                        <span class="font-monospace fs-6" id="lblChangeDue">0 đ</span>
+                    </div>
+                </div>
+
+                <!-- QR Modal Preview khi chọn VietQR -->
+                <div id="qrBox" style="display:none;" class="text-center p-2 rounded border border-secondary border-opacity-25 mt-2 bg-dark">
+                    <div class="small text-muted mb-1"><i class="bi bi-info-circle text-warning"></i> Quét mã VietQR tại quầy:</div>
+                    <img id="posQrImg" src="" alt="VietQR" style="width:130px; height:130px;" class="rounded bg-white p-1" />
+                    <div class="text-warning small mt-1 font-monospace fw-bold" id="posQrAmount">0 đ</div>
+                </div>
+            </div>
+
+            <!-- Nút bấm Xuất vé POS -->
+            <button type="button" class="btn-pos-pay" id="btnSubmitPos" onclick="submitPosBooking()" disabled>
+                <i class="bi bi-printer-fill me-2"></i> XUẤT VÉ &amp; THANH TOÁN (F9)
+            </button>
         </div>
     </div>
 </div>
+
+<!-- MODAL IN VÉ NHIỆT K80 (80MM) -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width:360px;">
+        <div class="modal-content bg-white text-dark">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold text-uppercase font-monospace">Hóa đơn &amp; Vé POS</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-2" id="receiptPrintArea">
+                <!-- Nội dung phiếu in nhiệt K80 nạp qua JS/AJAX -->
+                <div class="text-center py-4">Đang nạp cuống vé...</div>
+            </div>
+            <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                <button type="button" class="btn btn-warning btn-sm w-100 fw-bold" onclick="printReceipt()">
+                    <i class="bi bi-printer-fill me-1"></i> In hóa đơn K80 (Ctrl+P)
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-bs-dismiss="modal" onclick="resetPosWorkflow()">
+                    <i class="bi bi-plus-circle me-1"></i> Tạo đơn mới (Esc)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // State lưu trữ dữ liệu giỏ vé POS
+    var currentScheduleId = null;
+    var currentScheduleData = null;
+    var selectedSeats = []; // Danh sách { maGhe, soGhe, giaGhe, tenLoaiGhe }
+    var selectedFnb = {};   // { maSp: { name, price, qty } }
+    var grandTotal = 0;
+
+    // 1. Chuyển đổi rạp
+    function changeCinema(maRap) {
+        window.location.href = '@Url.Action("BanVe", "NhanVien")?maRap=' + maRap;
+    }
+
+    // 2. Chọn Suất chiếu -> Gọi AJAX nạp sơ đồ ghế tức thì
+    function selectSchedule(maLichChieu, cardElem) {
+        currentScheduleId = maLichChieu;
+        selectedSeats = [];
+        updateSeatSelectionDisplay();
+
+        // Highlight card
+        document.querySelectorAll('.schedule-card').forEach(c => c.classList.remove('active'));
+        if (cardElem) cardElem.classList.add('active');
+
+        var container = document.getElementById('seatMatrixContainer');
+        container.innerHTML = '<div class="py-5 text-warning"><span class="spinner-border spinner-border-sm me-2"></span> Đang nạp sơ đồ ghế...</div>';
+
+        $.ajax({
+            url: '@Url.Action("LaySoDoGhe", "NhanVien")',
+            type: 'GET',
+            data: { maLichChieu: maLichChieu },
+            success: function(res) {
+                if (res.success && res.data) {
+                    currentScheduleData = res.data;
+                    renderSeatMap(res.data);
+                } else {
+                    container.innerHTML = '<div class="text-danger py-4">' + (res.message || 'Lỗi nạp sơ đồ ghế.') + '</div>';
+                }
+            },
+            error: function() {
+                container.innerHTML = '<div class="text-danger py-4">Lỗi kết nối máy chủ khi nạp sơ đồ ghế.</div>';
+            }
+        });
+    }
+
+    // Render Sơ đồ ghế từ JSON
+    function renderSeatMap(data) {
+        document.getElementById('lblSelectedSchedule').innerText = data.tenPhim + ' (' + data.gioChieu + ')';
+        document.getElementById('mapMovieTitle').innerText = data.tenPhim;
+        document.getElementById('mapRoomSubtitle').innerText = data.tenRap + ' - ' + data.tenPhong + ' | Còn ' + data.soGheTrong + '/' + data.tongSoGhe + ' ghế trống';
+
+        var container = document.getElementById('seatMatrixContainer');
+        container.innerHTML = '';
+
+        // Gom nhóm theo hàng ghế
+        var rows = {};
+        data.danhSachGhe.forEach(function(g) {
+            var r = g.HangGhe;
+            if (!rows[r]) rows[r] = [];
+            rows[r].push(g);
+        });
+
+        for (var rowKey in rows) {
+            var rowDiv = document.createElement('div');
+            rowDiv.className = 'seat-row';
+
+            var label = document.createElement('span');
+            label.className = 'row-label';
+            label.innerText = rowKey;
+            rowDiv.appendChild(label);
+
+            rows[rowKey].forEach(function(g) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'seat-btn';
+                btn.id = 'seat_' + g.MaGhe;
+                btn.innerText = g.SoGhe;
+                btn.title = g.SoGhe + ' (' + g.TenLoaiGhe + ' - ' + formatMoney(g.GiaGhe) + ')';
+
+                if (g.MaLoaiGhe && g.MaLoaiGhe.toUpperCase() === 'VIP') btn.classList.add('seat-vip');
+                if (g.MaLoaiGhe && (g.MaLoaiGhe.toUpperCase() === 'COUPLE' || g.MaLoaiGhe.toUpperCase() === 'DOI')) btn.classList.add('seat-couple');
+
+                if (g.DaDat) {
+                    btn.classList.add('booked');
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = function() { toggleSeatSelect(g); };
+                }
+
+                rowDiv.appendChild(btn);
+            });
+
+            container.appendChild(rowDiv);
+        }
+    }
+
+    // Click chọn / bỏ chọn ghế
+    function toggleSeatSelect(seat) {
+        var idx = selectedSeats.findIndex(s => s.maGhe === seat.MaGhe);
+        var btn = document.getElementById('seat_' + seat.MaGhe);
+
+        if (idx >= 0) {
+            selectedSeats.splice(idx, 1);
+            if (btn) btn.classList.remove('selected');
+        } else {
+            selectedSeats.push({
+                maGhe: seat.MaGhe,
+                soGhe: seat.SoGhe,
+                giaGhe: seat.GiaGhe,
+                tenLoaiGhe: seat.TenLoaiGhe
+            });
+            if (btn) btn.classList.add('selected');
+        }
+
+        updateSeatSelectionDisplay();
+        calculatePosTotal();
+    }
+
+    function updateSeatSelectionDisplay() {
+        var count = selectedSeats.length;
+        document.getElementById('cartSeatCount').innerText = count + ' vé';
+
+        if (count === 0) {
+            document.getElementById('cartSeatNames').innerText = 'Chưa chọn';
+            document.getElementById('cartTicketTotal').innerText = '0 đ';
+        } else {
+            document.getElementById('cartSeatNames').innerText = selectedSeats.map(s => s.soGhe).join(', ');
+            var ticketTotal = selectedSeats.reduce((acc, s) => acc + s.giaGhe, 0);
+            document.getElementById('cartTicketTotal').innerText = formatMoney(ticketTotal);
+        }
+    }
+
+    // 3. F&B Tăng giảm số lượng
+    function changeFnbQty(maSp, delta) {
+        var card = document.querySelector('.fnb-item-card[data-code="' + maSp + '"]');
+        if (!card) return;
+
+        var name = card.getAttribute('data-name');
+        var price = parseFloat(card.getAttribute('data-price')) || 0;
+
+        if (!selectedFnb[maSp]) {
+            selectedFnb[maSp] = { name: name, price: price, qty: 0 };
+        }
+
+        selectedFnb[maSp].qty += delta;
+        if (selectedFnb[maSp].qty < 0) selectedFnb[maSp].qty = 0;
+
+        document.getElementById('fnb_qty_' + maSp).innerText = selectedFnb[maSp].qty;
+
+        updateFnbSelectionDisplay();
+        calculatePosTotal();
+    }
+
+    function updateFnbSelectionDisplay() {
+        var total = 0;
+        var html = '';
+        var hasItems = false;
+
+        for (var k in selectedFnb) {
+            var item = selectedFnb[k];
+            if (item.qty > 0) {
+                hasItems = true;
+                var sub = item.price * item.qty;
+                total += sub;
+                html += '<div class="d-flex justify-content-between mb-1"><span>' + item.name + ' x' + item.qty + '</span><span class="text-light">' + formatMoney(sub) + '</span></div>';
+            }
+        }
+
+        document.getElementById('cartFnbTotal').innerText = formatMoney(total);
+        document.getElementById('cartFnbDetails').innerHTML = hasItems ? html : '<div class="text-muted" style="font-size:11px;">Không có bắp nước</div>';
+    }
+
+    // 4. Tính toán Tổng hóa đơn POS
+    function calculatePosTotal() {
+        var ticketTotal = selectedSeats.reduce((acc, s) => acc + s.giaGhe, 0);
+        var fnbTotal = 0;
+        for (var k in selectedFnb) {
+            if (selectedFnb[k].qty > 0) fnbTotal += (selectedFnb[k].price * selectedFnb[k].qty);
+        }
+
+        var gross = ticketTotal + fnbTotal;
+
+        // Tính giảm giá voucher
+        var selKm = document.getElementById('selPromotion');
+        var discount = 0;
+        if (selKm.selectedIndex > 0) {
+            var opt = selKm.options[selKm.selectedIndex];
+            var pct = parseFloat(opt.getAttribute('data-pct')) || 0;
+            var maxDis = parseFloat(opt.getAttribute('data-max')) || 9999999;
+            discount = (ticketTotal * pct) / 100;
+            if (discount > maxDis) discount = maxDis;
+        }
+
+        document.getElementById('cartDiscount').innerText = '-' + formatMoney(discount);
+
+        grandTotal = gross - discount;
+        if (grandTotal < 0) grandTotal = 0;
+
+        document.getElementById('cartGrandTotal').innerText = formatMoney(grandTotal);
+
+        // Nút xuất vé bật khi có ít nhất 1 ghế
+        document.getElementById('btnSubmitPos').disabled = (selectedSeats.length === 0);
+
+        calcChangeDue();
+        updateVietQrPreview();
+    }
+
+    // 5. Khách hàng: Switch Vãng lai vs Thành viên
+    function toggleWalkIn(isWalkIn) {
+        document.getElementById('memberBox').style.display = isWalkIn ? 'none' : 'block';
+        if (isWalkIn) {
+            document.getElementById('memberInfo').innerHTML = '';
+            document.getElementById('txtCustPhone').value = '';
+        }
+    }
+
+    function lookupMember() {
+        var phone = document.getElementById('txtCustPhone').value.trim();
+        if (!phone) return;
+
+        var infoDiv = document.getElementById('memberInfo');
+        infoDiv.innerHTML = '<span class="text-warning spinner-border spinner-border-sm"></span> Tra cứu...';
+
+        $.ajax({
+            url: '@Url.Action("TraCuuKhachHang", "NhanVien")',
+            type: 'GET',
+            data: { sdt: phone },
+            success: function(res) {
+                if (res.found) {
+                    infoDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill"></i> <strong>' + res.hoTen + '</strong> (' + res.soDonDaDat + ' đơn cũ)</span>';
+                } else {
+                    infoDiv.innerHTML = '<span class="text-warning"><i class="bi bi-info-circle"></i> SĐT mới (Hệ thống sẽ tự tạo hội viên mới)</span>';
+                }
+            }
+        });
+    }
+
+    // 6. Tính tiền thối lại (Change due)
+    function calcChangeDue() {
+        var given = parseFloat(document.getElementById('txtCashGiven').value) || 0;
+        var due = given - grandTotal;
+        var lbl = document.getElementById('lblChangeDue');
+
+        if (due >= 0) {
+            lbl.innerText = formatMoney(due);
+            lbl.className = 'font-monospace fs-6 text-success';
+        } else {
+            lbl.innerText = 'Thiếu ' + formatMoney(Math.abs(due));
+            lbl.className = 'font-monospace fs-6 text-danger';
+        }
+    }
+
+    function setCash(val) {
+        document.getElementById('txtCashGiven').value = val;
+        calcChangeDue();
+    }
+
+    function setCashExact() {
+        document.getElementById('txtCashGiven').value = grandTotal;
+        calcChangeDue();
+    }
+
+    // 7. Chuyển đổi Tiền mặt vs VietQR
+    function togglePayMethod(mode) {
+        document.getElementById('cashBox').style.display = (mode === 'cash') ? 'block' : 'none';
+        document.getElementById('qrBox').style.display = (mode === 'qr') ? 'block' : 'none';
+        if (mode === 'qr') updateVietQrPreview();
+    }
+
+    function updateVietQrPreview() {
+        if (grandTotal <= 0) return;
+        var bankId = 'MB';
+        var accNo = '0388888888';
+        var template = 'compact2';
+        var addInfo = 'POS ' + (currentScheduleId || '');
+        var qrUrl = 'https://img.vietqr.io/image/' + bankId + '-' + accNo + '-' + template + '.png?amount=' + grandTotal + '&addInfo=' + encodeURIComponent(addInfo);
+        document.getElementById('posQrImg').src = qrUrl;
+        document.getElementById('posQrAmount').innerText = formatMoney(grandTotal);
+    }
+
+    // 8. Thực hiện Giao dịch Xuất vé POS
+    function submitPosBooking() {
+        if (selectedSeats.length === 0) {
+            alert('Vui lòng chọn ít nhất một vị trí ghế.');
+            return;
+        }
+
+        var isWalkIn = document.getElementById('chkWalkIn').checked;
+        var phone = isWalkIn ? '' : document.getElementById('txtCustPhone').value.trim();
+        var payMethod = document.querySelector('input[name="posPayMethod"]:checked').value;
+        var cashGiven = parseFloat(document.getElementById('txtCashGiven').value) || grandTotal;
+
+        // Chuẩn bị danh sách F&B dạng dictionary { maSp: qty }
+        var fnbPayload = {};
+        for (var k in selectedFnb) {
+            if (selectedFnb[k].qty > 0) fnbPayload[k] = selectedFnb[k].qty;
+        }
+
+        var seatCodes = selectedSeats.map(s => s.maGhe).join(',');
+        var kmId = document.getElementById('selPromotion').value;
+
+        var btn = document.getElementById('btnSubmitPos');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xuất vé &amp; lưu đơn...';
+
+        $.ajax({
+            url: '@Url.Action("XuLyBanVePOS", "NhanVien")',
+            type: 'POST',
+            data: {
+                maLichChieu: currentScheduleId,
+                selectedSeats: seatCodes,
+                fnbJson: JSON.stringify(fnbPayload),
+                sdtKhach: phone,
+                hoTenKhach: isWalkIn ? 'Khách vãng lai' : '',
+                maKm: kmId,
+                paymentMethod: payMethod,
+                tienKhachDua: cashGiven
+            },
+            success: function(res) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-printer-fill me-2"></i> XUẤT VÉ &amp; THANH TOÁN (F9)';
+
+                if (res.success) {
+                    // Mở Modal hóa đơn nhiệt K80
+                    loadK80Receipt(res.receiptUrl);
+                } else {
+                    alert(res.message || 'Lỗi xuất vé.');
+                }
+            },
+            error: function() {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-printer-fill me-2"></i> XUẤT VÉ &amp; THANH TOÁN (F9)';
+                alert('Lỗi kết nối máy chủ.');
+            }
+        });
+    }
+
+    // 9. Nạp & In Hóa đơn K80
+    function loadK80Receipt(receiptUrl) {
+        var area = document.getElementById('receiptPrintArea');
+        area.innerHTML = '<div class="text-center py-4"><span class="spinner-border spinner-border-sm"></span> Đang tạo hóa đơn nhiệt...</div>';
+
+        var myModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+        myModal.show();
+
+        $.ajax({
+            url: receiptUrl,
+            type: 'GET',
+            success: function(html) {
+                area.innerHTML = html;
+            },
+            error: function() {
+                area.innerHTML = '<div class="text-danger py-3">Lỗi tải hóa đơn.</div>';
+            }
+        });
+    }
+
+    function printReceipt() {
+        window.print();
+    }
+
+    function resetPosWorkflow() {
+        if (currentScheduleId) {
+            selectSchedule(currentScheduleId, null);
+        }
+        for (var k in selectedFnb) {
+            selectedFnb[k].qty = 0;
+            var el = document.getElementById('fnb_qty_' + k);
+            if (el) el.innerText = '0';
+        }
+        updateFnbSelectionDisplay();
+        document.getElementById('txtCashGiven').value = '';
+        calcChangeDue();
+    }
+
+    // Phím tắt POS: F9 = Thanh toán, Esc = Reset
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F9') {
+            e.preventDefault();
+            var btn = document.getElementById('btnSubmitPos');
+            if (btn && !btn.disabled) submitPosBooking();
+        }
+    });
+
+    function formatMoney(num) {
+        return Math.round(num).toLocaleString('vi-VN') + ' đ';
+    }
+</script>
+}

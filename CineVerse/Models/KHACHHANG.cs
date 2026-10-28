@@ -18,13 +18,18 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public KHACHHANG()
         {
             this.DONHANGs = new HashSet<DONHANG>();
+            this.DANHGIAs = new HashSet<DANHGIA>();
         }
     
         public string MA_KHACHHANG { get; set; }
         public string CCCD { get; set; }
+        public int DIEMTICHLUY { get; set; }
+        public string HANGTHANHVIEN { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DONHANG> DONHANGs { get; set; }
         public virtual TAIKHOAN TAIKHOAN { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DANHGIA> DANHGIAs { get; set; }
     }
 }

@@ -5,106 +5,717 @@
 @using DoAn_QuanLyVeXemPhimTrucTiep.Services
 @{
     Layout = "~/Views/Shared/_NhanVienLayout.cshtml";
+    ViewBag.Title = "Soát vé & Nhận bắp nước (QR Scanner)";
     string tuKhoa = ViewBag.TuKhoa as string;
+    string maRap = ViewBag.MaRap as string ?? "";
 }
 
-@if (TempData["CheckInOk"] != null)
-{
-    <div style="background:rgba(75,232,124,.12);border:1px solid rgba(75,232,124,.4);color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
-        <i class="bi bi-check-circle-fill"></i> @TempData["CheckInOk"]
-    </div>
-}
-@if (TempData["CheckInLoi"] != null)
-{
-    <div style="background:rgba(232,75,75,.12);border:1px solid rgba(232,75,75,.4);color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px">
-        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["CheckInLoi"]
-    </div>
+@section Styles {
+<!-- Thư viện quét mã QR bằng Camera chuẩn HTML5 -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<style>
+    .scanner-dashboard {
+        display: grid;
+        grid-template-columns: 460px 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+    @@media (max-width: 991px) {
+        .scanner-dashboard {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Camera QR Box */
+    .camera-panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        text-align: center;
+    }
+    #qrReader {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto 15px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+        border: 2px dashed rgba(232,184,75,0.4);
+        position: relative;
+    }
+
+    .scanner-laser {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #e8b84b;
+        box-shadow: 0 0 10px #e8b84b, 0 0 20px #e8b84b;
+        animation: laserScan 2s infinite ease-in-out;
+        z-index: 10;
+        display: none;
+    }
+    @@keyframes laserScan {
+        0% { top: 5%; }
+        50% { top: 95%; }
+        100% { top: 5%; }
+    }
+
+    /* Scan Result Card */
+    .result-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        min-height: 480px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    .result-card.state-idle {
+        border-color: var(--border);
+        background: var(--bg-card);
+    }
+    .result-card.state-valid {
+        border-color: rgba(75, 232, 124, 0.7);
+        background: linear-gradient(180deg, rgba(75, 232, 124, 0.08) 0%, rgba(20,24,35,0.95) 100%);
+        box-shadow: 0 0 30px rgba(75, 232, 124, 0.15);
+    }
+    .result-card.state-fraud {
+        border-color: rgba(232, 75, 75, 0.8);
+        background: linear-gradient(180deg, rgba(232, 75, 75, 0.12) 0%, rgba(20,24,35,0.95) 100%);
+        box-shadow: 0 0 35px rgba(232, 75, 75, 0.25);
+    }
+    .result-card.state-warn {
+        border-color: rgba(232, 184, 75, 0.8);
+        background: linear-gradient(180deg, rgba(232, 184, 75, 0.1) 0%, rgba(20,24,35,0.95) 100%);
+        box-shadow: 0 0 30px rgba(232, 184, 75, 0.2);
+    }
+
+    .result-badge {
+        font-size: 15px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 6px 18px;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .badge-valid {
+        background: rgba(75, 232, 124, 0.2);
+        color: #4be87c;
+        border: 1px solid #4be87c;
+    }
+    .badge-fraud {
+        background: rgba(232, 75, 75, 0.25);
+        color: #ff6b6b;
+        border: 1px solid #ff6b6b;
+    }
+    .badge-warn {
+        background: rgba(232, 184, 75, 0.2);
+        color: #e8b84b;
+        border: 1px solid #e8b84b;
+    }
+
+    .seat-badge-lg {
+        background: rgba(232,184,75,0.2);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        font-size: 16px;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 8px;
+        display: inline-block;
+        margin: 2px;
+    }
+
+    .btn-action-checkin {
+        background: linear-gradient(135deg, #4be87c, #28a745);
+        color: #000;
+        font-weight: 800;
+        font-size: 16px;
+        padding: 14px 28px;
+        border-radius: 12px;
+        border: none;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(75, 232, 124, 0.4);
+        transition: all 0.2s;
+    }
+    .btn-action-checkin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(75, 232, 124, 0.6);
+        color: #000;
+    }
+
+    .scan-log-row {
+        font-size: 12px;
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 }
 
-<div class="adm-card" style="margin-bottom:20px">
-    <div class="adm-card-body" style="padding:15px 20px">
-        <form method="get" action="/NhanVien/CheckIn" style="display:flex;gap:15px;align-items:flex-end;flex-wrap:wrap">
-            <div style="flex:1;min-width:240px">
-                <label class="adm-form-label">Mã vé, mã đơn hàng hoặc SĐT khách hàng</label>
-                <input type="text" name="tuKhoa" value="@tuKhoa" class="adm-input" placeholder="Ví dụ: VE004, DH003 hoặc 0901234567" autofocus autocomplete="off" />
+<div class="scanner-dashboard mb-4">
+    
+    <!-- CỘT TRÁI: CAMERA SCANNER & NHẬP MÃ THỦ CÔNG -->
+    <div class="camera-panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="fw-bold text-white small text-uppercase" style="letter-spacing:1px;">
+                <i class="bi bi-camera-video-fill text-warning me-1"></i> Camera quét mã QR
             </div>
-            <div>
-                <button type="submit" class="btn-adm-primary"><i class="bi bi-search"></i> Tìm vé</button>
-                <a href="/NhanVien/CheckIn" class="btn-adm-ghost"><i class="bi bi-x-circle"></i> Xóa</a>
+            <div class="form-check form-switch mb-0" title="Bật/Tắt âm thanh báo hiệu">
+                <input class="form-check-input" type="checkbox" id="chkAudioFeedback" checked>
+                <label class="form-check-label text-muted small" for="chkAudioFeedback">Âm báo</label>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<div class="adm-card">
-    <div class="adm-card-header">
-        <div class="adm-card-title"><i class="bi bi-ticket-perforated"></i> Kết quả tìm kiếm</div>
+        <!-- Khung Camera Scanner -->
+        <div id="qrReader">
+            <div class="scanner-laser" id="scannerLaser"></div>
+            <div class="text-muted small py-5" id="camPlaceholder">
+                <i class="bi bi-camera display-4 d-block mb-2 text-secondary"></i>
+                Nhấn nút bên dưới để khởi động Camera
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center mb-4">
+            <button type="button" class="btn btn-warning btn-sm fw-bold px-3" id="btnToggleCam" onclick="toggleCamera()">
+                <i class="bi bi-play-circle-fill me-1"></i> Bật Camera
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchCamera()">
+                <i class="bi bi-arrow-repeat me-1"></i> Đổi Camera
+            </button>
+        </div>
+
+        <!-- Ô nhập mã vé / Máy quét mã vạch cầm tay -->
+        <div class="border-top border-secondary border-opacity-25 pt-3 text-start">
+            <label class="text-muted small fw-bold mb-1">
+                <i class="bi bi-upc-scan text-warning me-1"></i> Máy quét mã vạch hoặc Nhập tay:
+            </label>
+            <div class="input-group">
+                <input type="text" class="form-control bg-dark text-white border-secondary font-monospace" 
+                       id="txtManualCode" placeholder="Quét mã QR hoặc nhập: CKI-..., VE..., DH..." 
+                       autofocus autocomplete="off" onkeydown="handleManualCodeKey(event)" />
+                <button type="button" class="btn btn-warning" onclick="submitManualCode()">
+                    <i class="bi bi-arrow-right-circle-fill"></i>
+                </button>
+            </div>
+            <div class="text-muted small mt-1" style="font-size:11px;">
+                Hỗ trợ súng bắn Barcode/QR Scanner cầm tay USB &amp; Bluetooth (Nhấn Enter tự động tra soát).
+            </div>
+        </div>
     </div>
-    <div class="adm-card-body" style="padding:0">
-        <div style="overflow-x:auto">
-            <table class="adm-table">
-                <thead>
-                    <tr>
-                        <th>Mã vé / Khách hàng</th>
-                        <th>Suất chiếu</th>
-                        <th>Ghế</th>
-                        <th>Trạng thái</th>
-                        <th style="text-align:right">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (string.IsNullOrWhiteSpace(tuKhoa))
-                    {
-                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Nhập mã vé, mã đơn hàng hoặc số điện thoại để bắt đầu.</td></tr>
-                    }
-                    else if (Model.Count == 0)
-                    {
-                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Không tìm thấy vé nào khớp với "@tuKhoa".</td></tr>
-                    }
-                    @foreach (var ve in Model)
-                    {
-                        <tr>
-                            <td>
-                                <span style="font-family:monospace;font-size:12px;color:var(--accent)">@ve.MA_VE</span><br />
-                                <strong>@(ve.DONHANG != null && ve.DONHANG.KHACHHANG != null ? ve.DONHANG.KHACHHANG.HOTEN : "Khách lẻ")</strong><br />
-                                <span style="font-size:11px;color:var(--text-muted)">Đơn @ve.MA_DONHANG</span>
-                            </td>
-                            <td>
-                                <strong style="color:var(--text-sec)">@ve.LICHCHIEU.PHIM.TEN_PHIM</strong><br />
-                                <span style="font-size:12px">@ve.LICHCHIEU.PHONGCHIEU.TEN_PHONG - @ve.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP</span><br />
-                                <span style="font-size:11px;color:var(--text-muted)">@ve.LICHCHIEU.NGAYCHIEU.ToString("dd/MM/yyyy") · @StaffService.GioChieu(ve.LICHCHIEU)</span>
-                            </td>
-                            <td><span style="background:rgba(255,255,255,.06);padding:3px 8px;border-radius:4px;font-size:12px;font-weight:bold">@ve.GHE.SOGHE</span></td>
-                            <td>
-                                @if (ve.TRANGTHAI == "Đã check-in")
-                                {
-                                    <span class="adm-badge xong">@ve.TRANGTHAI</span>
-                                }
-                                else if (ve.TRANGTHAI == "Đã thanh toán")
-                                {
-                                    <span class="adm-badge dang">@ve.TRANGTHAI</span>
-                                }
-                                else
-                                {
-                                    <span class="adm-badge red">@ve.TRANGTHAI</span>
-                                }
-                            </td>
-                            <td style="text-align:right">
-                                @if (ve.TRANGTHAI == "Đã thanh toán")
-                                {
-                                    using (Html.BeginForm("CheckInVe", "NhanVien", FormMethod.Post, new { style = "display:inline" }))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="maVe" value="@ve.MA_VE.Trim()" />
-                                        <input type="hidden" name="tuKhoa" value="@tuKhoa" />
-                                        <button type="submit" class="btn-adm-primary"><i class="bi bi-check2-circle"></i> Check-in</button>
-                                    }
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+
+    <!-- CỘT PHẢI: KẾT QUẢ ĐỐI SOÁT REAL-TIME & THAO TÁC -->
+    <div>
+        <div class="result-card state-idle" id="resultCard">
+            <!-- Trạng thái Chờ quét -->
+            <div id="stateIdle" class="text-center text-muted py-5">
+                <i class="bi bi-qr-code-scan display-1 d-block mb-3 text-secondary opacity-50"></i>
+                <h5 class="text-white fw-bold">Sẵn sàng soát vé &amp; nhận bắp nước</h5>
+                <p class="small mb-0">Đưa mã QR trên Vé điện tử (E-Ticket) trước camera hoặc dùng súng bắn mã để kiểm tra tính hợp lệ.</p>
+            </div>
+
+            <!-- Trạng thái Đang tra cứu -->
+            <div id="stateLoading" class="text-center py-5" style="display:none;">
+                <div class="spinner-border text-warning mb-3" style="width: 3rem; height: 3rem;"></div>
+                <h6 class="text-white fw-bold">Đang tra cứu dữ liệu vé...</h6>
+            </div>
+
+            <!-- Nội dung chi tiết kết quả (Hiện khi đã có dữ liệu) -->
+            <div id="scanResultContent" style="display:none;">
+                <!-- Header Badge -->
+                <div class="text-center mb-3">
+                    <div id="resBadge" class="result-badge badge-valid">
+                        <i class="bi bi-check-circle-fill" id="resBadgeIcon"></i>
+                        <span id="resBadgeText">VÉ HỢP LỆ</span>
+                    </div>
+                    <div id="resNoticeMsg" class="small fw-semibold"></div>
+                </div>
+
+                <!-- Thân kết quả vé -->
+                <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <h5 class="text-white fw-bold mb-1" id="resMovieTitle">Tên phim</h5>
+                            <div class="text-muted small mb-2">
+                                <span class="text-warning" id="resCinemaRoom">Rạp - Phòng</span> &bull;
+                                <span class="text-light" id="resShowtime">Suất chiếu</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block mb-1">VỊ TRÍ GHẾ NGỒI:</span>
+                                <div id="resSeatsList"></div>
+                            </div>
+                            <div class="small text-muted">
+                                Khách hàng: <span class="text-white fw-semibold" id="resCustomerName">Khách vãng lai</span>
+                                (<span id="resCustomerPhone">---</span>)
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 border-start border-secondary border-opacity-25 ps-md-3">
+                            <div class="text-muted small">Mã Check-in:</div>
+                            <div class="font-monospace fw-bold text-warning fs-5 mb-2" id="resCheckinCode">CKI-XXXX</div>
+
+                            <div class="text-muted small">Mã đơn hàng:</div>
+                            <div class="font-monospace text-light fw-bold mb-2" id="resOrderCode">DH000</div>
+
+                            <div class="text-muted small">Trạng thái thanh toán:</div>
+                            <div class="badge bg-success mb-2" id="resPaymentStatus">ĐÃ THANH TOÁN</div>
+
+                            <div class="text-muted small">Tổng hóa đơn:</div>
+                            <div class="text-success fw-bold font-monospace fs-6" id="resTotalAmount">0 đ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách Bắp nước & Combo nếu có -->
+                <div class="p-3 rounded mb-3" id="resFnbSection" style="background: rgba(232,184,75,0.05); border: 1px dashed rgba(232,184,75,0.3); display:none;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-warning small text-uppercase">
+                            <i class="bi bi-cup-straw me-1"></i> Bắp nước &amp; Combo đi kèm
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-warning" id="btnConfirmFnb" onclick="confirmFnbDelivery()">
+                            <i class="bi bi-check2-circle me-1"></i> Xác nhận đã giao bắp nước
+                        </button>
+                    </div>
+                    <div id="resFnbList" class="small text-light"></div>
+                </div>
+
+                <!-- Nút Hành động Check-in -->
+                <div class="mt-3" id="resActionButtons">
+                    <button type="button" class="btn-action-checkin" id="btnConfirmCheckIn" onclick="confirmCheckInNow()">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> XÁC NHẬN CHO KHÁCH VÀO PHÒNG CHIẾU
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- LỊCH SỬ CÁC LƯỢT QUÉT SOÁT VÉ GẦN NHẤT TRONG CA TRỰC -->
+<div class="adm-card">
+    <div class="adm-card-header d-flex justify-content-between align-items-center">
+        <div class="adm-card-title"><i class="bi bi-clock-history"></i> Lịch sử các lượt soát vé gần nhất</div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearLocalScanLog()">
+            <i class="bi bi-trash"></i> Xóa nhật ký quét
+        </button>
+    </div>
+    <div class="adm-card-body p-0">
+        <div id="scanLogContainer">
+            <div class="text-muted text-center py-4 small" id="emptyLogMsg">
+                Chưa có lượt quét nào trong phiên làm việc hiện tại.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Biến điều khiển Camera và Trạng thái
+    var html5QrCode = null;
+    var isCameraRunning = false;
+    var currentCameraId = null;
+    var currentScannedData = null;
+    var isProcessingScan = false;
+
+    // Web Audio API Beep & Buzz Generator (Không phụ thuộc file mp3 ngoài)
+    var audioCtx = null;
+    function getAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
+    }
+
+    // Tiếng Beep đôi thanh thoát khi hợp lệ
+    function playBeepSuccess() {
+        if (!document.getElementById('chkAudioFeedback').checked) return;
+        try {
+            var ctx = getAudioContext();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
+            osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.1); // E6
+
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.25);
+        } catch (e) {
+            console.log('Audio error:', e);
+        }
+    }
+
+    // Tiếng Buzz trầm cảnh báo gian lận / sai lệch
+    function playBuzzError() {
+        if (!document.getElementById('chkAudioFeedback').checked) return;
+        try {
+            var ctx = getAudioContext();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(180, ctx.currentTime);
+            osc.frequency.setValueAtTime(140, ctx.currentTime + 0.2);
+
+            gain.gain.setValueAtTime(0.5, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.5);
+        } catch (e) {
+            console.log('Audio error:', e);
+        }
+    }
+
+    // 1. Quản lý Camera HTML5-QRCode
+    function toggleCamera() {
+        if (isCameraRunning) {
+            stopCamera();
+        } else {
+            startCamera();
+        }
+    }
+
+    function startCamera() {
+        var btn = document.getElementById('btnToggleCam');
+        var laser = document.getElementById('scannerLaser');
+        var placeholder = document.getElementById('camPlaceholder');
+
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("qrReader");
+        }
+
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+                // Ưu tiên camera sau (back/environment camera) nếu có
+                var selectedCam = cameras[cameras.length - 1].id;
+                currentCameraId = selectedCam;
+
+                html5QrCode.start(
+                    selectedCam,
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    (decodedText, decodedResult) => {
+                        handleQrDetected(decodedText);
+                    },
+                    (errorMessage) => {
+                        // ignore parse frame errors
+                    }
+                ).then(() => {
+                    isCameraRunning = true;
+                    btn.className = 'btn btn-danger btn-sm fw-bold px-3';
+                    btn.innerHTML = '<i class="bi bi-stop-circle-fill me-1"></i> Tắt Camera';
+                    laser.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }).catch(err => {
+                    alert('Không thể mở Camera: ' + err);
+                });
+            } else {
+                alert('Không tìm thấy thiết bị Camera trên máy tính/điện thoại.');
+            }
+        }).catch(err => {
+            alert('Lỗi truy cập danh sách Camera: ' + err);
+        });
+    }
+
+    function stopCamera() {
+        if (html5QrCode && isCameraRunning) {
+            html5QrCode.stop().then(() => {
+                isCameraRunning = false;
+                document.getElementById('btnToggleCam').className = 'btn btn-warning btn-sm fw-bold px-3';
+                document.getElementById('btnToggleCam').innerHTML = '<i class="bi bi-play-circle-fill me-1"></i> Bật Camera';
+                document.getElementById('scannerLaser').style.display = 'none';
+                document.getElementById('camPlaceholder').style.display = 'block';
+            });
+        }
+    }
+
+    function switchCamera() {
+        if (!isCameraRunning) {
+            startCamera();
+            return;
+        }
+        stopCamera();
+        setTimeout(startCamera, 500);
+    }
+
+    // 2. Xử lý khi nhận diện được mã QR
+    function handleQrDetected(text) {
+        if (isProcessingScan) return;
+        isProcessingScan = true;
+
+        // Trích xuất mã: nếu text là full URL (ví dụ https://.../Payment/ETicket?maDonHang=DH001)
+        var code = text.trim();
+        if (code.indexOf('maDonHang=') >= 0) {
+            var params = new URLSearchParams(code.split('?')[1]);
+            code = params.get('maDonHang') || code;
+        }
+
+        processCheckInLookup(code);
+
+        // Chống spam quét liên tục cùng 1 mã trong 2.5s
+        setTimeout(function() {
+            isProcessingScan = false;
+        }, 2500);
+    }
+
+    function handleManualCodeKey(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitManualCode();
+        }
+    }
+
+    function submitManualCode() {
+        var input = document.getElementById('txtManualCode');
+        var val = input.value.trim();
+        if (!val) return;
+        processCheckInLookup(val);
+        input.value = '';
+    }
+
+    // 3. Gửi AJAX kiểm tra tính hợp lệ của mã
+    function processCheckInLookup(code) {
+        showState('loading');
+
+        $.ajax({
+            url: '@Url.Action("QuetMaQRCheckIn", "NhanVien")',
+            type: 'POST',
+            data: { code: code },
+            success: function(res) {
+                if (res.success && res.data) {
+                    currentScannedData = res.data;
+                    displayScanResult(res.data);
+                    addScanLog(res.data);
+                } else {
+                    displayScanError(res.message || 'Mã vé không tồn tại.');
+                }
+            },
+            error: function() {
+                displayScanError('Lỗi kết nối máy chủ.');
+            }
+        });
+    }
+
+    // 4. Hiển thị Kết quả đối soát
+    function displayScanResult(data) {
+        showState('result');
+        var card = document.getElementById('resultCard');
+        var badge = document.getElementById('resBadge');
+        var icon = document.getElementById('resBadgeIcon');
+        var text = document.getElementById('resBadgeText');
+        var notice = document.getElementById('resNoticeMsg');
+        var actionBtn = document.getElementById('btnConfirmCheckIn');
+
+        // Reset classes
+        card.className = 'result-card';
+
+        if (data.HopLe) {
+            // HỢP LỆ!
+            playBeepSuccess();
+            card.classList.add('state-valid');
+            badge.className = 'result-badge badge-valid';
+            icon.className = 'bi bi-check-circle-fill';
+            text.innerText = 'VÉ HỢP LỆ';
+            notice.className = 'small fw-bold text-success';
+            notice.innerText = data.ThongBao;
+            actionBtn.style.display = 'block';
+            actionBtn.disabled = false;
+            actionBtn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> XÁC NHẬN CHO KHÁCH VÀO PHÒNG CHIẾU';
+        } else if (data.LoaiKetQua === 'DA_CHECK_IN') {
+            // CẢNH BÁO GIAN LẬN: ĐÃ CHECK-IN
+            playBuzzError();
+            card.classList.add('state-fraud');
+            badge.className = 'result-badge badge-fraud';
+            icon.className = 'bi bi-shield-fill-x';
+            text.innerText = 'CẢNH BÁO: ĐÃ CHECK-IN TRƯỚC ĐÓ';
+            notice.className = 'small fw-bold text-danger';
+            notice.innerText = data.ThongBao;
+            actionBtn.style.display = 'none';
+        } else {
+            // CÁC LỖI KHÁC (Chưa thanh toán, Sai rạp, Hết hạn)
+            playBuzzError();
+            card.classList.add('state-warn');
+            badge.className = 'result-badge badge-warn';
+            icon.className = 'bi bi-exclamation-triangle-fill';
+            text.innerText = 'VÉ KHÔNG HỢP LỆ';
+            notice.className = 'small fw-bold text-warning';
+            notice.innerText = data.ThongBao;
+            actionBtn.style.display = 'none';
+        }
+
+        // Điền dữ liệu
+        document.getElementById('resMovieTitle').innerText = data.TenPhim || '---';
+        document.getElementById('resCinemaRoom').innerText = (data.TenRap || 'Rạp') + ' - ' + (data.TenPhong || 'Phòng');
+        document.getElementById('resShowtime').innerText = (data.GioChieu || '') + ' (' + (data.NgayChieu || '') + ')';
+
+        // Ghế
+        var seatsContainer = document.getElementById('resSeatsList');
+        seatsContainer.innerHTML = '';
+        if (data.DanhSachGhe && data.DanhSachGhe.length) {
+            data.DanhSachGhe.forEach(s => {
+                var span = document.createElement('span');
+                span.className = 'seat-badge-lg';
+                span.innerText = s;
+                seatsContainer.appendChild(span);
+            });
+        } else {
+            seatsContainer.innerText = 'Không có thông tin';
+        }
+
+        document.getElementById('resCustomerName').innerText = data.TenKhachHang || 'Khách vãng lai';
+        document.getElementById('resCustomerPhone').innerText = data.SdtKhachHang || '---';
+        document.getElementById('resCheckinCode').innerText = data.MaCheckIn || '---';
+        document.getElementById('resOrderCode').innerText = data.MaDonHang || '---';
+        document.getElementById('resTotalAmount').innerText = (data.TongTien || 0).toLocaleString('vi-VN') + ' đ';
+
+        // Bắp nước
+        var fnbSection = document.getElementById('resFnbSection');
+        var fnbList = document.getElementById('resFnbList');
+        if (data.DanhSachBapNuoc && data.DanhSachBapNuoc.length) {
+            fnbSection.style.display = 'block';
+            fnbList.innerHTML = data.DanhSachBapNuoc.map(f => '<div>&bull; <strong>' + f.TenSanPham + '</strong> x' + f.SoLuong + (f.PhanLoai ? ' (' + f.PhanLoai + ')' : '') + '</div>').join('');
+            
+            var btnFnb = document.getElementById('btnConfirmFnb');
+            if (data.TrangThaiNhanBapNuoc === 'DaNhan') {
+                btnFnb.disabled = true;
+                btnFnb.className = 'btn btn-sm btn-success';
+                btnFnb.innerHTML = '<i class="bi bi-check-all"></i> Đã giao bắp nước';
+            } else {
+                btnFnb.disabled = false;
+                btnFnb.className = 'btn btn-sm btn-outline-warning';
+                btnFnb.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Xác nhận đã giao bắp nước';
+            }
+        } else {
+            fnbSection.style.display = 'none';
+        }
+    }
+
+    function displayScanError(msg) {
+        showState('result');
+        playBuzzError();
+        var card = document.getElementById('resultCard');
+        card.className = 'result-card state-fraud';
+
+        var badge = document.getElementById('resBadge');
+        badge.className = 'result-badge badge-fraud';
+        document.getElementById('resBadgeIcon').className = 'bi bi-x-circle-fill';
+        document.getElementById('resBadgeText').innerText = 'KHÔNG TỒN TẠI';
+
+        var notice = document.getElementById('resNoticeMsg');
+        notice.className = 'small fw-bold text-danger';
+        notice.innerText = msg;
+
+        document.getElementById('btnConfirmCheckIn').style.display = 'none';
+        document.getElementById('resFnbSection').style.display = 'none';
+    }
+
+    // 5. Xác nhận Check-in cho khách vào phòng chiếu
+    function confirmCheckInNow() {
+        if (!currentScannedData || !currentScannedData.MaDonHang) return;
+        var btn = document.getElementById('btnConfirmCheckIn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xác nhận vào rạp...';
+
+        $.ajax({
+            url: '@Url.Action("XacNhanVaoRap", "NhanVien")',
+            type: 'POST',
+            data: { maDonHang: currentScannedData.MaDonHang },
+            success: function(res) {
+                if (res.success) {
+                    playBeepSuccess();
+                    alert(res.message);
+                    btn.className = 'btn btn-success btn-lg w-100 fw-bold';
+                    btn.innerHTML = '<i class="bi bi-check-all me-1"></i> ĐÃ CHECK-IN THÀNH CÔNG (' + res.thoiGianCheckIn + ')';
+                } else {
+                    alert(res.message);
+                    btn.disabled = false;
+                }
+            },
+            error: function() {
+                alert('Lỗi kết nối khi xác nhận check-in.');
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // 6. Xác nhận đã giao bắp nước
+    function confirmFnbDelivery() {
+        if (!currentScannedData || !currentScannedData.MaDonHang) return;
+        var btn = document.getElementById('btnConfirmFnb');
+        btn.disabled = true;
+
+        $.ajax({
+            url: '@Url.Action("XacNhanGiaoBap", "NhanVien")',
+            type: 'POST',
+            data: { maDonHang: currentScannedData.MaDonHang },
+            success: function(res) {
+                if (res.success) {
+                    btn.className = 'btn btn-sm btn-success';
+                    btn.innerHTML = '<i class="bi bi-check-all"></i> Đã giao bắp nước';
+                } else {
+                    btn.disabled = false;
+                    alert(res.message);
+                }
+            }
+        });
+    }
+
+    function showState(state) {
+        document.getElementById('stateIdle').style.display = (state === 'idle') ? 'block' : 'none';
+        document.getElementById('stateLoading').style.display = (state === 'loading') ? 'block' : 'none';
+        document.getElementById('scanResultContent').style.display = (state === 'result') ? 'block' : 'none';
+    }
+
+    // 7. Quản lý Nhật ký Quét Soát Vé Gần Nhất (Local Log)
+    function addScanLog(data) {
+        var emptyMsg = document.getElementById('emptyLogMsg');
+        if (emptyMsg) emptyMsg.style.display = 'none';
+
+        var container = document.getElementById('scanLogContainer');
+        var now = new Date();
+        var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ':' + now.getSeconds().toString().padStart(2, '0');
+
+        var statusBadge = data.HopLe
+            ? '<span class="badge bg-success">Hợp lệ</span>'
+            : (data.LoaiKetQua === 'DA_CHECK_IN' ? '<span class="badge bg-danger">Đã check-in</span>' : '<span class="badge bg-warning text-dark">Lỗi</span>');
+
+        var row = document.createElement('div');
+        row.className = 'scan-log-row';
+        row.innerHTML = '<div>' +
+            '<span class="text-muted font-monospace me-2">' + timeStr + '</span>' +
+            '<strong>' + (data.MaCheckIn || data.MaDonHang) + '</strong> &bull; ' +
+            '<span class="text-white">' + (data.TenPhim || 'Vé') + '</span> &bull; ' +
+            '<span class="text-warning">Ghế: ' + (data.DanhSachGhe ? data.DanhSachGhe.join(',') : '') + '</span>' +
+            '</div>' +
+            '<div>' + statusBadge + '</div>';
+
+        container.insertBefore(row, container.firstChild);
+    }
+
+    function clearLocalScanLog() {
+        document.getElementById('scanLogContainer').innerHTML = '<div class="text-muted text-center py-4 small" id="emptyLogMsg">Chưa có lượt quét nào trong phiên làm việc hiện tại.</div>';
+    }
+</script>
+}

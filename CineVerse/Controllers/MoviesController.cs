@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
+
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
     public class MoviesController : Controller
     {
-        // GET: Movies
-        QL_VEPHIMEntities data = new QL_VEPHIMEntities();
-        public ActionResult DanhSachPhim(string trangthai = null, string search = null)
+        private QL_VEPHIMEntities data = new QL_VEPHIMEntities();
+
+        public ActionResult DanhSachPhim(string trangthai = null, string search = null, string status = null)
         {
-            var query = data.PHIMs.AsQueryable();
+            string filterStatus = !string.IsNullOrEmpty(trangthai) ? trangthai : status;
+
+            var query = data.PHIMs.Include(p => p.THELOAIs).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -24,47 +28,197 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 ViewBag.Search = kw;
             }
 
-            if (!string.IsNullOrEmpty(trangthai))
+            if (!string.IsNullOrEmpty(filterStatus))
             {
-                query = query.Where(p => p.TRANGTHAI == trangthai);
-                ViewBag.TrangThai = trangthai;
+                query = query.Where(p => p.TRANGTHAI == filterStatus);
+                ViewBag.TrangThai = filterStatus;
+                ViewBag.CurrentStatus = filterStatus;
             }
             else if (string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(p => p.TRANGTHAI == "Đang chiếu");
                 ViewBag.TrangThai = "Đang chiếu";
+                ViewBag.CurrentStatus = "Đang chiếu";
             }
 
-            ViewBag.DanhSachPhim = query.OrderByDescending(p => p.NGAYKHOICHIEU).ToList();
-            return View();
+            var phims = query.OrderByDescending(p => p.NGAYKHOICHIEU).ToList();
+            ViewBag.DanhSachPhim = phims;
+            return View(phims);
         }
+
         public ActionResult ChiTietPhim(string id)
         {
-            PHIM phim = data.PHIMs.FirstOrDefault(p=>p.MA_PHIM ==  id);
+            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            string maPhim = id.Trim();
+
+            PHIM phim = data.PHIMs.FirstOrDefault(p => p.MA_PHIM.Trim() == maPhim);
             if (phim == null)
             {
                 return HttpNotFound();
             }
-            
+
             var lichChieus = data.LICHCHIEUx
-                                .Where(l => l.MA_PHIM == id)
+                                .Include(l => l.KHUNGGIO)
+                                .Include(l => l.PHONGCHIEU.RAPCHIEU)
+                                .Where(l => l.MA_PHIM.Trim() == maPhim)
                                 .OrderByDescending(l => l.NGAYCHIEU)
                                 .ThenBy(l => l.KHUNGGIO.GIOBATDAU)
                                 .ToList();
-            
+
             ViewBag.LichChieu = lichChieus;
+
+            // Lấy danh sách đánh giá đã duyệt hiển thị
+            var danhGias = data.DANHGIAs
+                .Include(d => d.KHACHHANG.TAIKHOAN)
+                .Where(d => d.MA_PHIM.Trim() == maPhim && d.TRANGTHAI == "HienThi")
+                .OrderByDescending(d => d.NGAYDANHGIA)
+                .ToList();
+
+            int tongDanhGia = danhGias.Count;
+            double diemTB = tongDanhGia > 0 ? Math.Round(danhGias.Average(d => d.SOSAO), 1) : 5.0;
+
+            int[] starCounts = new int[6];
+            foreach (var dg in danhGias)
+            {
+                if (dg.SOSAO >= 1 && dg.SOSAO <= 5)
+                {
+                    starCounts[dg.SOSAO]++;
+                }
+            }
+
+            // Kiểm tra phân quyền đánh giá của khách hiện tại
+            bool daDangNhap = false;
+            bool daMuaVe = false;
+            bool daDanhGia = false;
+            var sessionKh = Session["KhachHang"] as KHACHHANG;
+
+            if (sessionKh != null)
+            {
+                daDangNhap = true;
+                string maKh = sessionKh.MA_KHACHHANG.Trim();
+                daDanhGia = data.DANHGIAs.Any(d => d.MA_PHIM.Trim() == maPhim && d.MA_KHACHHANG.Trim() == maKh);
+
+                // Khách hàng phải có ít nhất 1 đơn hàng thanh toán thành công của phim này
+                daMuaVe = data.DONHANGs.Any(d => d.MA_KHACHHANG.Trim() == maKh
+                    && (d.TRANGTHAI == "DaThanhToan" || d.TRANGTHAITHANHTOAN == "DaThanhToan")
+                    && d.LICHCHIEU.MA_PHIM.Trim() == maPhim);
+            }
+
+            ViewBag.DanhGias = danhGias;
+            ViewBag.TongDanhGia = tongDanhGia;
+            ViewBag.DiemTB = diemTB;
+            ViewBag.StarCounts = starCounts;
+            ViewBag.DaDangNhap = daDangNhap;
+            ViewBag.DaMuaVe = daMuaVe;
+            ViewBag.DaDanhGia = daDanhGia;
 
             return View(phim);
         }
-        
-        
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GuiDanhGia(string maPhim, int soSao, string noiDung)
+        {
+            if (string.IsNullOrEmpty(maPhim))
+            {
+                return RedirectToAction("DanhSachPhim");
+            }
+            string phimId = maPhim.Trim();
+
+            var sessionKh = Session["KhachHang"] as KHACHHANG;
+            if (sessionKh == null)
+            {
+                TempData["ToastMessage"] = "Vui lòng đăng nhập để gửi đánh giá phim.";
+                TempData["ToastType"] = "warning";
+                return RedirectToAction("ChiTietPhim", new { id = phimId });
+            }
+
+            string maKh = sessionKh.MA_KHACHHANG.Trim();
+
+            // Kiểm tra khách đã từng mua vé phim này chưa
+            bool daMuaVe = data.DONHANGs.Any(d => d.MA_KHACHHANG.Trim() == maKh
+                && (d.TRANGTHAI == "DaThanhToan" || d.TRANGTHAITHANHTOAN == "DaThanhToan")
+                && d.LICHCHIEU.MA_PHIM.Trim() == phimId);
+
+            if (!daMuaVe)
+            {
+                TempData["ToastMessage"] = "Chỉ khán giả đã mua vé xem phim này tại CinéVerse mới có thể gửi đánh giá xác thực.";
+                TempData["ToastType"] = "error";
+                return RedirectToAction("ChiTietPhim", new { id = phimId });
+            }
+
+            // Kiểm tra đã đánh giá chưa (mỗi khách 1 lần/phim)
+            bool daDanhGia = data.DANHGIAs.Any(d => d.MA_PHIM.Trim() == phimId && d.MA_KHACHHANG.Trim() == maKh);
+            if (daDanhGia)
+            {
+                TempData["ToastMessage"] = "Bạn đã gửi đánh giá cho bộ phim này trước đó. Cảm ơn phản hồi của bạn!";
+                TempData["ToastType"] = "info";
+                return RedirectToAction("ChiTietPhim", new { id = phimId });
+            }
+
+            if (soSao < 1 || soSao > 5) soSao = 5;
+            string reviewText = noiDung?.Trim();
+            if (string.IsNullOrEmpty(reviewText))
+            {
+                TempData["ToastMessage"] = "Vui lòng nhập nội dung đánh giá của bạn.";
+                TempData["ToastType"] = "warning";
+                return RedirectToAction("ChiTietPhim", new { id = phimId });
+            }
+
+            // Sinh mã đánh giá
+            var allDgIds = data.DANHGIAs.Select(d => d.MA_DANHGIA).ToList();
+            int maxDgId = 0;
+            foreach (var id in allDgIds)
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+                    string trimmed = id.Trim();
+                    if (trimmed.StartsWith("DG") && int.TryParse(trimmed.Substring(2), out int cur))
+                    {
+                        if (cur > maxDgId) maxDgId = cur;
+                    }
+                }
+            }
+            string maDgMoi = "DG" + (maxDgId + 1).ToString("D3");
+
+            var dgMoi = new DANHGIA
+            {
+                MA_DANHGIA = maDgMoi,
+                MA_PHIM = phimId,
+                MA_KHACHHANG = maKh,
+                SOSAO = soSao,
+                NOIDUNG = reviewText,
+                NGAYDANHGIA = DateTime.Now,
+                TRANGTHAI = "HienThi"
+            };
+
+            data.DANHGIAs.Add(dgMoi);
+            data.SaveChanges();
+
+            TempData["ToastMessage"] = "Cảm ơn bạn! Đánh giá xác thực của bạn đã được đăng thành công.";
+            TempData["ToastType"] = "success";
+            return RedirectToAction("ChiTietPhim", new { id = phimId });
+        }
+
         public ActionResult LichChieuChung()
         {
             var lichChieus = data.LICHCHIEUx
+                                .Include(l => l.PHIM)
+                                .Include(l => l.KHUNGGIO)
+                                .Include(l => l.PHONGCHIEU.RAPCHIEU)
                                 .OrderByDescending(l => l.NGAYCHIEU)
                                 .ThenBy(l => l.PHIM.TEN_PHIM)
                                 .ToList();
             return View(lichChieus);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                data?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

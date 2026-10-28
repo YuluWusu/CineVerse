@@ -1,0 +1,88 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.NHANVIEN
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Chỉnh sửa nhân viên " + Model.MA_NHANVIEN.Trim();
+    var dsRap = ViewBag.DanhSachRap as SelectList;
+    var dsVaiTro = ViewBag.DanhSachVaiTro as SelectList;
+    var tk = Model.TAIKHOAN;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="text-white fw-bold mb-1"><i class="bi bi-pencil-square text-warning me-2"></i>Chỉnh sửa hồ sơ nhân viên</h5>
+        <div class="text-muted small">Mã nhân viên: <strong class="text-warning font-monospace">@Model.MA_NHANVIEN.Trim()</strong></div>
+    </div>
+    <a href="@Url.Action("QuanLyNhanVien", "Admin")" class="btn-adm-ghost">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div class="adm-card-title"><i class="bi bi-person-gear"></i> Thông tin cá nhân &amp; Quyền hạn</div>
+            </div>
+            <div class="adm-card-body p-4">
+                @using (Html.BeginForm("SuaNhanVien", "Admin", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="maNhanVien" value="@Model.MA_NHANVIEN.Trim()" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Họ và Tên *</label>
+                            <input type="text" name="hoTen" class="adm-input" value="@(tk?.HOTEN)" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Số điện thoại *</label>
+                            <input type="tel" name="sdt" class="adm-input" value="@(tk?.SDT)" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Email công tác</label>
+                            <input type="email" name="email" class="adm-input" value="@(tk?.EMAIL)" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Rạp trực / Công tác</label>
+                            @Html.DropDownList("maRap", dsRap, "-- Chọn rạp chiếu --", new { @class = "adm-select" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Vai trò &amp; Phân quyền *</label>
+                            @Html.DropDownList("maVaiTro", dsVaiTro, new { @class = "adm-select" })
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Trạng thái tài khoản</label>
+                            <select name="trangThai" class="adm-select">
+                                <option value="HoatDong" @(tk?.TRANGTHAI == "HoatDong" ? "selected" : "")>Hoạt động bình thường</option>
+                                <option value="Khoa" @(tk?.TRANGTHAI == "Khoa" ? "selected" : "")>Khóa tài khoản</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Mức lương cơ bản (VNĐ) *</label>
+                            <input type="number" name="luong" class="adm-input" value="@Model.LUONG" min="1000000" step="100000" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="adm-form-label">Đặt lại mật khẩu mới (bỏ trống nếu giữ nguyên)</label>
+                            <input type="password" name="matKhauMoi" class="adm-input" placeholder="Nhập mật khẩu mới..." />
+                        </div>
+
+                        <div class="col-12 border-top border-secondary border-opacity-25 pt-3 mt-3 d-flex justify-content-end gap-2">
+                            <a href="@Url.Action("QuanLyNhanVien", "Admin")" class="btn-adm-ghost">Hủy</a>
+                            <button type="submit" class="btn-adm-primary px-4">
+                                <i class="bi bi-save me-1"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
