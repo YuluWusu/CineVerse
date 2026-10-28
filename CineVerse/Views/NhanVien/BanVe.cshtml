@@ -171,28 +171,55 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 12px;
-        max-height: 280px;
+        max-height: 320px;
         overflow-y: auto;
-        padding-right: 4px;
+        padding-right: 6px;
+        contain: layout;
     }
     .fnb-item-card {
-        background: rgba(255,255,255,0.02);
+        background: rgba(255,255,255,0.03);
         border: 1px solid var(--border);
         border-radius: 8px;
         padding: 10px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        min-height: 165px;
+        contain: layout style;
+        transition: border-color 0.15s ease, background 0.15s ease;
     }
     .fnb-item-card:hover {
-        border-color: rgba(232,184,75,0.3);
+        border-color: rgba(232,184,75,0.4);
+        background: rgba(255,255,255,0.05);
+    }
+    .fnb-thumb-wrapper {
+        width: 100%;
+        height: 72px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 8px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .fnb-icon-box {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
     }
     .fnb-thumb {
+        position: absolute;
+        inset: 0;
         width: 100%;
-        height: 80px;
+        height: 100%;
         object-fit: cover;
-        border-radius: 6px;
-        margin-bottom: 8px;
+        z-index: 1;
     }
     .fnb-counter {
         display: flex;
@@ -403,17 +430,36 @@
             <div class="fnb-grid">
                 @foreach (var sp in dsBapNuoc)
                 {
-                    string img = !string.IsNullOrEmpty(sp.HINHANH) ? Url.Content(sp.HINHANH) : "/Content/images/default-fnb.jpg";
-                    <div class="fnb-item-card" data-code="@sp.MA_SANPHAM.Trim()" data-name="@sp.TEN_SANPHAM" data-price="@sp.GIABAN">
+                    string maSp = sp.MA_SANPHAM.Trim();
+                    string phanLoai = (sp.PHANLOAI ?? "Combo").Trim();
+                    string iconBi = "bi-cup-straw text-info";
+                    string badgeBg = "rgba(75, 139, 232, 0.15)";
+                    string badgeColor = "#4b8be8";
+                    if (phanLoai.Contains("Bắp")) { iconBi = "bi-box2-heart text-warning"; badgeBg = "rgba(232, 184, 75, 0.15)"; badgeColor = "#e8b84b"; }
+                    else if (phanLoai.Contains("Combo")) { iconBi = "bi-gift text-danger"; badgeBg = "rgba(232, 75, 75, 0.15)"; badgeColor = "#e84b4b"; }
+                    else if (phanLoai.Contains("Snack")) { iconBi = "bi-basket2 text-success"; badgeBg = "rgba(75, 232, 124, 0.15)"; badgeColor = "#4be87c"; }
+
+                    string img = !string.IsNullOrEmpty(sp.HINHANH) ? Url.Content("~/Content/img/fnb/" + sp.HINHANH) : "";
+
+                    <div class="fnb-item-card" data-code="@maSp" data-name="@sp.TEN_SANPHAM" data-price="@sp.GIABAN">
                         <div>
-                            <img src="@img" alt="@sp.TEN_SANPHAM" class="fnb-thumb" onerror="this.src='/Content/images/default-fnb.jpg'" />
+                            <div class="fnb-thumb-wrapper">
+                                <span class="badge position-absolute top-0 end-0 m-1" style="font-size:9px; background:@badgeBg; color:@badgeColor; z-index:2;">@phanLoai</span>
+                                <div class="fnb-icon-box">
+                                    <i class="bi @iconBi"></i>
+                                </div>
+                                @if (!string.IsNullOrEmpty(sp.HINHANH))
+                                {
+                                    <img src="@img" alt="@sp.TEN_SANPHAM" class="fnb-thumb" onerror="this.onerror=null; this.style.display='none';" />
+                                }
+                            </div>
                             <div class="text-white fw-bold small text-truncate" title="@sp.TEN_SANPHAM">@sp.TEN_SANPHAM</div>
                             <div class="text-warning fw-bold small">@sp.GIABAN.ToString("#,##0") đ</div>
                         </div>
                         <div class="fnb-counter">
-                            <button type="button" class="btn-qty" onclick="changeFnbQty('@sp.MA_SANPHAM.Trim()', -1)">-</button>
-                            <span class="fw-bold text-white small" id="fnb_qty_@sp.MA_SANPHAM.Trim()">0</span>
-                            <button type="button" class="btn-qty" onclick="changeFnbQty('@sp.MA_SANPHAM.Trim()', 1)">+</button>
+                            <button type="button" class="btn-qty" onclick="changeFnbQty('@maSp', -1)">-</button>
+                            <span class="fw-bold text-white small" id="fnb_qty_@maSp">0</span>
+                            <button type="button" class="btn-qty" onclick="changeFnbQty('@maSp', 1)">+</button>
                         </div>
                     </div>
                 }
