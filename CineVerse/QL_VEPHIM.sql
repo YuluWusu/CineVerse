@@ -234,9 +234,9 @@ INSERT INTO RAPCHIEU (MA_RAP, TEN_RAP, DIACHI, SO_PHONG_TOIDA) VALUES
 GO
 
 INSERT INTO PHONGCHIEU (MA_PHONG, TEN_PHONG, MA_RAP, SO_HANG, SO_COT) VALUES
-('PA01', N'Phòng 1', 'A01', 2, 4),
-('PA02', N'Phòng 2', 'A01', 0, 0),
-('PB01', N'Phòng 1', 'A02', 2, 2),
+('PA01', N'Phòng 1', 'A01', 15, 16),
+('PA02', N'Phòng 2', 'A01', 12, 14),
+('PB01', N'Phòng 1', 'A02', 10, 12),
 ('PC01', N'Phòng 1', 'A03', 15, 16),
 ('PC02', N'Phòng 2', 'A03', 12, 14),
 ('PC03', N'Phòng 3', 'A03', 12, 14),
