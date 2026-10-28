@@ -132,6 +132,10 @@
     <Compile Include="Controllers\BookingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MoviesController.cs" />
+    <Compile Include="Controllers\GioHangController.cs" />
+    <Compile Include="Models\GioHangItem.cs" />
+    <Compile Include="Models\GioHangViewModel.cs" />
+    <Compile Include="Models\MenuHaiCapViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -368,6 +372,7 @@
     <Content Include="Views\Admin\QuanLyPhong.cshtml" />
     <Content Include="Views\Admin\QuanLyRap.cshtml" />
     <Content Include="Views\Admin\QuanLyVe.cshtml" />
+    <Content Include="Views\Admin\QuanLyDonHang.cshtml" />
     <Content Include="Views\Admin\SuaLichChieu.cshtml" />
     <Content Include="Views\Admin\SuaPhim.cshtml" />
     <Content Include="Views\Admin\SuaPhong.cshtml" />
@@ -405,6 +410,11 @@
     <Content Include="Views\Error\Forbidden.cshtml" />
     <Content Include="Views\Error\InternalServerError.cshtml" />
     <Content Include="Views\Shared\_ToastNotification.cshtml" />
+    <Content Include="Views\Shared\_MenuHaiCap.cshtml" />
+    <Content Include="Views\Shared\_GioHangPartial.cshtml" />
+    <Content Include="Views\GioHang\Index.cshtml" />
+    <Content Include="Views\GioHang\CuaHangBapNuoc.cshtml" />
+    <Content Include="Views\GioHang\DatHangThanhCong.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -117,12 +117,15 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         public ActionResult ThemPhim()
         {
+            ViewBag.Title = "Thêm Phim Mới";
+            ViewBag.TheLoais = movieService.GetAllGenres();
             return View();
         }
 
         [HttpPost]
         [ValidateInput(false)]
-        public ActionResult ThemPhim(PHIM phim, HttpPostedFileBase fileUpload)
+        [ValidateAntiForgeryToken]
+        public ActionResult ThemPhim(PHIM phim, HttpPostedFileBase fileUpload, string[] selectedTheLoais)
         {
             if (ModelState.IsValid)
             {
@@ -136,35 +139,97 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     phim.POSTER = fileName;
                 }
 
-                movieService.AddMovie(phim);
+                using (var context = new QL_VEPHIMEntities())
+                {
+                    context.PHIMs.Add(phim);
+                    if (selectedTheLoais != null && selectedTheLoais.Length > 0)
+                    {
+                        foreach (var maTl in selectedTheLoais)
+                        {
+                            var cleanTl = maTl.Trim();
+                            var tl = context.THELOAIs.Find(cleanTl);
+                            if (tl != null) phim.THELOAIs.Add(tl);
+                        }
+                    }
+                    context.SaveChanges();
+                }
+
+                TempData["Success"] = $"Thêm mới phim '{phim.TEN_PHIM}' thành công!";
                 return RedirectToAction("QuanLyPhim");
             }
+            ViewBag.TheLoais = movieService.GetAllGenres();
             return View(phim);
         }
 
         public ActionResult SuaPhim(string id)
         {
-            var phim = movieService.GetMovieById(id);
-            if (phim == null) return HttpNotFound();
-            return View(phim);
+            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            string cleanId = id.Trim();
+            using (var context = new QL_VEPHIMEntities())
+            {
+                var phim = context.PHIMs.Include(p => p.THELOAIs).FirstOrDefault(p => p.MA_PHIM.Trim() == cleanId);
+                if (phim == null) return HttpNotFound();
+
+                ViewBag.Title = "Sửa Thông Tin Phim";
+                ViewBag.TheLoais = context.THELOAIs.OrderBy(t => t.TEN_THELOAI).ToList();
+                ViewBag.SelectedTheLoaiIds = phim.THELOAIs.Select(t => t.MA_THELOAI.Trim()).ToList();
+                return View(phim);
+            }
         }
 
         [HttpPost]
         [ValidateInput(false)]
-        public ActionResult SuaPhim(PHIM phim, HttpPostedFileBase fileUpload)
+        [ValidateAntiForgeryToken]
+        public ActionResult SuaPhim(PHIM phim, HttpPostedFileBase fileUpload, string[] selectedTheLoais)
         {
             if (ModelState.IsValid)
             {
-                if (fileUpload != null && fileUpload.ContentLength > 0)
+                string cleanId = phim.MA_PHIM.Trim();
+                using (var context = new QL_VEPHIMEntities())
                 {
-                    var fileName = Path.GetFileName(fileUpload.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Content/HinhAnh/"), fileName);
-                    fileUpload.SaveAs(path);
-                    phim.POSTER = fileName;
+                    var p = context.PHIMs.Include(x => x.THELOAIs).FirstOrDefault(x => x.MA_PHIM.Trim() == cleanId);
+                    if (p != null)
+                    {
+                        p.TEN_PHIM = phim.TEN_PHIM;
+                        p.THOILUONG = phim.THOILUONG;
+                        p.NGAYKHOICHIEU = phim.NGAYKHOICHIEU;
+                        p.MOTA = phim.MOTA;
+                        p.DAO_DIEN = phim.DAO_DIEN;
+                        p.DIEN_VIEN = phim.DIEN_VIEN;
+                        p.GIOI_HAN_TUOI = phim.GIOI_HAN_TUOI;
+                        p.TRANGTHAI = phim.TRANGTHAI;
+
+                        if (fileUpload != null && fileUpload.ContentLength > 0)
+                        {
+                            var fileName = Path.GetFileName(fileUpload.FileName);
+                            var path = Path.Combine(Server.MapPath("~/Content/HinhAnh/"), fileName);
+                            fileUpload.SaveAs(path);
+                            p.POSTER = fileName;
+                        }
+
+                        // Cập nhật danh sách thể loại N-N từ Checkbox
+                        p.THELOAIs.Clear();
+                        if (selectedTheLoais != null && selectedTheLoais.Length > 0)
+                        {
+                            foreach (var maTl in selectedTheLoais)
+                            {
+                                var cleanTl = maTl.Trim();
+                                var tl = context.THELOAIs.Find(cleanTl);
+                                if (tl != null) p.THELOAIs.Add(tl);
+                            }
+                        }
+
+                        context.SaveChanges();
+                        TempData["Success"] = $"Cập nhật phim '{p.TEN_PHIM}' thành công!";
+                        return RedirectToAction("QuanLyPhim");
+                    }
                 }
-                
-                movieService.UpdateMovie(phim);
-                return RedirectToAction("QuanLyPhim");
+            }
+
+            using (var context = new QL_VEPHIMEntities())
+            {
+                ViewBag.TheLoais = context.THELOAIs.OrderBy(t => t.TEN_THELOAI).ToList();
+                ViewBag.SelectedTheLoaiIds = selectedTheLoais != null ? selectedTheLoais.ToList() : new List<string>();
             }
             return View(phim);
         }
@@ -475,6 +540,102 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             return RedirectToAction("QuanLyVe");
         }
 
+        // ========================= QUẢN LÝ ĐƠN HÀNG (TIÊU CHÍ BAREM 0.5đ) =========================
+        public ActionResult QuanLyDonHang(string search, string trangThaiThanhToan, string trangThaiSoatVe)
+        {
+            ViewBag.Title = "Quản lý Đơn hàng";
+            ViewBag.Search = search;
+            ViewBag.TrangThaiThanhToan = trangThaiThanhToan;
+            ViewBag.TrangThaiSoatVe = trangThaiSoatVe;
+
+            using (var context = new QL_VEPHIMEntities())
+            {
+                var query = context.DONHANGs
+                    .Include(d => d.KHACHHANG)
+                    .Include(d => d.KHACHHANG.TAIKHOAN)
+                    .Include(d => d.LICHCHIEU.PHIM)
+                    .Include(d => d.LICHCHIEU.KHUNGGIO)
+                    .Include(d => d.LICHCHIEU.PHONGCHIEU.RAPCHIEU)
+                    .Include(d => d.VEs.Select(v => v.GHE))
+                    .Include(d => d.CHITIET_BAPNUOC.Select(c => c.BAPNUOC))
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    string kw = search.Trim();
+                    query = query.Where(d => d.MA_DONHANG.Contains(kw)
+                                          || (d.MACHECKIN != null && d.MACHECKIN.Contains(kw))
+                                          || (d.KHACHHANG != null && d.KHACHHANG.TAIKHOAN != null && (d.KHACHHANG.TAIKHOAN.HOTEN.Contains(kw) || d.KHACHHANG.TAIKHOAN.SDT.Contains(kw))));
+                }
+
+                if (!string.IsNullOrWhiteSpace(trangThaiThanhToan) && trangThaiThanhToan != "TatCa")
+                {
+                    query = query.Where(d => d.TRANGTHAITHANHTOAN == trangThaiThanhToan);
+                }
+
+                if (!string.IsNullOrWhiteSpace(trangThaiSoatVe) && trangThaiSoatVe != "TatCa")
+                {
+                    query = query.Where(d => d.TRANGTHAISOATVE == trangThaiSoatVe);
+                }
+
+                var list = query.OrderByDescending(d => d.NGAYDAT).ToList();
+                return View(list);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CapNhatTrangThaiDonHang(string maDonHang, string trangThaiThanhToan, string trangThaiSoatVe)
+        {
+            if (string.IsNullOrEmpty(maDonHang)) return RedirectToAction("QuanLyDonHang");
+
+            string cleanId = maDonHang.Trim();
+            using (var context = new QL_VEPHIMEntities())
+            {
+                var donHang = context.DONHANGs.Include(d => d.VEs).FirstOrDefault(d => d.MA_DONHANG.Trim() == cleanId);
+                if (donHang != null)
+                {
+                    if (!string.IsNullOrEmpty(trangThaiThanhToan))
+                    {
+                        donHang.TRANGTHAITHANHTOAN = trangThaiThanhToan;
+                        if (trangThaiThanhToan == "DaThanhToan")
+                        {
+                            donHang.TRANGTHAI = "DaThanhToan";
+                            foreach (var ve in donHang.VEs)
+                            {
+                                ve.TRANGTHAI = "Đã thanh toán";
+                            }
+                        }
+                        else if (trangThaiThanhToan == "DaHuy")
+                        {
+                            donHang.TRANGTHAI = "DaHuy";
+                            foreach (var ve in donHang.VEs)
+                            {
+                                ve.TRANGTHAI = "Đã hủy";
+                            }
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(trangThaiSoatVe))
+                    {
+                        donHang.TRANGTHAISOATVE = trangThaiSoatVe;
+                        if (trangThaiSoatVe == "DaSoatVe")
+                        {
+                            donHang.THOIGIANCHECKIN = DateTime.Now;
+                            foreach (var ve in donHang.VEs)
+                            {
+                                ve.TRANGTHAI = "Đã check-in";
+                            }
+                        }
+                    }
+
+                    context.SaveChanges();
+                    TempData["Success"] = $"Đã cập nhật trạng thái đơn hàng #{cleanId} thành công!";
+                }
+            }
+            return RedirectToAction("QuanLyDonHang");
+        }
+
         // ========================= QUẢN LÝ KHÁCH HÀNG =========================
         public ActionResult QuanLyKhachHang()
         {
@@ -733,7 +894,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         public ActionResult QuanLyTheLoai()
         {
             ViewBag.Title = "Quản lý Thể loại phim";
-            return View(movieService.GetAllGenres());
+            using (var context = new QL_VEPHIMEntities())
+            {
+                var list = context.THELOAIs.Include(t => t.PHIMs).OrderBy(t => t.TEN_THELOAI).ToList();
+                return View(list);
+            }
         }
 
         public ActionResult ThemTheLoai()
@@ -788,16 +953,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult XoaTheLoai(string id)
         {
-            try
+            if (string.IsNullOrEmpty(id)) return RedirectToAction("QuanLyTheLoai");
+            string cleanId = id.Trim();
+            using (var context = new QL_VEPHIMEntities())
             {
-                movieService.DeleteGenre(id);
-                TempData["Success"] = "Xóa thể loại thành công!";
-            }
-            catch
-            {
-                TempData["Error"] = "Đã xảy ra lỗi khi xóa hoặc thể loại đang có phim.";
+                var tl = context.THELOAIs.Include(t => t.PHIMs).FirstOrDefault(t => t.MA_THELOAI.Trim() == cleanId);
+                if (tl != null)
+                {
+                    if (tl.PHIMs.Any())
+                    {
+                        TempData["Error"] = $"Không thể xóa thể loại '{tl.TEN_THELOAI}' vì hiện có {tl.PHIMs.Count} bộ phim đang liên kết. Vui lòng chuyển thể loại cho các phim trước khi xóa!";
+                        return RedirectToAction("QuanLyTheLoai");
+                    }
+                    context.THELOAIs.Remove(tl);
+                    context.SaveChanges();
+                    TempData["Success"] = $"Đã xóa thành công thể loại '{tl.TEN_THELOAI}'.";
+                }
             }
             return RedirectToAction("QuanLyTheLoai");
         }

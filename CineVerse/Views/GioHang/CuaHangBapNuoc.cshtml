@@ -1,0 +1,307 @@
+@model List<DoAn_QuanLyVeXemPhimTrucTiep.Models.BAPNUOC>
+@{
+    ViewBag.Title = "Cửa Hàng Bắp Nước & Combo F&B";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+    var phanLoais = ViewBag.PhanLoaiList as List<string> ?? new List<string>();
+    var currentPL = ViewBag.PhanLoai as string;
+    var search = ViewBag.Search as string;
+}
+
+<style>
+    .fnb-hero {
+        background: linear-gradient(180deg, rgba(232, 184, 75, 0.08) 0%, rgba(9, 9, 15, 0) 100%);
+        padding: 40px 0 20px;
+        text-align: center;
+        border-bottom: 1px solid var(--border, rgba(255,255,255,0.06));
+    }
+
+    .fnb-hero h1 {
+        font-family: var(--font-display, 'DM Sans', sans-serif);
+        font-size: clamp(28px, 4vw, 38px);
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 1px;
+    }
+
+    .fnb-hero h1 span {
+        color: var(--accent, #e8b84b);
+    }
+
+    .fnb-hero p {
+        color: var(--text-muted, #8b8a99);
+        font-size: 14px;
+        max-width: 600px;
+        margin: 8px auto 0;
+    }
+
+    .fnb-controls {
+        padding: 24px 0 32px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .fnb-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .fnb-tab-btn {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-muted, #8b8a99);
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .fnb-tab-btn:hover,
+    .fnb-tab-btn.active {
+        background: var(--accent, #e8b84b);
+        color: #000;
+        border-color: var(--accent, #e8b84b);
+    }
+
+    .fnb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 24px;
+        margin-bottom: 60px;
+    }
+
+    .fnb-card {
+        background: var(--bg-card, #161622);
+        border: 1px solid var(--border, rgba(255,255,255,0.08));
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.25s ease;
+    }
+
+    .fnb-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(232, 184, 75, 0.4);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    }
+
+    .fnb-img-wrap {
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+        background: #0f0f1a;
+        position: relative;
+    }
+
+    .fnb-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s;
+    }
+
+    .fnb-card:hover .fnb-img-wrap img {
+        transform: scale(1.06);
+    }
+
+    .fnb-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(9, 9, 15, 0.85);
+        backdrop-filter: blur(8px);
+        color: var(--accent, #e8b84b);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(232,184,75,0.3);
+    }
+
+    .fnb-body {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .fnb-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 6px;
+    }
+
+    .fnb-desc {
+        font-size: 12.5px;
+        color: var(--text-muted, #8b8a99);
+        line-height: 1.5;
+        margin-bottom: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .fnb-price-tag {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--accent, #e8b84b);
+        margin-bottom: 14px;
+    }
+
+    .fnb-form {
+        margin-top: auto;
+    }
+
+    .fnb-select-size {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        border-radius: 8px;
+        padding: 7px 10px;
+        font-size: 13px;
+        margin-bottom: 10px;
+        outline: none;
+    }
+
+    .fnb-select-size option {
+        background: #161622;
+        color: #fff;
+    }
+
+    .fnb-action-row {
+        display: flex;
+        gap: 8px;
+    }
+
+    .fnb-qty {
+        width: 60px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 6px;
+    }
+
+    .btn-add-cart {
+        flex: 1;
+        background: rgba(232, 184, 75, 0.15);
+        border: 1px solid rgba(232, 184, 75, 0.4);
+        color: var(--accent, #e8b84b);
+        font-weight: 600;
+        font-size: 13px;
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-add-cart:hover {
+        background: var(--accent, #e8b84b);
+        color: #000;
+    }
+</style>
+
+<div class="fnb-hero">
+    <div class="container">
+        <h1>CỬA HÀNG <span>BẮP NƯỚC & COMBO</span></h1>
+        <p>Bắp rang bơ giòn rụm béo ngậy cùng thức uống mát lạnh cho trải nghiệm điện ảnh hoàn hảo!</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="fnb-controls">
+        <!-- TABS PHÂN LOẠI F&B -->
+        <div class="fnb-tabs">
+            <a href="/GioHang/CuaHangBapNuoc" class="fnb-tab-btn @(string.IsNullOrEmpty(currentPL) ? "active" : "")">
+                <i class="bi bi-grid-fill me-1"></i> Tất cả
+            </a>
+            @foreach (var pl in phanLoais)
+            {
+                <a href="/GioHang/CuaHangBapNuoc?phanLoai=@HttpUtility.UrlEncode(pl)" class="fnb-tab-btn @(currentPL == pl ? "active" : "")">
+                    @pl
+                </a>
+            }
+        </div>
+
+        <!-- TÌM KIẾM SẢN PHẨM -->
+        <form action="/GioHang/CuaHangBapNuoc" method="get" class="d-flex gap-2">
+            @if (!string.IsNullOrEmpty(currentPL))
+            {
+                <input type="hidden" name="phanLoai" value="@currentPL" />
+            }
+            <input type="text" name="search" value="@search" placeholder="Tìm bắp, nước ngọt, combo..."
+                   class="form-control form-control-sm bg-dark text-white border-secondary" style="width: 220px;" />
+            <button type="submit" class="btn btn-sm btn-outline-warning">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-emoji-frown" style="font-size: 48px; opacity: 0.3;"></i>
+            <h4 class="mt-3 text-white">Không tìm thấy sản phẩm F&B phù hợp</h4>
+            <a href="/GioHang/CuaHangBapNuoc" class="btn-gold mt-3 d-inline-block px-3 py-2 text-decoration-none rounded">
+                Xem tất cả món ăn
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="fnb-grid">
+            @foreach (var item in Model)
+            {
+                <div class="fnb-card">
+                    <div class="fnb-img-wrap">
+                        <img src="~/Content/HinhAnh/@item.HinhAnh" onerror="this.src='https://placehold.co/300x200/15151f/888?text=F%26B'" alt="@item.TEN_SANPHAM" />
+                        <span class="fnb-badge">@item.PHANLOAI</span>
+                    </div>
+
+                    <div class="fnb-body">
+                        <div class="fnb-name">@item.TEN_SANPHAM</div>
+                        <div class="fnb-desc">@item.MOTA</div>
+                        <div class="fnb-price-tag">@item.GIABAN.ToString("N0") đ</div>
+
+                        <!-- FORM CHỌN TÙY CHỌN SIZE & SỐ LƯỢNG (Mua N sản phẩm có tùy chọn) -->
+                        <form action="/GioHang/ThemBapNuocVaoGio" method="post" class="fnb-form">
+                            <input type="hidden" name="maSanPham" value="@item.MA_SANPHAM" />
+                            
+                            <label class="form-label text-muted small mb-1" style="font-size: 11px;">Chọn kích cỡ / Tùy chọn:</label>
+                            <select name="tuyChon" class="fnb-select-size">
+                                <option value="Size Vừa (Tiêu chuẩn)">Size Vừa (Tiêu chuẩn)</option>
+                                <option value="Size Lớn (+10.000đ)">Size Lớn (+10.000 đ)</option>
+                                <option value="Size Khổng lồ (+20.000đ)">Size Khổng lồ (+20.000 đ)</option>
+                                <option value="Size Nhỏ (-10.000đ)">Size Nhỏ (-10.000 đ)</option>
+                            </select>
+
+                            <div class="fnb-action-row">
+                                <input type="number" name="soLuong" value="1" min="1" max="50" class="fnb-qty" title="Số lượng" />
+                                <button type="submit" class="btn-add-cart">
+                                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+

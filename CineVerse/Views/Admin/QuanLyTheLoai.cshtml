@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.THELOAI>
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.THELOAI>
 @{
     ViewBag.Title = "Quản lý Thể loại phim";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
@@ -7,23 +7,23 @@
 <div class="adm-card">
     <div class="adm-card-header">
         <div class="adm-card-title">
-            <i class="bi bi-tags"></i> Danh sách thể loại phim
+            <i class="bi bi-tags"></i> Danh sách thể loại phim (CSDL Bảng Loại)
         </div>
         <a href="/Admin/ThemTheLoai" class="btn-adm-primary">
-            <i class="bi bi-plus-lg"></i> Thêm thể loại
+            <i class="bi bi-plus-lg"></i> Thêm thể loại mới
         </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success" style="margin:20px; background:rgba(75,232,124,.15); color:var(--green); border:1px solid var(--green); border-radius:8px; padding:12px 16px;">
-            @TempData["Success"]
+            <i class="bi bi-check-circle-fill me-1"></i> @TempData["Success"]
         </div>
     }
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger" style="margin:20px; background:rgba(232,75,75,.15); color:var(--red); border:1px solid var(--red); border-radius:8px; padding:12px 16px;">
-            @TempData["Error"]
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> @TempData["Error"]
         </div>
     }
 
@@ -32,9 +32,10 @@
             <table class="adm-table">
                 <thead>
                     <tr>
-                        <th>Mã thể loại</th>
+                        <th style="width: 140px;">Mã thể loại</th>
                         <th>Tên thể loại</th>
-                        <th style="text-align:right">Thao tác</th>
+                        <th style="width: 180px; text-align: center;">Số lượng phim</th>
+                        <th style="width: 140px; text-align: right;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,30 +43,49 @@
                     {
                         foreach (var item in Model.OrderBy(t => t.TEN_THELOAI))
                         {
+                            int phimCount = item.PHIMs != null ? item.PHIMs.Count : 0;
                             <tr>
-                                <td><span style="font-family:monospace; color:var(--accent)">@item.MA_THELOAI</span></td>
-                                <td><strong>@item.TEN_THELOAI</strong></td>
-                                <td style="text-align:right">
-                                    <a href="/Admin/SuaTheLoai/@item.MA_THELOAI" class="btn-icon edit" title="Sửa">
+                                <td>
+                                    <span style="font-family:monospace; color:var(--accent); font-weight:700;">@item.MA_THELOAI</span>
+                                </td>
+                                <td>
+                                    <strong>@item.TEN_THELOAI</strong>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if (phimCount > 0)
+                                    {
+                                        <a href="/Movies/DanhSachPhim?maTheLoai=@item.MA_THELOAI.Trim()" target="_blank"
+                                           class="badge bg-warning text-dark text-decoration-none py-1 px-2"
+                                           title="Xem danh sách @phimCount phim">
+                                            <i class="bi bi-film me-1"></i> @phimCount phim
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-muted py-1 px-2">0 phim</span>
+                                    }
+                                </td>
+                                <td style="text-align: right;">
+                                    <a href="/Admin/SuaTheLoai/@item.MA_THELOAI" class="btn-icon edit" title="Chỉnh sửa thể loại">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <form action="/Admin/XoaTheLoai" method="post" style="display:inline;" onsubmit="return confirm('Xóa thể loại @item.TEN_THELOAI?')">
+                                    <form action="/Admin/XoaTheLoai" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa thể loại @item.TEN_THELOAI?')">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@item.MA_THELOAI" />
-                                        <button type="submit" class="btn-icon del" title="Xóa">
+                                        <button type="submit" class="btn-icon del" title="Xóa thể loại">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     </form>
-                                <td>
+                                </td>
                             </tr>
                         }
                     }
                     else
                     {
                         <tr>
-                            <td colspan="3" style="text-align:center; padding:40px; color:var(--text-muted)">
+                            <td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted)">
                                 <i class="bi bi-tags" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
-                                Chưa có thể loại nào.
+                                Chưa có thể loại nào trong CSDL.
                             </td>
                         </tr>
                     }
@@ -91,23 +111,23 @@
         text-decoration: none;
     }
 
-        .btn-icon.edit {
-            background: rgba(75,139,232,.15);
-            color: var(--blue);
-        }
+    .btn-icon.edit {
+        background: rgba(75,139,232,.15);
+        color: var(--blue, #4b8be8);
+    }
 
-            .btn-icon.edit:hover {
-                background: var(--blue);
-                color: #fff;
-            }
+    .btn-icon.edit:hover {
+        background: var(--blue, #4b8be8);
+        color: #fff;
+    }
 
-        .btn-icon.del {
-            background: rgba(232,75,75,.15);
-            color: var(--red);
-        }
+    .btn-icon.del {
+        background: rgba(232,75,75,.15);
+        color: var(--red, #e84b4b);
+    }
 
-            .btn-icon.del:hover {
-                background: var(--red);
-                color: #fff;
-            }
+    .btn-icon.del:hover {
+        background: var(--red, #e84b4b);
+        color: #fff;
+    }
 </style>

@@ -12,12 +12,13 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
     {
         private QL_VEPHIMEntities data = new QL_VEPHIMEntities();
 
-        public ActionResult DanhSachPhim(string trangthai = null, string search = null, string status = null)
+        public ActionResult DanhSachPhim(string trangthai = null, string search = null, string status = null, string maTheLoai = null, string sortOrder = null)
         {
             string filterStatus = !string.IsNullOrEmpty(trangthai) ? trangthai : status;
 
             var query = data.PHIMs.Include(p => p.THELOAIs).AsQueryable();
 
+            // 1. Tìm kiếm từ khóa (Tên phim, đạo diễn, diễn viên, thể loại)
             if (!string.IsNullOrWhiteSpace(search))
             {
                 string kw = search.Trim();
@@ -28,20 +29,59 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 ViewBag.Search = kw;
             }
 
-            if (!string.IsNullOrEmpty(filterStatus))
+            // 2. Lọc theo Trạng thái (Đang chiếu, Sắp chiếu, Ngừng chiếu)
+            if (!string.IsNullOrEmpty(filterStatus) && filterStatus != "TatCa")
             {
                 query = query.Where(p => p.TRANGTHAI == filterStatus);
                 ViewBag.TrangThai = filterStatus;
                 ViewBag.CurrentStatus = filterStatus;
             }
-            else if (string.IsNullOrWhiteSpace(search))
+            else if (string.IsNullOrWhiteSpace(search) && string.IsNullOrWhiteSpace(maTheLoai))
             {
                 query = query.Where(p => p.TRANGTHAI == "Đang chiếu");
                 ViewBag.TrangThai = "Đang chiếu";
                 ViewBag.CurrentStatus = "Đang chiếu";
             }
 
-            var phims = query.OrderByDescending(p => p.NGAYKHOICHIEU).ToList();
+            // 3. Lọc theo Thể loại phim từ CSDL (THELOAI)
+            if (!string.IsNullOrWhiteSpace(maTheLoai) && maTheLoai != "TatCa")
+            {
+                string tlId = maTheLoai.Trim();
+                query = query.Where(p => p.THELOAIs.Any(t => t.MA_THELOAI.Trim() == tlId));
+                ViewBag.MaTheLoai = tlId;
+                var tlObj = data.THELOAIs.FirstOrDefault(t => t.MA_THELOAI.Trim() == tlId);
+                if (tlObj != null) ViewBag.TenTheLoai = tlObj.TEN_THELOAI;
+            }
+
+            // 4. Sắp xếp danh sách phim (Sort)
+            ViewBag.SortOrder = sortOrder;
+            switch (sortOrder)
+            {
+                case "ten_asc":
+                    query = query.OrderBy(p => p.TEN_PHIM);
+                    break;
+                case "ten_desc":
+                    query = query.OrderByDescending(p => p.TEN_PHIM);
+                    break;
+                case "thoiluong_asc":
+                    query = query.OrderBy(p => p.THOILUONG);
+                    break;
+                case "thoiluong_desc":
+                    query = query.OrderByDescending(p => p.THOILUONG);
+                    break;
+                case "ngay_asc":
+                    query = query.OrderBy(p => p.NGAYKHOICHIEU);
+                    break;
+                case "ngay_desc":
+                default:
+                    query = query.OrderByDescending(p => p.NGAYKHOICHIEU);
+                    break;
+            }
+
+            // Đưa toàn bộ danh sách Thể loại sang View để render bộ lọc tab/pills
+            ViewBag.TheLoais = data.THELOAIs.OrderBy(t => t.TEN_THELOAI).ToList();
+
+            var phims = query.ToList();
             ViewBag.DanhSachPhim = phims;
             return View(phims);
         }
@@ -111,6 +151,26 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.DaDangNhap = daDangNhap;
             ViewBag.DaMuaVe = daMuaVe;
             ViewBag.DaDanhGia = daDanhGia;
+
+            // Lấy danh sách phim liên quan cùng thể loại (N-N THELOAI)
+            var maTheLoais = phim.THELOAIs.Select(t => t.MA_THELOAI.Trim()).ToList();
+            var phimLienQuan = data.PHIMs
+                .Include(p => p.THELOAIs)
+                .Where(p => p.MA_PHIM.Trim() != maPhim && p.THELOAIs.Any(t => maTheLoais.Contains(t.MA_THELOAI.Trim())))
+                .OrderByDescending(p => p.NGAYKHOICHIEU)
+                .Take(5)
+                .ToList();
+
+            if (phimLienQuan.Count < 4)
+            {
+                var additional = data.PHIMs
+                    .Include(p => p.THELOAIs)
+                    .Where(p => p.MA_PHIM.Trim() != maPhim && !phimLienQuan.Select(pl => pl.MA_PHIM.Trim()).Contains(p.MA_PHIM.Trim()) && p.TRANGTHAI == "Đang chiếu")
+                    .Take(4 - phimLienQuan.Count)
+                    .ToList();
+                phimLienQuan.AddRange(additional);
+            }
+            ViewBag.PhimLienQuan = phimLienQuan;
 
             return View(phim);
         }

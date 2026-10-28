@@ -385,8 +385,11 @@
                     <div class="tong-tien" id="tongTien">0 đ</div>
                     <div style="font-size:13px;color:var(--text-sec);margin-top:4px" id="gheDangChon">Chưa chọn ghế</div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     <a href="/Movies/ChiTietPhim/@lichChieu.MA_PHIM.Trim()" class="btn-adm-ghost">Quay lại</a>
+                    <button type="button" class="btn-adm-ghost text-warning border-warning" id="nutThemGio" disabled onclick="themVaoGioHang()">
+                        <i class="bi bi-cart-plus me-1"></i> Thêm vào Giỏ hàng
+                    </button>
                     <button type="button" class="btn-adm-primary" id="nutThanhToan" disabled onclick="tiepTucChonBapNuoc()">
                         <i class="bi bi-cup-straw me-1"></i> Tiếp tục: Chọn Bắp nước &amp; Combo <i class="bi bi-arrow-right ms-1"></i>
                     </button>
@@ -441,7 +444,20 @@
                 document.getElementById('tongTien').textContent = dinhDang(tong);
                 document.getElementById('gheDangChon').textContent = daChon.length ? ('Ghế đã chọn: ' + tenGheArr.join(', ')) : 'Chưa chọn ghế';
                 nut.disabled = (daChon.length === 0);
+                var nutGio = document.getElementById('nutThemGio');
+                if (nutGio) nutGio.disabled = (daChon.length === 0);
             }
+
+            window.themVaoGioHang = function () {
+                if (daChon.length === 0) return;
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/GioHang/ThemGheVaoGio';
+                var inLc = document.createElement('input'); inLc.type = 'hidden'; inLc.name = 'maLichChieu'; inLc.value = maLichChieu; form.appendChild(inLc);
+                var inGhe = document.createElement('input'); inGhe.type = 'hidden'; inGhe.name = 'danhSachGhe'; inGhe.value = daChon.join(','); form.appendChild(inGhe);
+                document.body.appendChild(form);
+                form.submit();
+            };
 
             // Click chọn ghế
             document.querySelectorAll('.seat').forEach(function (s) {

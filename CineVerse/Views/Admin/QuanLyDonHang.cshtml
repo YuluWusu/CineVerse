@@ -1,0 +1,270 @@
+@model IEnumerable<DoAn_QuanLyVeXemPhimTrucTiep.Models.DONHANG>
+@{
+    ViewBag.Title = "Quản lý Đơn hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var search = ViewBag.Search as string;
+    var ttThanhToan = ViewBag.TrangThaiThanhToan as string;
+    var ttSoatVe = ViewBag.TrangThaiSoatVe as string;
+}
+
+<style>
+    .order-code-badge {
+        font-family: monospace;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--accent, #e8b84b);
+    }
+
+    .checkin-tag {
+        font-family: monospace;
+        background: rgba(232, 184, 75, 0.1);
+        border: 1px solid rgba(232, 184, 75, 0.3);
+        color: var(--accent, #e8b84b);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+    }
+
+    .detail-collapse-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-top: 8px;
+        font-size: 12.5px;
+    }
+</style>
+
+<!-- BỘ LỌC TÌM KIẾM ĐƠN HÀNG -->
+<div class="adm-card" style="margin-bottom: 20px;">
+    <div class="adm-card-body" style="padding: 16px 20px;">
+        <form method="get" action="/Admin/QuanLyDonHang" class="row g-3 align-items-end">
+            <div class="col-lg-4 col-md-6">
+                <label class="adm-form-label"><i class="bi bi-search me-1"></i> Tìm kiếm đơn hàng</label>
+                <input type="text" name="search" value="@search" class="adm-input" placeholder="Mã đơn hàng, Mã check-in, Tên KH, SĐT..." />
+            </div>
+            <div class="col-lg-3 col-md-3">
+                <label class="adm-form-label"><i class="bi bi-credit-card me-1"></i> Trạng thái thanh toán</label>
+                <div class="adm-select-wrap">
+                    <select name="trangThaiThanhToan" class="adm-select">
+                        <option value="TatCa">-- Tất cả trạng thái --</option>
+                        <option value="DaThanhToan" @(ttThanhToan == "DaThanhToan" ? "selected" : "")>Đã thanh toán</option>
+                        <option value="ChuaThanhToan" @(ttThanhToan == "ChuaThanhToan" ? "selected" : "")>Chưa thanh toán</option>
+                        <option value="ChoXacNhan" @(ttThanhToan == "ChoXacNhan" ? "selected" : "")>Chờ xác nhận</option>
+                        <option value="DaHuy" @(ttThanhToan == "DaHuy" ? "selected" : "")>Đã hủy</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3">
+                <label class="adm-form-label"><i class="bi bi-qr-code-scan me-1"></i> Trạng thái soát vé</label>
+                <div class="adm-select-wrap">
+                    <select name="trangThaiSoatVe" class="adm-select">
+                        <option value="TatCa">-- Tất cả soát vé --</option>
+                        <option value="DaSoatVe" @(ttSoatVe == "DaSoatVe" ? "selected" : "")>Đã soát vé (Check-in)</option>
+                        <option value="ChuaSoatVe" @(ttSoatVe == "ChuaSoatVe" ? "selected" : "")>Chưa soát vé</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-12 d-flex gap-2">
+                <button type="submit" class="btn-adm-primary flex-fill">
+                    <i class="bi bi-funnel-fill"></i> Lọc
+                </button>
+                <a href="/Admin/QuanLyDonHang" class="btn-adm-ghost" title="Xóa bộ lọc">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- BẢNG DANH SÁCH ĐƠN HÀNG -->
+<div class="adm-card">
+    <div class="adm-card-header">
+        <div class="adm-card-title">
+            <i class="bi bi-receipt-cutoff"></i> Quản lý &amp; Cập nhật Đơn hàng (Tiêu chí Barem 0.5đ)
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Tổng số: <strong>@(Model != null ? Model.Count() : 0)</strong> đơn hàng</span>
+            <a href="/Admin/XuatBaoCaoDoanhThu?timeRange=all" class="btn-adm-ghost text-success" title="Xuất file báo cáo">
+                <i class="bi bi-file-earmark-excel"></i> Xuất CSV
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success m-3 py-2 px-3 small" style="background:rgba(75,232,124,.15); color:var(--green); border:1px solid var(--green); border-radius:8px;">
+            <i class="bi bi-check-circle-fill me-1"></i> @TempData["Success"]
+        </div>
+    }
+
+    <div class="adm-card-body" style="padding:0">
+        <div style="overflow-x:auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 170px;">Mã ĐH / Check-in</th>
+                        <th style="width: 180px;">Khách hàng</th>
+                        <th>Chi tiết Suất chiếu &amp; Ghế</th>
+                        <th style="width: 130px; text-align: right;">Tổng thanh toán</th>
+                        <th style="width: 150px;">Thanh toán</th>
+                        <th style="width: 150px;">Soát vé</th>
+                        <th style="width: 100px; text-align: center;">Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var lc = item.LICHCHIEU;
+                            var kh = item.KHACHHANG;
+                            var listGhe = item.VEs != null ? item.VEs.Select(v => v.GHE?.SOGHE ?? v.MA_GHE).ToList() : new List<string>();
+                            string collapseId = "collapseDH_" + item.MA_DONHANG.Replace("-", "_");
+
+                            <tr>
+                                <td>
+                                    <span class="order-code-badge">#@item.MA_DONHANG</span><br />
+                                    @if (!string.IsNullOrEmpty(item.MACHECKIN))
+                                    {
+                                        <span class="checkin-tag"><i class="bi bi-qr-code me-1"></i>@item.MACHECKIN</span>
+                                    }
+                                    <div class="text-muted small mt-1" style="font-size: 11px;">
+                                        @item.NGAYDAT.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong class="text-white">@(kh?.HOTEN ?? "Khách vãng lai")</strong><br />
+                                    <span class="text-muted small"><i class="bi bi-telephone me-1"></i>@(kh?.SDT ?? "Không có")</span>
+                                    @if (!string.IsNullOrEmpty(kh?.HANGTHANHVIEN))
+                                    {
+                                        <div><span class="badge bg-secondary" style="font-size: 10px;">@kh.HANGTHANHVIEN</span></div>
+                                    }
+                                </td>
+                                <td>
+                                    <strong style="color: var(--accent);">@(lc?.PHIM?.TEN_PHIM ?? "Phim điện ảnh")</strong><br />
+                                    <span class="text-muted small">
+                                        @(lc?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP) | @(lc?.PHONGCHIEU?.TEN_PHONG)<br />
+                                        Suất: @(lc?.NGAYCHIEU.ToString("dd/MM/yyyy")) @(lc?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm"))
+                                    </span>
+                                    @if (listGhe.Any())
+                                    {
+                                        <div class="mt-1">
+                                            <span class="badge bg-dark border border-secondary text-white" style="font-size: 11px;">
+                                                <i class="bi bi-ticket-perforated me-1"></i> Ghế: @string.Join(", ", listGhe)
+                                            </span>
+                                        </div>
+                                    }
+                                    @if (item.CHITIET_BAPNUOC != null && item.CHITIET_BAPNUOC.Any())
+                                    {
+                                        <div class="small text-info mt-1">
+                                            <i class="bi bi-cup-straw me-1"></i> @item.CHITIET_BAPNUOC.Sum(c => c.SOLUONG) phần bắp nước
+                                        </div>
+                                    }
+                                </td>
+                                <td style="text-align: right;">
+                                    <strong class="text-warning" style="font-size: 15px;">@item.TONGTIEN.ToString("N0") đ</strong>
+                                    <div class="text-muted small" style="font-size: 11px;">
+                                        @(item.PHUONGTHUCTHANHTOAN ?? "VietQR")
+                                    </div>
+                                    @if (item.TIENGIAM > 0)
+                                    {
+                                        <div class="text-success small" style="font-size: 10.5px;">
+                                            -@item.TIENGIAM.ToString("N0") đ
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <!-- CẬP NHẬT TRẠNG THÁI THANH TOÁN (AJAX / POST TỨC THÌ) -->
+                                    <form action="/Admin/CapNhatTrangThaiDonHang" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="maDonHang" value="@item.MA_DONHANG" />
+                                        <select name="trangThaiThanhToan" class="adm-select" style="font-size: 11.5px; padding: 4px 8px; width: 135px;" onchange="this.form.submit()">
+                                            <option value="DaThanhToan" @(item.TRANGTHAITHANHTOAN == "DaThanhToan" ? "selected" : "")>✔ Đã thanh toán</option>
+                                            <option value="ChuaThanhToan" @(item.TRANGTHAITHANHTOAN == "ChuaThanhToan" ? "selected" : "")>⏳ Chưa thanh toán</option>
+                                            <option value="ChoXacNhan" @(item.TRANGTHAITHANHTOAN == "ChoXacNhan" ? "selected" : "")>⌛ Chờ xác nhận</option>
+                                            <option value="DaHuy" @(item.TRANGTHAITHANHTOAN == "DaHuy" ? "selected" : "")>✖ Đã hủy</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <!-- CẬP NHẬT TRẠNG THÁI SOÁT VÉ CHECK-IN -->
+                                    <form action="/Admin/CapNhatTrangThaiDonHang" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="maDonHang" value="@item.MA_DONHANG" />
+                                        <select name="trangThaiSoatVe" class="adm-select" style="font-size: 11.5px; padding: 4px 8px; width: 135px;" onchange="this.form.submit()">
+                                            <option value="ChuaSoatVe" @(item.TRANGTHAISOATVE == "ChuaSoatVe" || string.IsNullOrEmpty(item.TRANGTHAISOATVE) ? "selected" : "")>Chưa soát vé</option>
+                                            <option value="DaSoatVe" @(item.TRANGTHAISOATVE == "DaSoatVe" ? "selected" : "")>✔ Đã soát vé</option>
+                                        </select>
+                                    </form>
+                                    @if (item.THOIGIANCHECKIN.HasValue)
+                                    {
+                                        <div class="text-success small mt-1" style="font-size: 10px;">
+                                            <i class="bi bi-clock-history"></i> @item.THOIGIANCHECKIN.Value.ToString("HH:mm dd/MM")
+                                        </div>
+                                    }
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-sm btn-outline-warning" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" title="Xem chi tiết các món">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- COLLAPSE XEM CHI TIẾT GHẾ VÀ BẮP NƯỚC -->
+                            <tr class="collapse" id="@collapseId">
+                                <td colspan="7" style="padding: 12px 20px; background: rgba(0,0,0,0.25);">
+                                    <div class="detail-collapse-card">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <strong class="text-warning small text-uppercase"><i class="bi bi-ticket-detailed me-1"></i> Danh sách Vé đặt (@(item.VEs != null ? item.VEs.Count : 0) vé):</strong>
+                                                <ul class="mb-0 mt-1 ps-3 small text-muted">
+                                                    @if (item.VEs != null && item.VEs.Any())
+                                                    {
+                                                        foreach (var v in item.VEs)
+                                                        {
+                                                            <li>Mã vé: <code class="text-white">@v.MA_VE</code> - Ghế: <strong class="text-white">@(v.GHE?.SOGHE ?? v.MA_GHE)</strong> - Giá: <span class="text-warning">@v.DONGIA.ToString("N0") đ</span> (@v.TRANGTHAI)</li>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <li>Không có vé phim trong đơn hàng này.</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong class="text-info small text-uppercase"><i class="bi bi-cup-straw me-1"></i> Bắp nước &amp; Combo F&B:</strong>
+                                                <ul class="mb-0 mt-1 ps-3 small text-muted">
+                                                    @if (item.CHITIET_BAPNUOC != null && item.CHITIET_BAPNUOC.Any())
+                                                    {
+                                                        foreach (var cb in item.CHITIET_BAPNUOC)
+                                                        {
+                                                            <li><strong class="text-white">@cb.SOLUONG x @(cb.BAPNUOC?.TEN_SANPHAM ?? cb.MA_SANPHAM)</strong> - Đơn giá: @cb.DONGIA.ToString("N0") đ = <span class="text-info">@cb.THANHTIEN.ToString("N0") đ</span></li>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <li>Không có món ăn / bắp nước.</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+                                <i class="bi bi-inbox" style="font-size: 36px; opacity: 0.3; display: block; margin-bottom: 10px;"></i>
+                                Không tìm thấy đơn hàng nào phù hợp với bộ lọc.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

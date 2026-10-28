@@ -384,17 +384,18 @@
                 Ciné<span>Verse</span>
             </a>
 
-            <ul class="cv-nav-links">
-                <li><a href="/Home/TrangChu" class="@(ViewData["ActivePage"] as string == "Home" ? "active" : "")">Trang chủ</a></li>
-                <li><a href="/Movies/DanhSachPhim" class="@(ViewData["ActivePage"] as string == "Movies" ? "active" : "")">Phim</a></li>
-                <li><a href="/Movies/LichChieuChung" class="@(ViewData["ActivePage"] as string == "Schedule" ? "active" : "")">Lịch chiếu</a></li>
-                <li><a href="/Home/GioiThieu" class="@(ViewData["ActivePage"] as string == "About" ? "active" : "")">Giới thiệu</a></li>
-            </ul>
+            <!-- MENU 2 CẤP LẤY DỮ LIỆU ĐỘNG TỪ CSDL -->
+            @Html.Action("MenuHaiCap", "Home")
 
             <form action="/Movies/DanhSachPhim" method="get" class="cv-search" style="margin: 0 0 0 auto;">
                 <i class="bi bi-search"></i>
                 <input type="text" name="search" value="@Request.QueryString["search"]" placeholder="Tìm tên phim, diễn viên..." autocomplete="off" />
             </form>
+
+            <!-- BADGE GIỎ HÀNG THỜI GIAN THỰC -->
+            <div style="margin: 0 14px;">
+                @Html.Action("GioHangBadge", "GioHang")
+            </div>
 
             <div class="cv-nav-actions">
                 @if (Session["KhachHang"] != null)

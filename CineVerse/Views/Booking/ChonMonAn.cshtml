@@ -425,7 +425,10 @@
 
                         <div class="mt-4 d-grid gap-2">
                             <button type="submit" class="btn btn-warning py-2 fw-bold" id="btnContinueCheckout">
-                                Tiếp tục: Thanh toán <i class="bi bi-arrow-right ms-1"></i>
+                                Tiếp tục: Thanh toán nhanh <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-warning py-2 fw-semibold" onclick="themVaoGioHangVaXem()">
+                                <i class="bi bi-cart3 me-1"></i> Xem &amp; Hiệu chỉnh trong Giỏ hàng
                             </button>
                             <button type="button" class="btn btn-outline-secondary py-2" onclick="cancelBooking()">
                                 <i class="bi bi-arrow-left me-1"></i> Quay lại chọn ghế khác
@@ -570,6 +573,21 @@
 
         // Chạy khởi tạo ban đầu
         updateSummary();
+        window.themVaoGioHangVaXem = function () {
+            // Chuyển ghế sang giỏ hàng và mở trang Giỏ Hàng
+            var maLc = $('#hiddenMaLichChieu').val();
+            var seats = $('#hiddenSelectedSeats').val();
+            if (!seats) return;
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/GioHang/ThemGheVaoGio';
+
+            var inLc = document.createElement('input'); inLc.type = 'hidden'; inLc.name = 'maLichChieu'; inLc.value = maLc; form.appendChild(inLc);
+            var inGhe = document.createElement('input'); inGhe.type = 'hidden'; inGhe.name = 'danhSachGhe'; inGhe.value = seats; form.appendChild(inGhe);
+            document.body.appendChild(form);
+            form.submit();
+        };
     });
 </script>
 }

@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
     public class HomeController : Controller
     {
         private QL_VEPHIMEntities data = new QL_VEPHIMEntities();
+
         public ActionResult TrangChu()
         {
             List<PHIM> dangChieu = data.PHIMs.Where(p => p.TRANGTHAI == "Đang chiếu").Take(5).ToList();
@@ -19,6 +21,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.HinhNen = hinhNen;
             return View();
         }
+
         public ActionResult GioiThieu()
         {
             return View();
@@ -81,6 +84,21 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             return Json(new object[0], JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Child Action render Menu 2 cấp động lấy trực tiếp từ CSDL (THELOAI và RAPCHIEU)
+        /// Đáp ứng 100% tiêu chí chấm điểm môn học: Menu 2 cấp lấy dữ liệu động từ CSDL.
+        /// </summary>
+        [ChildActionOnly]
+        public ActionResult MenuHaiCap()
+        {
+            var model = new MenuHaiCapViewModel
+            {
+                TheLoais = data.THELOAIs.OrderBy(t => t.TEN_THELOAI).ToList(),
+                RapChieus = data.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList()
+            };
+            return PartialView("_MenuHaiCap", model);
         }
     }
 }

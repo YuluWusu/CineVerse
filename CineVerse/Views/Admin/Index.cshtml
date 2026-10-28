@@ -305,6 +305,92 @@
     </div>
 </div>
 
+<!-- BẢNG CHI TIẾT SỐ LIỆU DOANH THU THEO PHIM & THEO RẠP (TIÊU CHÍ BAREM 0.5đ) -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="adm-card h-100">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-film text-warning"></i> Thống kê số liệu doanh thu theo Phim
+                </div>
+            </div>
+            <div class="adm-card-body p-0">
+                <div style="overflow-x:auto">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Tên phim</th>
+                                <th style="text-align:center;">Số vé bán</th>
+                                <th style="text-align:right;">Doanh thu vé</th>
+                                <th style="text-align:center;">Lấp đầy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableTopMoviesBody">
+                            @if (initial.TopMovies != null && initial.TopMovies.Any())
+                            {
+                                foreach (var m in initial.TopMovies)
+                                {
+                                    <tr>
+                                        <td><strong class="text-white">@m.TenPhim</strong></td>
+                                        <td style="text-align:center;"><span class="badge bg-secondary">@m.SoVeBan vé</span></td>
+                                        <td style="text-align:right;"><strong class="text-warning">@m.DoanhThu.ToString("N0") đ</strong></td>
+                                        <td style="text-align:center;">
+                                            <span class="badge" style="background:rgba(75,232,124,0.15); color:#4be87c;">@m.OccupancyRate.ToString("0.0")%</span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" class="text-center py-3 text-muted">Chưa có dữ liệu phim trong kỳ lọc.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="adm-card h-100">
+            <div class="adm-card-header">
+                <div class="adm-card-title">
+                    <i class="bi bi-building text-info"></i> Doanh thu theo Cụm rạp
+                </div>
+            </div>
+            <div class="adm-card-body p-0">
+                <div style="overflow-x:auto">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th>Cụm rạp</th>
+                                <th style="text-align:right;">Doanh thu</th>
+                                <th style="text-align:center;">Tỷ trọng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableCinemaSharesBody">
+                            @if (initial.CinemaShares != null && initial.CinemaShares.Any())
+                            {
+                                foreach (var ci in initial.CinemaShares)
+                                {
+                                    <tr>
+                                        <td><strong>@ci.Name</strong></td>
+                                        <td style="text-align:right;"><strong class="text-info">@ci.Value.ToString("N0") đ</strong></td>
+                                        <td style="text-align:center;"><span class="badge bg-dark border border-secondary">@ci.Percentage.ToString("0.0")%</span></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="3" class="text-center py-3 text-muted">Chưa có dữ liệu rạp trong kỳ lọc.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- BẢNG GIAO DỊCH VÉ GẦN NHẤT -->
 <div class="adm-card">
     <div class="adm-card-header">
@@ -604,6 +690,39 @@
 
                     // Cập nhật Doughnut Chart
                     updateDoughnutData();
+
+                    // Cập nhật Bảng số liệu Top Movies
+                    var tbMovies = document.getElementById('tableTopMoviesBody');
+                    if (tbMovies && d.TopMovies) {
+                        if (d.TopMovies.length === 0) {
+                            tbMovies.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Chưa có dữ liệu phim trong kỳ lọc.</td></tr>';
+                        } else {
+                            tbMovies.innerHTML = d.TopMovies.map(function(m) {
+                                return '<tr>' +
+                                    '<td><strong class="text-white">' + m.TenPhim + '</strong></td>' +
+                                    '<td style="text-align:center;"><span class="badge bg-secondary">' + m.SoVeBan + ' vé</span></td>' +
+                                    '<td style="text-align:right;"><strong class="text-warning">' + formatVND(m.DoanhThu) + '</strong></td>' +
+                                    '<td style="text-align:center;"><span class="badge" style="background:rgba(75,232,124,0.15); color:#4be87c;">' + m.OccupancyRate.toFixed(1) + '%</span></td>' +
+                                '</tr>';
+                            }).join('');
+                        }
+                    }
+
+                    // Cập nhật Bảng số liệu Cinema Shares
+                    var tbCinemas = document.getElementById('tableCinemaSharesBody');
+                    if (tbCinemas && d.CinemaShares) {
+                        if (d.CinemaShares.length === 0) {
+                            tbCinemas.innerHTML = '<tr><td colspan="3" class="text-center py-3 text-muted">Chưa có dữ liệu rạp trong kỳ lọc.</td></tr>';
+                        } else {
+                            tbCinemas.innerHTML = d.CinemaShares.map(function(c) {
+                                return '<tr>' +
+                                    '<td><strong>' + c.Name + '</strong></td>' +
+                                    '<td style="text-align:right;"><strong class="text-info">' + formatVND(c.Value) + '</strong></td>' +
+                                    '<td style="text-align:center;"><span class="badge bg-dark border border-secondary">' + c.Percentage.toFixed(1) + '%</span></td>' +
+                                '</tr>';
+                            }).join('');
+                        }
+                    }
                 })
                 .catch(function(err) {
                     console.error('Lỗi khi nạp dữ liệu phân tích:', err);

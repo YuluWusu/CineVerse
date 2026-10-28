@@ -1,0 +1,238 @@
+@model DoAn_QuanLyVeXemPhimTrucTiep.Models.MenuHaiCapViewModel
+
+<style>
+    /* ===== MENU 2 CẤP ĐỘNG TỪ CSDL CINEVERSE ===== */
+    .cv-nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: 36px;
+        list-style: none;
+        padding: 0;
+        margin-bottom: 0;
+    }
+
+    .cv-nav-item {
+        position: relative;
+    }
+
+    .cv-nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-muted, #8b8a99);
+        letter-spacing: 0.3px;
+        border-radius: 8px;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .cv-nav-link i.arrow-icon {
+        font-size: 11px;
+        transition: transform 0.25s ease;
+    }
+
+    .cv-nav-link:hover,
+    .cv-nav-link.active,
+    .cv-nav-item:hover > .cv-nav-link {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .cv-nav-item:hover > .cv-nav-link i.arrow-icon {
+        transform: rotate(180deg);
+        color: var(--accent, #e8b84b);
+    }
+
+    /* Submenu dropdown cấp 2 */
+    .cv-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 250px;
+        background: rgba(18, 18, 28, 0.98);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(232, 184, 75, 0.25);
+        border-radius: 12px;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 20px rgba(232, 184, 75, 0.1);
+        padding: 10px 8px;
+        list-style: none;
+        margin: 6px 0 0 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+        z-index: 1050;
+    }
+
+    .cv-nav-item:hover .cv-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .cv-dropdown-header {
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--accent, #e8b84b);
+        padding: 6px 12px 4px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .cv-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        font-size: 13.5px;
+        color: #d1d0db;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .cv-dropdown-item i {
+        font-size: 14px;
+        color: var(--text-muted, #8b8a99);
+        transition: color 0.2s ease;
+        width: 16px;
+        text-align: center;
+    }
+
+    .cv-dropdown-item:hover {
+        background: rgba(232, 184, 75, 0.12);
+        color: var(--accent, #e8b84b);
+        padding-left: 16px;
+    }
+
+    .cv-dropdown-item:hover i {
+        color: var(--accent, #e8b84b);
+    }
+
+    .cv-dropdown-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.08);
+        margin: 6px 0;
+    }
+
+    /* Grid layout dành cho danh sách thể loại phong phú */
+    .cv-genre-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+    }
+
+    .cv-genre-grid .cv-dropdown-item {
+        padding: 6px 10px;
+        font-size: 12.5px;
+    }
+</style>
+
+<ul class="cv-nav-links">
+    <!-- MENU 1 CẤP: TRANG CHỦ -->
+    <li class="cv-nav-item">
+        <a href="/Home/TrangChu" class="cv-nav-link @(ViewData["ActivePage"] as string == "Home" ? "active" : "")">
+            <i class="bi bi-house-door"></i> Trang chủ
+        </a>
+    </li>
+
+    <!-- MENU 2 CẤP CSDL: PHIM & THỂ LOẠI -->
+    <li class="cv-nav-item">
+        <a href="/Movies/DanhSachPhim" class="cv-nav-link @(ViewData["ActivePage"] as string == "Movies" ? "active" : "")">
+            <i class="bi bi-film"></i> Phim <i class="bi bi-chevron-down arrow-icon"></i>
+        </a>
+        <div class="cv-dropdown-menu" style="min-width: 320px;">
+            <div class="cv-dropdown-header">
+                <i class="bi bi-collection-play"></i> Trạng thái chiếu
+            </div>
+            <a href="/Movies/DanhSachPhim?trangthai=@HttpUtility.UrlEncode("Đang chiếu")" class="cv-dropdown-item">
+                <i class="bi bi-play-circle-fill" style="color: #4be87c;"></i> Phim Đang Chiếu
+            </a>
+            <a href="/Movies/DanhSachPhim?trangthai=@HttpUtility.UrlEncode("Sắp chiếu")" class="cv-dropdown-item">
+                <i class="bi bi-hourglass-split" style="color: var(--accent, #e8b84b);"></i> Phim Sắp Chiếu
+            </a>
+            
+            <div class="cv-dropdown-divider"></div>
+
+            <div class="cv-dropdown-header">
+                <i class="bi bi-tags-fill"></i> Thể loại phim (CSDL)
+            </div>
+            <div class="cv-genre-grid">
+                @if (Model != null && Model.TheLoais != null && Model.TheLoais.Any())
+                {
+                    foreach (var tl in Model.TheLoais)
+                    {
+                        <a href="/Movies/DanhSachPhim?maTheLoai=@tl.MA_THELOAI.Trim()" class="cv-dropdown-item" title="@tl.TEN_THELOAI">
+                            <i class="bi bi-tag"></i> @tl.TEN_THELOAI
+                        </a>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted small ps-3">Đang cập nhật thể loại...</span>
+                }
+            </div>
+        </div>
+    </li>
+
+    <!-- MENU 2 CẤP CSDL: HỆ THỐNG RẠP & DỊCH VỤ -->
+    <li class="cv-nav-item">
+        <a href="/Movies/LichChieuChung" class="cv-nav-link @(ViewData["ActivePage"] as string == "Theaters" ? "active" : "")">
+            <i class="bi bi-geo-alt"></i> Hệ Thống Rạp & Dịch Vụ <i class="bi bi-chevron-down arrow-icon"></i>
+        </a>
+        <div class="cv-dropdown-menu" style="min-width: 290px;">
+            <div class="cv-dropdown-header">
+                <i class="bi bi-building"></i> Danh sách Rạp chiếu (CSDL)
+            </div>
+            @if (Model != null && Model.RapChieus != null && Model.RapChieus.Any())
+            {
+                foreach (var rap in Model.RapChieus)
+                {
+                    <a href="/Movies/LichChieuChung?maRap=@rap.MA_RAP.Trim()" class="cv-dropdown-item" title="@rap.DIACHI">
+                        <i class="bi bi-geo-alt-fill" style="color: #e84b4b;"></i> @rap.TEN_RAP
+                    </a>
+                }
+            }
+            else
+            {
+                <span class="text-muted small ps-3">Đang tải danh sách rạp...</span>
+            }
+
+            <div class="cv-dropdown-divider"></div>
+
+            <div class="cv-dropdown-header">
+                <i class="bi bi-stars"></i> Dịch vụ & Mua sắm
+            </div>
+            <a href="/GioHang/CuaHangBapNuoc" class="cv-dropdown-item">
+                <i class="bi bi-cup-straw" style="color: var(--accent, #e8b84b);"></i> Bắp nước & Combo F&B
+            </a>
+            <a href="/GioHang/Index" class="cv-dropdown-item">
+                <i class="bi bi-cart3" style="color: #4be87c;"></i> Giỏ hàng của tôi
+            </a>
+        </div>
+    </li>
+
+    <!-- MENU 1 CẤP: LỊCH CHIẾU -->
+    <li class="cv-nav-item">
+        <a href="/Movies/LichChieuChung" class="cv-nav-link @(ViewData["ActivePage"] as string == "Schedule" ? "active" : "")">
+            <i class="bi bi-calendar3"></i> Lịch chiếu
+        </a>
+    </li>
+
+    <!-- MENU 1 CẤP: GIỚI THIỆU -->
+    <li class="cv-nav-item">
+        <a href="/Home/GioiThieu" class="cv-nav-link @(ViewData["ActivePage"] as string == "About" ? "active" : "")">
+            <i class="bi bi-info-circle"></i> Giới thiệu
+        </a>
+    </li>
+</ul>
+

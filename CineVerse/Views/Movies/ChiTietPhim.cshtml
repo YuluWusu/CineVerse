@@ -856,8 +856,13 @@
 
                     <h1 class="detail-title">@Model.TEN_PHIM</h1>
 
-                    <!-- Stats -->
+                    <!-- Stats (Hiển thị đầy đủ chuỗi và số - Tiêu chí Barem) -->
                     <div class="detail-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-upc-scan"></i>
+                            <span class="stat-value">@Model.MA_PHIM</span>
+                            <span class="stat-unit">mã phim</span>
+                        </div>
                         <div class="stat-item">
                             <i class="bi bi-clock"></i>
                             <span class="stat-value">@Model.THOILUONG</span>
@@ -872,6 +877,16 @@
                             </span>
                         </div>
                         <div class="stat-item">
+                            <i class="bi bi-ticket-detailed text-warning"></i>
+                            <span class="stat-value text-warning">75.000 đ</span>
+                            <span class="stat-unit">giá từ</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span class="stat-value text-warning">@(ViewBag.DiemTB ?? 5.0)/5.0</span>
+                            <span class="stat-unit">(@(ViewBag.TongDanhGia ?? 0) đánh giá)</span>
+                        </div>
+                        <div class="stat-item">
                             <i class="bi bi-circle-fill" style="font-size:10px; color:
                                 @(Model.TRANGTHAI == "Đang chiếu" ? "#4be87c" :
                                   Model.TRANGTHAI == "Sắp chiếu"  ? "var(--accent)" : "var(--text-muted)")"></i>
@@ -879,7 +894,7 @@
                         </div>
                     </div>
 
-                    <!-- Chi tiết -->
+                    <!-- Chi tiết & Xử lý chuỗi (Split) Tiêu chí Barem -->
                     <div class="detail-rows">
                         <div class="detail-row">
                             <span class="detail-label">Thể loại</span>
@@ -887,7 +902,9 @@
                                 <div class="genre-tags">
                                     @foreach (var tl in Model.THELOAIs)
                                     {
-                                        <span class="genre-tag">@tl.TEN_THELOAI</span>
+                                        <a href="/Movies/DanhSachPhim?maTheLoai=@tl.MA_THELOAI.Trim()" class="genre-tag text-decoration-none">
+                                            <i class="bi bi-tag-fill me-1"></i>@tl.TEN_THELOAI
+                                        </a>
                                     }
                                 </div>
                             </div>
@@ -896,16 +913,44 @@
                         {
                             <div class="detail-row">
                                 <span class="detail-label">Đạo diễn</span>
-                                <span class="detail-value">@Model.DAO_DIEN</span>
+                                <span class="detail-value text-white">@Model.DAO_DIEN</span>
                             </div>
                         }
                         @if (!string.IsNullOrEmpty(Model.DIEN_VIEN))
                         {
+                            var listDienVien = Model.DIEN_VIEN.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
                             <div class="detail-row">
                                 <span class="detail-label">Diễn viên</span>
-                                <span class="detail-value">@Model.DIEN_VIEN</span>
+                                <div class="detail-value">
+                                    <ul style="margin: 0; padding-left: 18px; color: #e2e1e8; line-height: 1.8;">
+                                        @foreach (var dv in listDienVien)
+                                        {
+                                            <li>@dv.Trim()</li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
                         }
+                        <!-- XỬ LÝ CHUỖI SPLIT QUY ĐỊNH RẠP CHIẾU (TIÊU CHÍ BAREM) -->
+                        <div class="detail-row">
+                            <span class="detail-label">Quy định vé</span>
+                            <div class="detail-value">
+                                @{
+                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.
+Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.
+Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.
+Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
+                                    var arrQuyDinh = qdStr.Split('
+');
+                                }
+                                <ul style="margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 1.7;">
+                                    @foreach (var qd in arrQuyDinh)
+                                    {
+                                        <li>@qd</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Mô tả -->
@@ -1188,6 +1233,56 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- KHỐI PHIM CÙNG THỂ LOẠI / CÓ THỂ BẠN THÍCH (TIÊU CHÍ BAREM 0.25đ) -->
+<div class="related-movies-section py-5" style="border-top: 1px solid var(--border); background: rgba(255,255,255,0.015);">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="section-title-cv mb-1" style="font-size: 24px;">PHIM <span>CÙNG THỂ LOẠI</span></h3>
+                <p class="text-muted small mb-0">Các tựa phim điện ảnh đặc sắc có cùng thể loại bạn có thể yêu thích</p>
+            </div>
+            <a href="/Movies/DanhSachPhim" class="btn-ghost" style="padding: 6px 16px; font-size: 13px; text-decoration: none;">
+                Xem tất cả phim <i class="bi bi-chevron-right ms-1"></i>
+            </a>
+        </div>
+
+        @{
+            var listPhimLQ = ViewBag.PhimLienQuan as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.PHIM>;
+        }
+        @if (listPhimLQ != null && listPhimLQ.Any())
+        {
+            <div class="row g-3">
+                @foreach (var plq in listPhimLQ)
+                {
+                    var theloaiLQ = plq.THELOAIs.Select(t => t.TEN_THELOAI).ToList();
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <div class="movie-card" onclick="location.href='@Url.Action("ChiTietPhim", "Movies", new { id = plq.MA_PHIM })'">
+                            <div class="movie-poster">
+                                <img src="~/Content/HinhAnh/@plq.POSTER"
+                                     onerror="this.src='https://placehold.co/300x450/1a0a2e/ffffff?text=CineVerse'"
+                                     alt="@plq.TEN_PHIM" />
+                                <div class="poster-overlay">
+                                    <div class="play-btn" style="width: 42px; height: 42px; font-size: 16px;"><i class="bi bi-play-fill"></i></div>
+                                </div>
+                            </div>
+                            <div class="movie-info" style="padding: 10px 12px;">
+                                <div class="movie-title" style="font-size: 13px;" title="@plq.TEN_PHIM">@plq.TEN_PHIM</div>
+                                <div class="small text-muted" style="font-size: 11px;">
+                                    @(theloaiLQ.Any() ? theloaiLQ.First() : "Điện ảnh")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted small">Đang cập nhật danh sách phim liên quan...</p>
+        }
     </div>
 </div>
 

@@ -2,90 +2,234 @@
 @{
     ViewBag.Title = "Thêm Phim Mới";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var theLoais = ViewBag.TheLoais as List<DoAn_QuanLyVeXemPhimTrucTiep.Models.THELOAI> ?? new List<DoAn_QuanLyVeXemPhimTrucTiep.Models.THELOAI>();
 }
+
+<style>
+    .radio-card-group, .checkbox-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 6px;
+    }
+
+    .radio-card-label, .checkbox-card-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border, rgba(255,255,255,0.1));
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 13.5px;
+        color: var(--text-sec, #c0bfce);
+        user-select: none;
+    }
+
+    .radio-card-label:hover, .checkbox-card-label:hover {
+        background: rgba(232, 184, 75, 0.08);
+        border-color: rgba(232, 184, 75, 0.3);
+        color: #fff;
+    }
+
+    .radio-card-label input[type="radio"], .checkbox-card-label input[type="checkbox"] {
+        accent-color: var(--accent, #e8b84b);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .radio-card-label:has(input:checked), .checkbox-card-label:has(input:checked) {
+        background: rgba(232, 184, 75, 0.15);
+        border-color: var(--accent, #e8b84b);
+        color: var(--accent, #e8b84b);
+        font-weight: 600;
+    }
+
+    .poster-preview-box {
+        width: 140px;
+        aspect-ratio: 2/3;
+        border-radius: 8px;
+        border: 2px dashed rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #09090f;
+    }
+
+    .poster-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
 
 <div>
     <div class="adm-card">
         <div class="adm-card-header">
             <div class="adm-card-title">
-                <i class="bi bi-plus-circle"></i> Thông tin phim mới
+                <i class="bi bi-plus-circle"></i> Thêm phim mới vào rạp (Đầy đủ Radio &amp; Checkbox)
             </div>
             <a href="/Admin/QuanLyPhim" class="btn-adm-ghost">
-                <i class="bi bi-arrow-left"></i> Quay lại
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
             </a>
         </div>
         <div class="adm-card-body">
             <form action="/Admin/ThemPhim" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
 
+                <!-- THÔNG TIN CHÍNH -->
                 <div style="display:grid;grid-template-columns:1fr auto auto;gap:16px;margin-bottom:20px">
                     <div class="adm-form-group" style="margin:0">
                         <label class="adm-form-label">Tên phim <span class="req">*</span></label>
-                        <input type="text" name="TEN_PHIM" class="adm-input" placeholder="Nhập tên phim..." required />
+                        <input type="text" name="TEN_PHIM" class="adm-input" placeholder="Ví dụ: Avatar 3: Lửa &amp; Tro Tàn" required />
                     </div>
-                    <div class="adm-form-group" style="margin:0;width:130px">
-                        <label class="adm-form-label">Thời lượng <span class="req">*</span></label>
-                        <input type="number" name="THOILUONG" class="adm-input" placeholder="phút" required />
+                    <div class="adm-form-group" style="margin:0;width:140px">
+                        <label class="adm-form-label">Thời lượng (phút) <span class="req">*</span></label>
+                        <input type="number" name="THOILUONG" class="adm-input" placeholder="Ví dụ: 125" min="1" required />
                     </div>
-                    <div class="adm-form-group" style="margin:0;width:160px">
+                    <div class="adm-form-group" style="margin:0;width:170px">
                         <label class="adm-form-label">Ngày khởi chiếu</label>
-                        <input type="date" name="NGAYKHOICHIEU" class="adm-input" />
+                        <input type="date" name="NGAYKHOICHIEU" class="adm-input" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
                     </div>
                 </div>
 
+                <!-- ĐẠO DIỄN & DIỄN VIÊN -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
                     <div class="adm-form-group" style="margin:0">
                         <label class="adm-form-label">Đạo diễn</label>
-                        <input type="text" name="DAO_DIEN" class="adm-input" placeholder="Tên đạo diễn..." />
+                        <input type="text" name="DAO_DIEN" class="adm-input" placeholder="Ví dụ: Christopher Nolan, James Cameron..." />
                     </div>
                     <div class="adm-form-group" style="margin:0">
-                        <label class="adm-form-label">Giới hạn tuổi</label>
-                        <div class="adm-select-wrap">
-                            <select name="GIOI_HAN_TUOI" class="adm-select">
-                                <option value="P">P — Phổ biến</option>
-                                <option value="T13">T13 — Từ 13 tuổi</option>
-                                <option value="T16">T16 — Từ 16 tuổi</option>
-                                <option value="T18">T18 — Từ 18 tuổi</option>
-                            </select>
+                        <label class="adm-form-label">Diễn viên</label>
+                        <input type="text" name="DIEN_VIEN" class="adm-input" placeholder="Cách nhau bằng dấu phẩy (Cillian Murphy, Emily Blunt...)" />
+                    </div>
+                </div>
+
+                <!-- 1. BẮT BUỘC: RADIO BUTTON CHỌN TRẠNG THÁI PHIM (Barem 0.25đ) -->
+                <div class="adm-form-group" style="margin-bottom:22px;">
+                    <label class="adm-form-label">
+                        <i class="bi bi-ui-radios text-warning me-1"></i> Trạng thái chiếu (Radio Button):
+                    </label>
+                    <div class="radio-card-group">
+                        <label class="radio-card-label">
+                            <input type="radio" name="TRANGTHAI" value="Đang chiếu" checked />
+                            <i class="bi bi-play-circle-fill" style="color:#4be87c;"></i> Đang chiếu
+                        </label>
+                        <label class="radio-card-label">
+                            <input type="radio" name="TRANGTHAI" value="Sắp chiếu" />
+                            <i class="bi bi-hourglass-split" style="color:var(--accent);"></i> Sắp chiếu
+                        </label>
+                        <label class="radio-card-label">
+                            <input type="radio" name="TRANGTHAI" value="Ngừng chiếu" />
+                            <i class="bi bi-stop-circle-fill" style="color:var(--text-muted);"></i> Ngừng chiếu
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 2. BẮT BUỘC: RADIO BUTTON CHỌN PHÂN LOẠI ĐỘ TUỔI (Barem 0.25đ) -->
+                <div class="adm-form-group" style="margin-bottom:22px;">
+                    <label class="adm-form-label">
+                        <i class="bi bi-shield-exclamation text-warning me-1"></i> Phân loại giới hạn độ tuổi (Radio Button):
+                    </label>
+                    <div class="radio-card-group">
+                        <label class="radio-card-label">
+                            <input type="radio" name="GIOI_HAN_TUOI" value="P" checked />
+                            <span class="badge bg-success" style="font-size:11px;">P</span> Phổ biến mọi khán giả
+                        </label>
+                        <label class="radio-card-label">
+                            <input type="radio" name="GIOI_HAN_TUOI" value="T13" />
+                            <span class="badge bg-warning text-dark" style="font-size:11px;">T13</span> Khán giả từ 13 tuổi
+                        </label>
+                        <label class="radio-card-label">
+                            <input type="radio" name="GIOI_HAN_TUOI" value="T16" />
+                            <span class="badge bg-danger" style="font-size:11px;">T16</span> Khán giả từ 16 tuổi
+                        </label>
+                        <label class="radio-card-label">
+                            <input type="radio" name="GIOI_HAN_TUOI" value="T18" />
+                            <span class="badge" style="background:#b71540;color:#fff;font-size:11px;">T18</span> Khán giả từ 18 tuổi
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. BẮT BUỘC: CHECKBOX CHỌN NHIỀU THỂ LOẠI TỪ CSDL (Barem 0.25đ) -->
+                <div class="adm-form-group" style="margin-bottom:22px;">
+                    <label class="adm-form-label">
+                        <i class="bi bi-check2-square text-warning me-1"></i> Thể loại phim (Checkbox chọn 1 hoặc nhiều thể loại N-N):
+                    </label>
+                    <div class="checkbox-grid">
+                        @if (theLoais != null && theLoais.Any())
+                        {
+                            foreach (var tl in theLoais)
+                            {
+                                <label class="checkbox-card-label">
+                                    <input type="checkbox" name="selectedTheLoais" value="@tl.MA_THELOAI.Trim()" />
+                                    <span>@tl.TEN_THELOAI</span>
+                                </label>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted small">Chưa có thể loại trong CSDL.</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- 4. CHECKBOX TÙY CHỌN ĐẶC TÍNH PHIM -->
+                <div class="adm-form-group" style="margin-bottom:22px;">
+                    <label class="adm-form-label">
+                        <i class="bi bi-sliders text-warning me-1"></i> Tùy chọn đặc tính &amp; định dạng chiếu (Checkbox):
+                    </label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-card-label">
+                            <input type="checkbox" name="isHot" value="true" checked />
+                            <i class="bi bi-fire text-danger"></i> Phim Hot / Bom tấn rạp
+                        </label>
+                        <label class="checkbox-card-label">
+                            <input type="checkbox" name="hasSub" value="true" checked />
+                            <i class="bi bi-badge-cc text-info"></i> Phụ đề Tiếng Việt
+                        </label>
+                        <label class="checkbox-card-label">
+                            <input type="checkbox" name="hasDub" value="true" />
+                            <i class="bi bi-mic text-success"></i> Thuyết minh / Lồng tiếng
+                        </label>
+                        <label class="checkbox-card-label">
+                            <input type="checkbox" name="isIMAX" value="true" />
+                            <i class="bi bi-display text-warning"></i> Hỗ trợ phòng chiếu IMAX 3D
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. HÌNH ẢNH POSTER & PREVIEW -->
+                <div class="adm-form-group" style="margin-bottom:22px;">
+                    <label class="adm-form-label">
+                        <i class="bi bi-image text-warning me-1"></i> Hình ảnh Poster phim (Upload &amp; Preview):
+                    </label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="poster-preview-box">
+                            <img id="posterPreview" src="https://placehold.co/140x210/161622/888?text=Ch%C6%B0a+ch%E1%BB%8Dn+%E1%BA%A3nh" alt="Preview" />
+                        </div>
+                        <div style="flex:1;">
+                            <input type="file" name="fileUpload" accept="image/*" class="adm-file-input" id="posterInput" />
+                            <div class="text-muted small mt-2">
+                                <i class="bi bi-info-circle me-1"></i> Hỗ trợ định dạng: JPG, PNG, WEBP. Tỉ lệ chuẩn 2:3.
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="adm-form-group">
-                    <label class="adm-form-label">Diễn viên</label>
-                    <input type="text" name="DIEN_VIEN" class="adm-input" placeholder="Tên các diễn viên, cách nhau bằng dấu phẩy..." />
+                <!-- MÔ TẢ NỘI DUNG -->
+                <div class="adm-form-group" style="margin-bottom:24px;">
+                    <label class="adm-form-label">Mô tả tóm tắt nội dung phim</label>
+                    <textarea name="MOTA" class="adm-textarea" rows="4" placeholder="Nhập phần tóm tắt nội dung chính của bộ phim..."></textarea>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-                    <div class="adm-form-group" style="margin:0">
-                        <label class="adm-form-label">Trạng thái</label>
-                        <div class="adm-select-wrap">
-                            <select name="TRANGTHAI" class="adm-select">
-                                <option value="Đang chiếu">Đang chiếu</option>
-                                <option value="Sắp chiếu">Sắp chiếu</option>
-                                <option value="Ngừng chiếu">Ngừng chiếu</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="adm-form-group" style="margin:0">
-                        <label class="adm-form-label">Poster phim</label>
-                        <input type="file" name="fileUpload" accept="image/*" class="adm-file-input" id="posterInput" />
-                    </div>
-                </div>
-
-                <div id="posterPreviewWrap" style="display:none;margin-bottom:20px">
-                    <label class="adm-form-label">Xem trước poster</label>
-                    <img id="posterPreview" class="poster-preview-large" src="" alt="Preview" />
-                </div>
-
-                <div class="adm-form-group">
-                    <label class="adm-form-label">Mô tả nội dung</label>
-                    <textarea name="MOTA" class="adm-textarea" rows="4" placeholder="Viết mô tả ngắn về bộ phim..."></textarea>
-                </div>
-
-                <div style="display:flex;gap:12px;margin-top:8px">
+                <div style="display:flex;gap:12px;margin-top:12px;">
                     <button type="submit" class="btn-adm-primary">
-                        <i class="bi bi-floppy"></i> Lưu phim
+                        <i class="bi bi-floppy-fill me-1"></i> Lưu và Thêm Phim
                     </button>
                     <a href="/Admin/QuanLyPhim" class="btn-adm-ghost">Hủy bỏ</a>
                 </div>
@@ -95,12 +239,12 @@
 </div>
 
 @section Scripts {
-    <script>document.getElementById('posterInput').addEventListener('change', function() {
-    const file = this.files[0];
-    if (!file) return;
-    const wrap = document.getElementById('posterPreviewWrap');
-    const img  = document.getElementById('posterPreview');
-    img.src = URL.createObjectURL(file);
-    wrap.style.display = 'block';
-});</script>
+    <script>
+        document.getElementById('posterInput').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const img = document.getElementById('posterPreview');
+            img.src = URL.createObjectURL(file);
+        });
+    </script>
 }

@@ -1,0 +1,59 @@
+@model int
+
+<style>
+    .cv-cart-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border, rgba(255,255,255,0.08));
+        border-radius: 8px;
+        color: var(--text-primary, #f0eff5);
+        font-size: 16px;
+        transition: all 0.25s ease;
+        text-decoration: none;
+    }
+
+    .cv-cart-btn:hover {
+        background: rgba(232, 184, 75, 0.15);
+        border-color: rgba(232, 184, 75, 0.4);
+        color: var(--accent, #e8b84b);
+        transform: translateY(-1px);
+    }
+
+    .cv-cart-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: linear-gradient(135deg, #e84b4b 0%, #ff2e63 100%);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 19px;
+        height: 19px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        box-shadow: 0 2px 6px rgba(232, 75, 75, 0.5);
+        animation: pulseCart 2s infinite;
+    }
+
+    @@keyframes pulseCart {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+</style>
+
+<a href="/GioHang/Index" class="cv-cart-btn" title="Xem giỏ hàng của bạn">
+    <i class="bi bi-cart3"></i>
+    @if (Model > 0)
+    {
+        <span class="cv-cart-badge">@(Model > 99 ? "99+" : Model.ToString())</span>
+    }
+</a>
+
