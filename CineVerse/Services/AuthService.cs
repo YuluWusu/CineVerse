@@ -107,8 +107,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 kh = new KHACHHANG
                 {
                     MA_KHACHHANG = tk.MA_TAIKHOAN,
+                    CCCD = null,
+                    DIEMTICHLUY = 0,
+                    HANGTHANHVIEN = "Dong",
                     TAIKHOAN = tk
                 };
+
                 _db.KHACHHANGs.Add(kh);
                 _db.SaveChanges();
             }
@@ -179,6 +183,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             {
                 MA_KHACHHANG = newMaKhach,
                 CCCD = !string.IsNullOrWhiteSpace(cccd) ? cccd.Trim() : null,
+                DIEMTICHLUY = 0,
+                HANGTHANHVIEN = "Dong",
                 TAIKHOAN = tk
             };
 

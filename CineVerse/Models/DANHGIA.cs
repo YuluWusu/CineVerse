@@ -11,43 +11,18 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-
-    [Table("DANHGIA")]
+    
     public partial class DANHGIA
     {
-        [Key]
-        [Column("MA_DANHGIA")]
-        [StringLength(10)]
         public string MA_DANHGIA { get; set; }
-
-        [Column("MA_PHIM")]
-        [StringLength(5)]
-        [Required]
         public string MA_PHIM { get; set; }
-
-        [Column("MA_KHACHHANG")]
-        [StringLength(5)]
-        [Required]
         public string MA_KHACHHANG { get; set; }
-
-        [Column("SOSAO")]
         public int SOSAO { get; set; }
-
-        [Column("NOIDUNG")]
-        [StringLength(1000)]
         public string NOIDUNG { get; set; }
-
-        [Column("NGAYDANHGIA")]
         public System.DateTime NGAYDANHGIA { get; set; }
-
-        [Column("TRANGTHAI")]
-        [StringLength(20)]
         public string TRANGTHAI { get; set; }
-
+    
         public virtual KHACHHANG KHACHHANG { get; set; }
         public virtual PHIM PHIM { get; set; }
     }
 }
-

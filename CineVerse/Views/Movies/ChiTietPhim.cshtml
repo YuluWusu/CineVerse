@@ -934,15 +934,17 @@
                         <!-- XỬ LÝ CHUỖI SPLIT QUY ĐỊNH RẠP CHIẾU (TIÊU CHÍ BAREM) -->
                         <div class="detail-row">
                             <span class="detail-label">Quy định vé</span>
-                            <div class="detail-value">
-                                @{
-                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.
-Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.
-Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.
-Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
-                                    var arrQuyDinh = qdStr.Split('
-');
-                                }
+                            <div@{
+                        string qdStr = @"Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.
+                    Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.
+                    Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.
+                    Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
+
+                        var arrQuyDinh = qdStr.Split(
+                            new[] { '\r', '\n' },
+                            StringSplitOptions.RemoveEmptyEntries
+                        );
+                    }
                                 <ul style="margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 1.7;">
                                     @foreach (var qd in arrQuyDinh)
                                     {

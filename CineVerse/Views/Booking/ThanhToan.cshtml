@@ -471,7 +471,7 @@
                             </div>
                             <div class="promo-input-wrap">
                                 <input type="text" id="promoCodeInput" placeholder="Nhập mã ưu đãi..." maxlength="20" />
-                                <button type="button" id="btnApplyPromo" onclick="applyPromo()">Áp dụng</button>
+                                <button type="button" id="btnApplyPromo" onclick="togglePromo()">Áp dụng</button>
                             </div>
                             <div id="promoMsg" class="small mt-2" style="min-height: 18px;"></div>
 
@@ -519,18 +519,17 @@
 </div>
 
 @section Scripts {
-<script>
-    var dsKM = [
-        @foreach (var km in dsKhuyenMai)
-        {
-            <text>{
-                id: "@km.MA_KM.Trim()",
-                code: "@km.MA_CODE.Trim().ToUpper()",
-                phanTram: @km.GIAMGIA_PHANTRAM,
-                toiDa: @(km.GIAMGIA_TOIDA.HasValue ? km.GIAMGIA_TOIDA.Value.ToString() : "null")
-            },</text>
-        }
-    ];
+    <script>
+          var dsKM = @Html.Raw(System.Web.Helpers.Json.Encode(
+            dsKhuyenMai.Select(km => new
+            {
+                id = km.MA_KM.Trim(),
+                code = km.MA_CODE.Trim().ToUpper(),
+                phanTram = km.GIAMGIA_PHANTRAM,
+                toiDa = km.GIAMGIA_TOIDA
+            })
+        ));
+
 
     var maLichChieu = "@lichChieu.MA_LICHCHIEU.Trim()";
     var timeLeft = @remainingSeconds;
@@ -566,53 +565,143 @@
         return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ';
     }
 
-    function selectPromo(code) {
-        document.getElementById('promoCodeInput').value = code;
-        applyPromo();
-    }
+        var selectedPromo = null;
 
-    function applyPromo() {
-        var inputCode = document.getElementById('promoCodeInput').value.trim().toUpperCase();
-        var msgDiv = document.getElementById('promoMsg');
-        var tongTienVe = parseFloat(document.getElementById('hdTongTienVe').value) || 0;
-        var tongTienFnB = parseFloat(document.getElementById('hdTongTienFnB').value) || 0;
-        var tongTruocGiam = tongTienVe + tongTienFnB;
+        // Chọn voucher trong danh sách
+        function selectPromo(code) {
+            document.getElementById('promoCodeInput').value = code;
 
-        if (!inputCode) {
-            msgDiv.textContent = 'Vui lòng nhập mã khuyến mãi.';
-            msgDiv.className = 'small text-danger';
-            return;
+            // Nếu đang áp dụng chính mã này thì bỏ giảm giá
+            if (selectedPromo &&
+                selectedPromo.code === code.trim().toUpperCase()) {
+                removePromo();
+                return;
+            }
+
+            applyPromo();
         }
 
-        var found = dsKM.find(function(k) { return k.code === inputCode; });
-        var giamThanhVien = parseFloat(document.getElementById('hdGiamGiaThanhVien').value) || 0;
-        if (!found) {
-            msgDiv.textContent = 'Mã ưu đãi không hợp lệ hoặc đã hết hạn.';
-            msgDiv.className = 'small text-danger';
+        // Xử lý nút Áp dụng / Bỏ giảm giá
+        function togglePromo() {
+            if (selectedPromo) {
+                removePromo();
+            } else {
+                applyPromo();
+            }
+        }
+
+        // Áp dụng mã giảm giá
+        function applyPromo() {
+            var inputCode = document.getElementById('promoCodeInput')
+                .value.trim().toUpperCase();
+
+            var msgDiv = document.getElementById('promoMsg');
+
+            var tongTienVe = parseFloat(
+                document.getElementById('hdTongTienVe').value
+            ) || 0;
+
+            var tongTienFnB = parseFloat(
+                document.getElementById('hdTongTienFnB').value
+            ) || 0;
+
+            var giamThanhVien = parseFloat(
+                document.getElementById('hdGiamGiaThanhVien').value
+            ) || 0;
+
+            var tongTruocGiam = tongTienVe + tongTienFnB;
+
+            if (!inputCode) {
+                msgDiv.textContent = 'Vui lòng nhập mã khuyến mãi.';
+                msgDiv.className = 'small text-danger';
+                return;
+            }
+
+            var found = dsKM.find(k =>
+                k.code.trim().toUpperCase() === inputCode
+            );
+
+            if (!found) {
+                msgDiv.textContent = 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn.';
+                msgDiv.className = 'small text-danger';
+                return;
+            }
+
+            var giam = tongTienVe * (Number(found.phanTram) / 100);
+
+            if (found.toiDa != null && giam > Number(found.toiDa)) {
+                giam = Number(found.toiDa);
+            }
+
+            var thucThanhToan = Math.max(
+                0,
+                tongTruocGiam - giam - giamThanhVien
+            );
+
+            selectedPromo = {
+                id: found.id,
+                code: found.code,
+                discount: giam
+            };
+
+            document.getElementById('hdMaCode').value = found.code;
+            document.getElementById('hdMaKmId').value = found.id;
+
+            document.getElementById('discountRow').style.display = 'flex';
+
+            document.getElementById('discountAmt').textContent =
+                '-' + formatMoney(giam);
+
+            document.getElementById('finalDisplay').textContent =
+                formatMoney(thucThanhToan);
+
+            document.getElementById('btnApplyPromo').textContent = 'Bỏ giảm giá';
+
+            msgDiv.textContent =
+                'Áp dụng mã ' + found.code + ' thành công! Giảm ' + found.phanTram + '%';
+
+            msgDiv.className = 'small text-success fw-bold';
+        }
+
+  
+        function removePromo() {
+            var tongTienVe = parseFloat(
+                document.getElementById('hdTongTienVe').value
+            ) || 0;
+
+            var tongTienFnB = parseFloat(
+                document.getElementById('hdTongTienFnB').value
+            ) || 0;
+
+            var giamThanhVien = parseFloat(
+                document.getElementById('hdGiamGiaThanhVien').value
+            ) || 0;
+
+            var tongTruocGiam = tongTienVe + tongTienFnB;
+
+
+            selectedPromo = null;
+
             document.getElementById('hdMaCode').value = '';
             document.getElementById('hdMaKmId').value = '';
+
+            document.getElementById('promoCodeInput').value = '';
+
             document.getElementById('discountRow').style.display = 'none';
-            document.getElementById('finalDisplay').textContent = formatMoney(Math.max(0, tongTruocGiam - giamThanhVien));
-            return;
+
+            document.getElementById('discountAmt').textContent = '-0 đ';
+
+
+            document.getElementById('finalDisplay').textContent =
+                formatMoney(Math.max(0, tongTruocGiam - giamThanhVien));
+
+            document.getElementById('btnApplyPromo').textContent = 'Áp dụng';
+
+            var msgDiv = document.getElementById('promoMsg');
+
+            msgDiv.textContent = 'Đã bỏ mã giảm giá. Bạn có thể chọn mã khác.';
+
+            msgDiv.className = 'small text-warning';
         }
-
-        var giam = tongTienVe * (found.phanTram / 100);
-        if (found.toiDa !== null && giam > found.toiDa) {
-            giam = found.toiDa;
-        }
-
-        var thucThanhToan = tongTruocGiam - giam - giamThanhVien;
-        if (thucThanhToan < 0) thucThanhToan = 0;
-
-        document.getElementById('hdMaCode').value = found.code;
-        document.getElementById('hdMaKmId').value = found.id;
-
-        document.getElementById('discountRow').style.display = 'flex';
-        document.getElementById('discountAmt').textContent = '-' + formatMoney(giam);
-        document.getElementById('finalDisplay').textContent = formatMoney(thucThanhToan);
-
-        msgDiv.textContent = 'Áp dụng mã ' + found.code + ' thành công (-' + found.phanTram + '%)!';
-        msgDiv.className = 'small text-success fw-bold';
-    }
-</script>
+    </script>
 }

@@ -304,140 +304,144 @@
             </div>
         }
 
-        <form method="post" action="@Url.Action("XacNhanChonMon", "Booking")" id="fnbForm">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="maLichChieu" id="hiddenMaLichChieu" value="@lichChieu.MA_LICHCHIEU.Trim()" />
-            <input type="hidden" name="selectedSeats" value="@selectedSeats" />
+    <form method="post" action="@Url.Action("XacNhanChonMon", "Booking")" id="fnbForm">
+        @Html.AntiForgeryToken()
 
-            <div class="row g-4">
-                <!-- Cột Trái: Danh Sách Bắp Nước & Combo -->
-                <div class="col-lg-8">
-                    <!-- Tabs phân loại -->
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <button type="button" class="fnb-tab-btn active" data-filter="all">
-                            <i class="bi bi-grid-fill"></i> Tất cả
-                        </button>
-                        <button type="button" class="fnb-tab-btn" data-filter="Combo">
-                            <i class="bi bi-stars"></i> Combo ưu đãi
-                        </button>
-                        <button type="button" class="fnb-tab-btn" data-filter="Bắp">
-                            <i class="bi bi-circle-fill"></i> Bắp rang
-                        </button>
-                        <button type="button" class="fnb-tab-btn" data-filter="Nước">
-                            <i class="bi bi-cup-straw"></i> Nước &amp; Trà
-                        </button>
-                        <button type="button" class="fnb-tab-btn" data-filter="Snack">
-                            <i class="bi bi-egg-fried"></i> Snack ăn vặt
-                        </button>
-                    </div>
+        <input type="hidden" name="maLichChieu"
+               id="hiddenMaLichChieu"
+               value="@lichChieu.MA_LICHCHIEU.Trim()" />
 
-                    <!-- Lưới sản phẩm -->
-                    <div class="fnb-grid">
-                        @if (danhSachBapNuoc != null && danhSachBapNuoc.Any())
+        <input type="hidden" name="selectedSeats" id="hiddenSelectedSeats" value="@selectedSeats" />
+
+        <div class="row g-4">
+            <!-- Cột Trái: Danh Sách Bắp Nước & Combo -->
+            <div class="col-lg-8">
+                <!-- Tabs phân loại -->
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <button type="button" class="fnb-tab-btn active" data-filter="all">
+                        <i class="bi bi-grid-fill"></i> Tất cả
+                    </button>
+                    <button type="button" class="fnb-tab-btn" data-filter="Combo">
+                        <i class="bi bi-stars"></i> Combo ưu đãi
+                    </button>
+                    <button type="button" class="fnb-tab-btn" data-filter="Bắp">
+                        <i class="bi bi-circle-fill"></i> Bắp rang
+                    </button>
+                    <button type="button" class="fnb-tab-btn" data-filter="Nước">
+                        <i class="bi bi-cup-straw"></i> Nước &amp; Trà
+                    </button>
+                    <button type="button" class="fnb-tab-btn" data-filter="Snack">
+                        <i class="bi bi-egg-fried"></i> Snack ăn vặt
+                    </button>
+                </div>
+
+                <!-- Lưới sản phẩm -->
+                <div class="fnb-grid">
+                    @if (danhSachBapNuoc != null && danhSachBapNuoc.Any())
+                    {
+                        foreach (var item in danhSachBapNuoc)
                         {
-                            foreach (var item in danhSachBapNuoc)
-                            {
-                                string maSp = item.MA_SANPHAM.Trim();
-                                int currentQty = selectedFnB.ContainsKey(maSp) ? selectedFnB[maSp] : 0;
-                                string imgSrc = Url.Content("~/Content/img/fnb/" + (item.HINHANH ?? "fnb-default.png"));
+                            string maSp = item.MA_SANPHAM.Trim();
+                            int currentQty = selectedFnB.ContainsKey(maSp) ? selectedFnB[maSp] : 0;
+                            string imgSrc = Url.Content("~/Content/img/fnb/" + (item.HINHANH ?? "fnb-default.png"));
 
-                                <div class="fnb-card @(currentQty > 0 ? "selected" : "")" data-category="@item.PHANLOAI" id="card-@maSp">
-                                    <div class="fnb-img-wrap">
-                                        <span class="fnb-badge badge-@item.PHANLOAI">@item.PHANLOAI</span>
-                                        <img src="@imgSrc" alt="@item.TEN_SANPHAM" onerror="this.onerror=null; this.src='https://placehold.co/300x200/1e232a/e5a623?text=F%26B';" />
+                            <div class="fnb-card @(currentQty > 0 ? "selected" : "")" data-category="@item.PHANLOAI" id="card-@maSp">
+                                <div class="fnb-img-wrap">
+                                    <span class="fnb-badge badge-@item.PHANLOAI">@item.PHANLOAI</span>
+                                    <img src="@imgSrc" alt="@item.TEN_SANPHAM" onerror="this.onerror=null; this.src='https://placehold.co/300x200/1e232a/e5a623?text=F%26B';" />
+                                </div>
+                                <div class="fnb-body">
+                                    <div>
+                                        <div class="fnb-title">@item.TEN_SANPHAM</div>
+                                        <div class="fnb-desc">@item.MOTA</div>
                                     </div>
-                                    <div class="fnb-body">
-                                        <div>
-                                            <div class="fnb-title">@item.TEN_SANPHAM</div>
-                                            <div class="fnb-desc">@item.MOTA</div>
-                                        </div>
-                                        <div class="fnb-footer">
-                                            <div class="fnb-price">@item.GIABAN.ToString("#,##0") đ</div>
-                                            <div class="qty-controls">
-                                                <button type="button" class="qty-btn btn-minus" data-id="@maSp">-</button>
-                                                <span class="qty-val" id="qty-val-@maSp">@currentQty</span>
-                                                <button type="button" class="qty-btn btn-plus" data-id="@maSp">+</button>
-                                                <input type="hidden" name="fnb_@maSp" id="input-@maSp" value="@currentQty" data-price="@item.GIABAN" data-name="@item.TEN_SANPHAM" />
-                                            </div>
+                                    <div class="fnb-footer">
+                                        <div class="fnb-price">@item.GIABAN.ToString("#,##0") đ</div>
+                                        <div class="qty-controls">
+                                            <button type="button" class="qty-btn btn-minus" data-id="@maSp">-</button>
+                                            <span class="qty-val" id="qty-val-@maSp">@currentQty</span>
+                                            <button type="button" class="qty-btn btn-plus" data-id="@maSp">+</button>
+                                            <input type="hidden" name="fnb_@maSp" id="input-@maSp" value="@currentQty" data-price="@item.GIABAN" data-name="@item.TEN_SANPHAM" />
                                         </div>
                                     </div>
                                 </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="col-12 text-center text-muted py-5">
-                                <i class="bi bi-cup-straw fs-1 d-block mb-2"></i>
-                                Hiện tại rạp chưa có danh mục bắp nước trực tuyến.
                             </div>
                         }
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="bi bi-cup-straw fs-1 d-block mb-2"></i>
+                            Hiện tại rạp chưa có danh mục bắp nước trực tuyến.
+                        </div>
+                    }
                 </div>
+            </div>
 
-                <!-- Cột Phải: Tóm Tắt Đơn Hàng (Realtime Sticky Summary) -->
-                <div class="col-lg-4">
-                    <div class="summary-card">
-                        <div class="summary-title">
-                            <i class="bi bi-receipt"></i> Tóm tắt đơn hàng
-                        </div>
+            <!-- Cột Phải: Tóm Tắt Đơn Hàng (Realtime Sticky Summary) -->
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <div class="summary-title">
+                        <i class="bi bi-receipt"></i> Tóm tắt đơn hàng
+                    </div>
 
-                        <div class="mb-3">
-                            <div class="fw-bold text-white fs-6">@lichChieu.PHIM.TEN_PHIM</div>
-                            <div class="small text-muted">@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</div>
-                            <div class="small text-warning">Suất chiếu: @lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") | @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</div>
-                        </div>
+                    <div class="mb-3">
+                        <div class="fw-bold text-white fs-6">@lichChieu.PHIM.TEN_PHIM</div>
+                        <div class="small text-muted">@lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP - @lichChieu.PHONGCHIEU.TEN_PHONG</div>
+                        <div class="small text-warning">Suất chiếu: @lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") | @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy")</div>
+                    </div>
 
-                        <hr style="border-color: rgba(255,255,255,0.1);" />
+                    <hr style="border-color: rgba(255,255,255,0.1);" />
 
-                        <!-- Tiền vé -->
-                        <div class="summary-row">
-                            <span>Ghế đang giữ:</span>
-                            <strong class="text-warning">
-                                @string.Join(", ", danhSachGhe.Select(g => g.SOGHE?.Trim()))
-                            </strong>
-                        </div>
-                        <div class="summary-row">
-                            <span>Tổng tiền vé:</span>
-                            <strong id="summaryTienVe" data-tienve="@tongTienVe">@tongTienVe.ToString("#,##0") đ</strong>
-                        </div>
+                    <!-- Tiền vé -->
+                    <div class="summary-row">
+                        <span>Ghế đang giữ:</span>
+                        <strong class="text-warning">
+                            @string.Join(", ", danhSachGhe.Select(g => g.SOGHE?.Trim()))
+                        </strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tổng tiền vé:</span>
+                        <strong id="summaryTienVe" data-tienve="@tongTienVe">@tongTienVe.ToString("#,##0") đ</strong>
+                    </div>
 
-                        <hr style="border-color: rgba(255,255,255,0.1);" />
+                    <hr style="border-color: rgba(255,255,255,0.1);" />
 
-                        <!-- Danh sách bắp nước realtime -->
-                        <div class="mb-2">
-                            <span class="small text-muted fw-semibold">Bắp nước &amp; Combo đi kèm:</span>
-                        </div>
-                        <div id="fnbSummaryContainer">
-                            <div class="text-muted small py-2 fst-italic" id="fnbEmptyNote">Chưa chọn phần bắp nước nào.</div>
-                        </div>
+                    <!-- Danh sách bắp nước realtime -->
+                    <div class="mb-2">
+                        <span class="small text-muted fw-semibold">Bắp nước &amp; Combo đi kèm:</span>
+                    </div>
+                    <div id="fnbSummaryContainer">
+                        <div class="text-muted small py-2 fst-italic" id="fnbEmptyNote">Chưa chọn phần bắp nước nào.</div>
+                    </div>
 
-                        <!-- Tổng tiền bắp nước -->
-                        <div class="summary-row mt-2 pt-2 border-top border-secondary border-opacity-25">
-                            <span>Tiền bắp nước:</span>
-                            <strong id="summaryTienFnB" class="text-info">0 đ</strong>
-                        </div>
+                    <!-- Tổng tiền bắp nước -->
+                    <div class="summary-row mt-2 pt-2 border-top border-secondary border-opacity-25">
+                        <span>Tiền bắp nước:</span>
+                        <strong id="summaryTienFnB" class="text-info">0 đ</strong>
+                    </div>
 
-                        <!-- Tổng thanh toán dự kiến -->
-                        <div class="total-box">
-                            <span class="fw-bold text-white">Tạm tính:</span>
-                            <div class="total-price" id="summaryTongThanhToan">@tongTienVe.ToString("#,##0") đ</div>
-                        </div>
+                    <!-- Tổng thanh toán dự kiến -->
+                    <div class="total-box">
+                        <span class="fw-bold text-white">Tạm tính:</span>
+                        <div class="total-price" id="summaryTongThanhToan">@tongTienVe.ToString("#,##0") đ</div>
+                    </div>
 
-                        <div class="mt-4 d-grid gap-2">
-                            <button type="submit" class="btn btn-warning py-2 fw-bold" id="btnContinueCheckout">
-                                Tiếp tục: Thanh toán nhanh <i class="bi bi-arrow-right ms-1"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-warning py-2 fw-semibold" onclick="themVaoGioHangVaXem()">
-                                <i class="bi bi-cart3 me-1"></i> Xem &amp; Hiệu chỉnh trong Giỏ hàng
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary py-2" onclick="cancelBooking()">
-                                <i class="bi bi-arrow-left me-1"></i> Quay lại chọn ghế khác
-                            </button>
-                        </div>
+                    <div class="mt-4 d-grid gap-2">
+                        <button type="submit" class="btn btn-warning py-2 fw-bold" id="btnContinueCheckout">
+                            Tiếp tục: Thanh toán nhanh <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-warning py-2 fw-semibold" onclick="themVaoGioHangVaXem()">
+                            <i class="bi bi-cart3 me-1"></i> Xem &amp; Hiệu chỉnh trong Giỏ hàng
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary py-2" onclick="cancelBooking()">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại chọn ghế khác
+                        </button>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
+    </form>
 
     </div>
 </div>

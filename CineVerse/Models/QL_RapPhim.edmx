@@ -5,6 +5,42 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="QL_VEPHIMModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="BAPNUOC">
+          <Key>
+            <PropertyRef Name="MA_SANPHAM" />
+          </Key>
+          <Property Name="MA_SANPHAM" Type="nchar" MaxLength="5" Nullable="false" />
+          <Property Name="TEN_SANPHAM" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="MOTA" Type="nvarchar" MaxLength="500" />
+          <Property Name="PHANLOAI" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="GIABAN" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="HINHANH" Type="nvarchar" MaxLength="255" />
+          <Property Name="SOLUONGTON" Type="int" Nullable="false" />
+          <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CHITIET_BAPNUOC">
+          <Key>
+            <PropertyRef Name="MA_CHITIET" />
+          </Key>
+          <Property Name="MA_CHITIET" Type="nchar" MaxLength="10" Nullable="false" />
+          <Property Name="MA_DONHANG" Type="nchar" MaxLength="5" Nullable="false" />
+          <Property Name="MA_SANPHAM" Type="nchar" MaxLength="5" Nullable="false" />
+          <Property Name="SOLUONG" Type="int" Nullable="false" />
+          <Property Name="DONGIA" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+          <Property Name="THANHTIEN" Type="decimal" Precision="12" Scale="0" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DANHGIA">
+          <Key>
+            <PropertyRef Name="MA_DANHGIA" />
+          </Key>
+          <Property Name="MA_DANHGIA" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="MA_PHIM" Type="nchar" MaxLength="5" Nullable="false" />
+          <Property Name="MA_KHACHHANG" Type="nchar" MaxLength="5" Nullable="false" />
+          <Property Name="SOSAO" Type="int" Nullable="false" />
+          <Property Name="NOIDUNG" Type="nvarchar" MaxLength="1000" />
+          <Property Name="NGAYDANHGIA" Type="datetime" Nullable="false" />
+          <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" Nullable="false" />
+        </EntityType>
         <EntityType Name="DONHANG">
           <Key>
             <PropertyRef Name="MA_DONHANG" />
@@ -210,54 +246,6 @@
           <Property Name="DONGIA" Type="decimal" Precision="10" Scale="0" Nullable="false" />
           <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" />
         </EntityType>
-                <EntityType Name="BAPNUOC">
-          <Key>
-            <PropertyRef Name="MA_SANPHAM" />
-          </Key>
-          <Property Name="MA_SANPHAM" Type="nchar" MaxLength="5" Nullable="false" />
-          <Property Name="TEN_SANPHAM" Type="nvarchar" MaxLength="100" Nullable="false" />
-          <Property Name="MOTA" Type="nvarchar" MaxLength="500" />
-          <Property Name="PHANLOAI" Type="nvarchar" MaxLength="20" Nullable="false" />
-          <Property Name="GIABAN" Type="decimal" Precision="12" Scale="0" Nullable="false" />
-          <Property Name="HINHANH" Type="nvarchar" MaxLength="255" />
-          <Property Name="SOLUONGTON" Type="int" Nullable="false" />
-          <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" Nullable="false" />
-        </EntityType>
-        <EntityType Name="CHITIET_BAPNUOC">
-          <Key>
-            <PropertyRef Name="MA_CHITIET" />
-          </Key>
-          <Property Name="MA_CHITIET" Type="nchar" MaxLength="10" Nullable="false" />
-          <Property Name="MA_DONHANG" Type="nchar" MaxLength="5" Nullable="false" />
-          <Property Name="MA_SANPHAM" Type="nchar" MaxLength="5" Nullable="false" />
-          <Property Name="SOLUONG" Type="int" Nullable="false" />
-          <Property Name="DONGIA" Type="decimal" Precision="12" Scale="0" Nullable="false" />
-          <Property Name="THANHTIEN" Type="decimal" Precision="12" Scale="0" Nullable="false" />
-        </EntityType>
-        <EntityType Name="DANHGIA">
-          <Key>
-            <PropertyRef Name="MA_DANHGIA" />
-          </Key>
-          <Property Name="MA_DANHGIA" Type="nvarchar" MaxLength="10" Nullable="false" />
-          <Property Name="MA_PHIM" Type="nchar" MaxLength="5" Nullable="false" />
-          <Property Name="MA_KHACHHANG" Type="nchar" MaxLength="5" Nullable="false" />
-          <Property Name="SOSAO" Type="int" Nullable="false" />
-          <Property Name="NOIDUNG" Type="nvarchar" MaxLength="1000" />
-          <Property Name="NGAYDANHGIA" Type="datetime" Nullable="false" />
-          <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" Nullable="false" />
-        </EntityType>
-        <Association Name="FK__DONHANG__MA_KHAC__03F0984C">
-          <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
-          <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="KHACHHANG">
-              <PropertyRef Name="MA_KHACHHANG" />
-            </Principal>
-            <Dependent Role="DONHANG">
-              <PropertyRef Name="MA_KHACHHANG" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK__DONHANG__MA_KM__06CD04F7">
           <End Role="KHUYENMAI" Type="Self.KHUYENMAI" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
@@ -267,6 +255,18 @@
             </Principal>
             <Dependent Role="DONHANG">
               <PropertyRef Name="MA_KM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__DONHANG__MA_KHAC__03F0984C">
+          <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
+          <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="KHACHHANG">
+              <PropertyRef Name="MA_KHACHHANG" />
+            </Principal>
+            <Dependent Role="DONHANG">
+              <PropertyRef Name="MA_KHACHHANG" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -510,7 +510,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-                <Association Name="FK_CHITIET_BAPNUOC_BAPNUOC">
+        <Association Name="FK_CHITIET_BAPNUOC_BAPNUOC">
           <End Role="BAPNUOC" Type="Self.BAPNUOC" Multiplicity="1" />
           <End Role="CHITIET_BAPNUOC" Type="Self.CHITIET_BAPNUOC" Multiplicity="*" />
           <ReferentialConstraint>
@@ -523,7 +523,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_CHITIET_BAPNUOC_DONHANG">
-          <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="1" />
+          <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="CHITIET_BAPNUOC" Type="Self.CHITIET_BAPNUOC" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DONHANG">
@@ -535,7 +537,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_DANHGIA_KHACHHANG">
-          <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="1" />
+          <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="DANHGIA" Type="Self.DANHGIA" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="KHACHHANG">
@@ -547,7 +551,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_DANHGIA_PHIM">
-          <End Role="PHIM" Type="Self.PHIM" Multiplicity="1" />
+          <End Role="PHIM" Type="Self.PHIM" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="DANHGIA" Type="Self.DANHGIA" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="PHIM">
@@ -559,6 +565,9 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="QL_VEPHIMModelStoreContainer">
+          <EntitySet Name="BAPNUOC" EntityType="Self.BAPNUOC" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CHITIET_BAPNUOC" EntityType="Self.CHITIET_BAPNUOC" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DANHGIA" EntityType="Self.DANHGIA" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DONHANG" EntityType="Self.DONHANG" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DONHANG_MONAN" EntityType="Self.DONHANG_MONAN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GHE" EntityType="Self.GHE" Schema="dbo" store:Type="Tables" />
@@ -578,12 +587,12 @@
           <EntitySet Name="THELOAI" EntityType="Self.THELOAI" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VAITRO" EntityType="Self.VAITRO" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VE" EntityType="Self.VE" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__DONHANG__MA_KHAC__03F0984C" Association="Self.FK__DONHANG__MA_KHAC__03F0984C">
-            <End Role="KHACHHANG" EntitySet="KHACHHANG" />
-            <End Role="DONHANG" EntitySet="DONHANG" />
-          </AssociationSet>
           <AssociationSet Name="FK__DONHANG__MA_KM__06CD04F7" Association="Self.FK__DONHANG__MA_KM__06CD04F7">
             <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
+            <End Role="DONHANG" EntitySet="DONHANG" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DONHANG__MA_KHAC__03F0984C" Association="Self.FK__DONHANG__MA_KHAC__03F0984C">
+            <End Role="KHACHHANG" EntitySet="KHACHHANG" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
           <AssociationSet Name="FK__DONHANG__MA_LICH__05D8E0BE" Association="Self.FK__DONHANG__MA_LICH__05D8E0BE">
@@ -666,9 +675,6 @@
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
-                  <EntitySet Name="BAPNUOC" EntityType="Self.BAPNUOC" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="CHITIET_BAPNUOC" EntityType="Self.CHITIET_BAPNUOC" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="DANHGIA" EntityType="Self.DANHGIA" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_CHITIET_BAPNUOC_BAPNUOC" Association="Self.FK_CHITIET_BAPNUOC_BAPNUOC">
             <End Role="BAPNUOC" EntitySet="BAPNUOC" />
             <End Role="CHITIET_BAPNUOC" EntitySet="CHITIET_BAPNUOC" />
