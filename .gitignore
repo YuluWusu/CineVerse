@@ -420,5 +420,6 @@ FodyWeavers.xsd
 # VS Code local settings
 .vscode/
 
-# Temp folder
+# Temp folder and file
 docs/
+CineVerse/ConnectionStrings.config
