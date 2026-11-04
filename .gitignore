@@ -419,3 +419,6 @@ FodyWeavers.xsd
 
 # VS Code local settings
 .vscode/
+
+# Temp folder
+docs/
