@@ -110,6 +110,120 @@
             margin-bottom: 20px;
             font-size: 14px;
         }
+
+        .quick-login-divider {
+            position: relative;
+            text-align: center;
+            margin: 25px 0 16px;
+        }
+
+            .quick-login-divider::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: var(--border, rgba(255, 255, 255, 0.1));
+            }
+
+            .quick-login-divider span {
+                position: relative;
+                background: var(--bg-card, #1a1a24);
+                padding: 0 12px;
+                font-size: 12px;
+                color: var(--text-muted, #888);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+        .quick-login-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quick-login-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+            .quick-login-row:hover {
+                transform: translateY(-1px);
+            }
+
+            .quick-login-row.admin:hover {
+                border-color: #e5a623;
+                background: rgba(229, 166, 35, 0.08);
+            }
+
+            .quick-login-row.user:hover {
+                border-color: #3b82f6;
+                background: rgba(59, 130, 246, 0.08);
+            }
+
+        .quick-login-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 12px;
+        }
+
+            .quick-login-badge.admin {
+                background: rgba(229, 166, 35, 0.15);
+                color: #e5a623;
+                border: 1px solid rgba(229, 166, 35, 0.3);
+            }
+
+            .quick-login-badge.user {
+                background: rgba(59, 130, 246, 0.15);
+                color: #60a5fa;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+            }
+
+        .quick-login-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quick-login-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary, #fff);
+        }
+
+        .quick-login-phone {
+            font-size: 12px;
+            color: var(--text-muted, #888);
+            font-family: monospace;
+        }
+
+        .quick-login-arrow {
+            font-size: 18px;
+            color: var(--text-muted, #888);
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .quick-login-row:hover .quick-login-arrow {
+            color: var(--accent, #e5a623);
+            transform: translateX(3px);
+        }
     </style>
 }
 
@@ -124,7 +238,7 @@
             </div>
         }
 
-        <form action="/Account/DangNhap" method="post">
+        <form action="/Account/DangNhap" method="post" id="loginForm">
             @Html.AntiForgeryToken()
             @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl as string))
             {
@@ -143,8 +257,55 @@
             <button type="submit" class="btn-auth">ĐĂNG NHẬP</button>
         </form>
 
+        <div class="quick-login-divider">
+            <span>Hoặc đăng nhập nhanh</span>
+        </div>
+
+        <div class="quick-login-group">
+            <!-- Dòng 1: Quản trị viên (Admin) -->
+            <button type="button" class="quick-login-row admin" onclick="quickLogin('0999999999', 'hash_admin_pw')" title="Đăng nhập nhanh với quyền Admin">
+                <div class="quick-login-badge admin">
+                    <i class="bi bi-shield-lock-fill"></i> Admin
+                </div>
+                <div class="quick-login-text">
+                    <span class="quick-login-name">Quản Trị Viên</span>
+                    <span class="quick-login-phone">0999999999</span>
+                </div>
+                <i class="bi bi-box-arrow-in-right quick-login-arrow"></i>
+            </button>
+
+            <!-- Dòng 2: Khách hàng (User) -->
+            <button type="button" class="quick-login-row user" onclick="quickLogin('0901234567', 'hash_matkhau_1')" title="Đăng nhập nhanh với quyền Khách hàng">
+                <div class="quick-login-badge user">
+                    <i class="bi bi-person-fill"></i> User
+                </div>
+                <div class="quick-login-text">
+                    <span class="quick-login-name">Nguyễn Văn An</span>
+                    <span class="quick-login-phone">0901234567</span>
+                </div>
+                <i class="bi bi-box-arrow-in-right quick-login-arrow"></i>
+            </button>
+        </div>
+
         <div class="auth-links">
             Chưa có tài khoản? <a href="/Account/DangKy">Đăng ký ngay</a>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function quickLogin(sdt, matKhau) {
+            var sdtInput = document.getElementById('SDT');
+            var mkInput = document.getElementById('MATKHAU');
+            if (sdtInput && mkInput) {
+                sdtInput.value = sdt;
+                mkInput.value = matKhau;
+                var form = document.getElementById('loginForm') || sdtInput.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+    </script>
+}
