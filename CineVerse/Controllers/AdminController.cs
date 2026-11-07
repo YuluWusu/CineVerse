@@ -1069,6 +1069,24 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         #region QUAN LY NHAN VIEN & PHAN QUYEN
 
+        private void PopulateStaffDropdowns(QL_VEPHIMEntities db, string selectedRap = null, string selectedVaiTro = null, bool asSelectList = true)
+        {
+            var raps = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+            var vaiTros = db.VAITROes.OrderBy(v => v.TEN_VAITRO).ToList();
+
+            if (asSelectList)
+            {
+                ViewBag.DanhSachRap = new SelectList(raps, "MA_RAP", "TEN_RAP", selectedRap?.Trim());
+                ViewBag.DanhSachVaiTro = new SelectList(vaiTros, "MA_VAITRO", "TEN_VAITRO", selectedVaiTro?.Trim());
+            }
+            else
+            {
+                ViewBag.DanhSachRap = raps;
+                ViewBag.DanhSachVaiTro = vaiTros;
+            }
+            ViewBag.RapList = raps;
+        }
+
         public ActionResult QuanLyNhanVien(string tuKhoa, string maRap, string vaiTro)
         {
             using (var db = new QL_VEPHIMEntities())
