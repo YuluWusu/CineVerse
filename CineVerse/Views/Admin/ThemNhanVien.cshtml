@@ -22,6 +22,14 @@
                 <div class="adm-card-title"><i class="bi bi-card-text"></i> Thông tin tài khoản &amp; Hồ sơ nhân viên</div>
             </div>
             <div class="adm-card-body p-4">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mb-3" style="background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
                 @using (Html.BeginForm("ThemNhanVien", "Admin", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
