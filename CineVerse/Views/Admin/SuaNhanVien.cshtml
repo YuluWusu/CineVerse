@@ -24,9 +24,18 @@
                 <div class="adm-card-title"><i class="bi bi-person-gear"></i> Thông tin cá nhân &amp; Quyền hạn</div>
             </div>
             <div class="adm-card-body p-4">
-                @using (Html.BeginForm("SuaNhanVien", "Admin", FormMethod.Post))
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mb-3" style="background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @using (Html.BeginForm("SuaNhanVien", "Admin", new { id = Model.MA_NHANVIEN.Trim() }, FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.MA_NHANVIEN.Trim()" />
                     <input type="hidden" name="maNhanVien" value="@Model.MA_NHANVIEN.Trim()" />
 
                     <div class="row g-3">

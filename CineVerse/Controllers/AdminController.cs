@@ -1202,7 +1202,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         public ActionResult SuaNhanVien(string id)
         {
-            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
             using (var db = new QL_VEPHIMEntities())
             {
                 string trimmed = id.Trim();
@@ -1213,7 +1213,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
                 if (nv == null) return HttpNotFound();
 
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                string currentRole = nv.TAIKHOAN?.VAITROes.Select(v => v.MA_VAITRO.Trim()).FirstOrDefault() ?? "NHANVIEN";
+                PopulateStaffDropdowns(db, nv.MA_RAP?.Trim(), currentRole, asSelectList: true);
                 return View(nv);
             }
         }
