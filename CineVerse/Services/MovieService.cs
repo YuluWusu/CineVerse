@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
 
@@ -56,13 +57,68 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             }
         }
 
+        public bool CanDeleteMovie(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return false;
+            string cleanId = id.Trim();
+            return !db.LICHCHIEUx.Any(lc => lc.MA_PHIM.Trim() == cleanId);
+        }
+
+        public bool DeleteMovie(string id, out string error)
+        {
+            error = null;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                error = "Mã phim không hợp lệ.";
+                return false;
+            }
+
+            string cleanId = id.Trim();
+            if (!CanDeleteMovie(cleanId))
+            {
+                error = "Không thể xóa phim này vì đã có lịch chiếu trong hệ thống. Vui lòng chuyển trạng thái sang 'Ngừng chiếu' thay vì xóa.";
+                return false;
+            }
+
+            var phim = db.PHIMs
+                .Include(p => p.THELOAIs)
+                .Include(p => p.DANHGIAs)
+                .FirstOrDefault(p => p.MA_PHIM.Trim() == cleanId);
+
+            if (phim == null)
+            {
+                error = "Không tìm thấy bộ phim cần xóa.";
+                return false;
+            }
+
+            try
+            {
+                // 1. Gỡ bỏ liên kết N-N với Thể loại (Bảng liên kết PHIM_THELOAI)
+                phim.THELOAIs.Clear();
+
+                // 2. Xóa các đánh giá liên quan nếu có
+                if (phim.DANHGIAs != null && phim.DANHGIAs.Any())
+                {
+                    db.DANHGIAs.RemoveRange(phim.DANHGIAs.ToList());
+                }
+
+                // 3. Xóa bản ghi phim
+                db.PHIMs.Remove(phim);
+                db.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                error = "Lỗi khi xóa phim: " + (ex.InnerException?.Message ?? ex.Message);
+                return false;
+            }
+        }
+
         public void DeleteMovie(string id)
         {
-            var p = db.PHIMs.FirstOrDefault(x => x.MA_PHIM == id);
-            if (p != null)
+            if (!DeleteMovie(id, out string error))
             {
-                db.PHIMs.Remove(p);
-                db.SaveChanges();
+                throw new InvalidOperationException(error);
             }
         }
 

@@ -4,6 +4,21 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3" style="background: rgba(75,232,124,.15); color: var(--green); border: 1px solid var(--green);">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3" style="background: rgba(232,75,75,.15); color: var(--red); border: 1px solid var(--red);">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <div class="adm-card">
     <div class="adm-card-header">
         <div class="adm-card-title">
@@ -61,10 +76,10 @@
                                 </td>
                                 <td style="text-align:center">
                                     <div style="display:flex;gap:6px;justify-content:center">
-                                        <a href="/Admin/SuaPhim/@phim.MA_PHIM" class="btn-icon edit" title="Sửa">
+                                        <a href="@Url.Action("SuaPhim", "Admin", new { id = phim.MA_PHIM.Trim() })" class="btn-icon edit" title="Sửa">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="/Admin/XoaPhim/@phim.MA_PHIM" method="post" style="display:inline"
+                                        <form action="@Url.Action("XoaPhim", "Admin", new { id = phim.MA_PHIM.Trim() })" method="post" style="display:inline"
                                               onsubmit="return confirm('Xóa phim «@phim.TEN_PHIM»?')">
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="btn-icon del" title="Xóa">
