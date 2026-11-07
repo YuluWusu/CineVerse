@@ -320,6 +320,8 @@
     <Content Include="Models\QL_RapPhim.edmx.diagram">
       <DependentUpon>QL_RapPhim.edmx</DependentUpon>
     </Content>
+    <Content Include="ConnectionStrings.config" />
+    <None Include="ConnectionStrings.config.example" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

@@ -1,0 +1,38 @@
+﻿<!-- Copy this file to ConnectionStrings.config.
+     Select the authentication method you use.
+     Comment out the other configuration. -->
+
+<connectionStrings>
+	<!-- SQL Server Authentication -->
+	<add name="QL_VEPHIMEntities"
+         connectionString="metadata=res://*/Models.QL_RapPhim.csdl|res://*/Models.QL_RapPhim.ssdl|res://*/Models.QL_RapPhim.msl;
+         provider=System.Data.SqlClient;
+         provider connection string=&quot;
+		 
+		 data source=YOUR_SEVER_NAME;
+         initial catalog=QL_VEPHIM;
+         user id=YOUR_DATABASE_USERNAME;
+         password=YOUR_DATABASE_PASSWORD;
+		 
+         TrustServerCertificate=True;
+         MultipleActiveResultSets=True;
+         App=EntityFramework&quot;"
+         providerName="System.Data.EntityClient" />
+
+	<!-- Windows Authentication -->
+	<!--
+    <add name="QL_VEPHIMEntities"
+         connectionString="metadata=res://*/Models.QL_RapPhim.csdl|res://*/Models.QL_RapPhim.ssdl|res://*/Models.QL_RapPhim.msl;
+         provider=System.Data.SqlClient;
+         provider connection string=&quot;
+		 
+		 data source=YOUR_SEVER_NAME;
+         initial catalog=QL_VEPHIM;
+         integrated security=True;
+         TrustServerCertificate=True;
+		 
+         MultipleActiveResultSets=True;
+         App=EntityFramework&quot;"
+         providerName="System.Data.EntityClient" />
+    -->
+</connectionStrings>

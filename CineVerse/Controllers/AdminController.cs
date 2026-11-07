@@ -1085,7 +1085,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         #region QUAN LY NHAN VIEN & PHAN QUYEN
 
-        public ActionResult QuanLyNhanVien(string tuKhoa, string maRap, string vaiTro)
+        private void PopulateStaffDropdowns(QL_VEPHIMEntities db, string selectedRap = null, string selectedVaiTro = null, bool asSelectList = true)
+        {
+            var raps = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+            var vaiTros = db.VAITROes.OrderBy(v => v.TEN_VAITRO).ToList();
+
+            if (asSelectList)
+            {
+                ViewBag.DanhSachRap = new SelectList(raps, "MA_RAP", "TEN_RAP", selectedRap?.Trim());
+                ViewBag.DanhSachVaiTro = new SelectList(vaiTros, "MA_VAITRO", "TEN_VAITRO", selectedVaiTro?.Trim());
+            }
+            else
+            {
+                ViewBag.DanhSachRap = raps;
+                ViewBag.DanhSachVaiTro = vaiTros;
+            }
+            ViewBag.RapList = raps;
+        }
+
+        public ActionResult QuanLyNhanVien(string search, string tuKhoa, string maRap, string vaiTro)
         {
             using (var db = new QL_VEPHIMEntities())
             {
@@ -1095,9 +1113,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     .Include(n => n.RAPCHIEU)
                     .AsQueryable();
 
-                if (!string.IsNullOrWhiteSpace(tuKhoa))
+                string keyword = (!string.IsNullOrWhiteSpace(search) ? search : tuKhoa)?.Trim();
+                if (!string.IsNullOrWhiteSpace(keyword))
                 {
-                    string tk = tuKhoa.Trim().ToLower();
+                    string tk = keyword.ToLower();
                     query = query.Where(n => n.MA_NHANVIEN.ToLower().Contains(tk)
                         || n.TAIKHOAN.HOTEN.ToLower().Contains(tk)
                         || n.TAIKHOAN.SDT.Contains(tk)
@@ -1116,10 +1135,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     query = query.Where(n => n.TAIKHOAN.VAITROes.Any(v => v.MA_VAITRO.Trim() == vt || v.TEN_VAITRO.Trim() == vt));
                 }
 
-                ViewBag.TuKhoa = tuKhoa;
-                ViewBag.MaRap = maRap;
-                ViewBag.VaiTro = vaiTro;
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                ViewBag.Search = keyword;
+                ViewBag.TuKhoa = keyword;
+                ViewBag.MaRap = maRap?.Trim();
+                ViewBag.VaiTro = vaiTro?.Trim();
+                PopulateStaffDropdowns(db, maRap, vaiTro, asSelectList: false);
 
                 return View(query.OrderByDescending(n => n.TAIKHOAN.NGAYTAO).ToList());
             }
@@ -1129,22 +1149,32 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         {
             using (var db = new QL_VEPHIMEntities())
             {
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                PopulateStaffDropdowns(db, null, "NHANVIEN", asSelectList: true);
             }
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ThemNhanVien(string hoTen, string sdt, string email, string matKhau, string maRap, string vaiTro, decimal? luong)
+        public ActionResult ThemNhanVien(string hoTen, string sdt, string email, string matKhau, string maRap, string maVaiTro, string vaiTro, decimal? luong)
         {
             using (var db = new QL_VEPHIMEntities())
             {
                 string sdtTrim = sdt?.Trim() ?? "";
-                if (db.TAIKHOANs.Any(t => t.SDT.Trim() == sdtTrim))
+                string targetRole = (!string.IsNullOrWhiteSpace(maVaiTro) ? maVaiTro : vaiTro)?.Trim()?.ToUpperInvariant();
+                if (string.IsNullOrWhiteSpace(targetRole)) targetRole = "NHANVIEN";
+
+                if (!string.IsNullOrEmpty(sdtTrim) && db.TAIKHOANs.Any(t => t.SDT.Trim() == sdtTrim))
                 {
                     TempData["Error"] = "Số điện thoại này đã được sử dụng cho một tài khoản khác trong hệ thống.";
-                    ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View();
+                }
+
+                if (luong.HasValue && luong.Value < 0)
+                {
+                    TempData["Error"] = "Mức lương cơ bản không thể là số âm.";
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
                     return View();
                 }
 
@@ -1173,7 +1203,6 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     TRANGTHAI = "HoatDong"
                 };
 
-                string targetRole = string.IsNullOrWhiteSpace(vaiTro) ? "NHANVIEN" : vaiTro.Trim().ToUpperInvariant();
                 var roleObj = db.VAITROes.FirstOrDefault(v => v.MA_VAITRO.Trim() == targetRole || v.TEN_VAITRO.Trim() == targetRole);
                 if (roleObj == null)
                 {
@@ -1186,21 +1215,30 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 var nv = new NHANVIEN
                 {
                     MA_NHANVIEN = newMaNv,
-                    LUONG = luong ?? 6500000m,
+                    LUONG = (luong.HasValue && luong.Value >= 0) ? luong.Value : 6500000m,
                     MA_RAP = string.IsNullOrWhiteSpace(maRap) ? db.RAPCHIEUx.Select(r => r.MA_RAP).FirstOrDefault() : maRap.Trim(),
                     NGAYVAOLAM = DateTime.Now
                 };
                 db.NHANVIENs.Add(nv);
 
-                db.SaveChanges();
-                TempData["Success"] = $"Thêm nhân viên [{newMaNv} - {tk.HOTEN}] thành công!";
-                return RedirectToAction("QuanLyNhanVien");
+                try
+                {
+                    db.SaveChanges();
+                    TempData["Success"] = $"Thêm nhân viên [{newMaNv} - {tk.HOTEN}] thành công!";
+                    return RedirectToAction("QuanLyNhanVien");
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Lỗi khi lưu dữ liệu: " + ex.Message;
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View();
+                }
             }
         }
 
         public ActionResult SuaNhanVien(string id)
         {
-            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
             using (var db = new QL_VEPHIMEntities())
             {
                 string trimmed = id.Trim();
@@ -1211,39 +1249,82 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
                 if (nv == null) return HttpNotFound();
 
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                string currentRole = nv.TAIKHOAN?.VAITROes.Select(v => v.MA_VAITRO.Trim()).FirstOrDefault() ?? "NHANVIEN";
+                PopulateStaffDropdowns(db, nv.MA_RAP?.Trim(), currentRole, asSelectList: true);
                 return View(nv);
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SuaNhanVien(string id, string hoTen, string sdt, string email, string matKhauMoi, string maRap, string vaiTro, decimal? luong)
+        public ActionResult SuaNhanVien(
+            string id,
+            string maNhanVien,
+            string hoTen,
+            string sdt,
+            string email,
+            string matKhauMoi,
+            string maRap,
+            string maVaiTro,
+            string vaiTro,
+            string trangThai,
+            decimal? luong)
         {
-            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            string targetId = (!string.IsNullOrWhiteSpace(id) ? id : maNhanVien)?.Trim();
+            if (string.IsNullOrWhiteSpace(targetId)) return HttpNotFound();
+
             using (var db = new QL_VEPHIMEntities())
             {
-                string trimmed = id.Trim();
                 var nv = db.NHANVIENs
                     .Include(n => n.TAIKHOAN.VAITROes)
-                    .FirstOrDefault(n => n.MA_NHANVIEN.Trim() == trimmed);
+                    .Include(n => n.RAPCHIEU)
+                    .FirstOrDefault(n => n.MA_NHANVIEN.Trim() == targetId);
 
                 if (nv == null) return HttpNotFound();
 
+                string targetRole = (!string.IsNullOrWhiteSpace(maVaiTro) ? maVaiTro : vaiTro)?.Trim()?.ToUpperInvariant();
+                string sdtTrim = sdt?.Trim() ?? "";
+
+                // Kiểm tra trùng lặp số điện thoại với tài khoản khác
+                if (!string.IsNullOrEmpty(sdtTrim) && db.TAIKHOANs.Any(t => t.SDT.Trim() == sdtTrim && t.MA_TAIKHOAN.Trim() != targetId))
+                {
+                    TempData["Error"] = "Số điện thoại này đã được sử dụng cho một tài khoản khác trong hệ thống.";
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View(nv);
+                }
+
+                // Kiểm tra mức lương không âm
+                if (luong.HasValue && luong.Value < 0)
+                {
+                    TempData["Error"] = "Mức lương cơ bản không thể là số âm.";
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View(nv);
+                }
+
                 if (nv.TAIKHOAN != null)
                 {
-                    nv.TAIKHOAN.HOTEN = hoTen?.Trim() ?? nv.TAIKHOAN.HOTEN;
-                    nv.TAIKHOAN.SDT = sdt?.Trim() ?? nv.TAIKHOAN.SDT;
-                    nv.TAIKHOAN.EMAIL = email?.Trim();
+                    if (!string.IsNullOrWhiteSpace(hoTen))
+                    {
+                        nv.TAIKHOAN.HOTEN = hoTen.Trim();
+                    }
+                    if (!string.IsNullOrWhiteSpace(sdtTrim))
+                    {
+                        nv.TAIKHOAN.SDT = sdtTrim;
+                    }
+                    nv.TAIKHOAN.EMAIL = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+
+                    if (!string.IsNullOrWhiteSpace(trangThai))
+                    {
+                        nv.TAIKHOAN.TRANGTHAI = trangThai.Trim().Equals("Khoa", StringComparison.OrdinalIgnoreCase) ? "Khoa" : "HoatDong";
+                    }
 
                     if (!string.IsNullOrWhiteSpace(matKhauMoi))
                     {
                         nv.TAIKHOAN.MATKHAU = PasswordHelper.HashPassword(matKhauMoi.Trim());
                     }
 
-                    if (!string.IsNullOrWhiteSpace(vaiTro))
+                    if (!string.IsNullOrWhiteSpace(targetRole))
                     {
-                        string targetRole = vaiTro.Trim().ToUpperInvariant();
                         var roleObj = db.VAITROes.FirstOrDefault(v => v.MA_VAITRO.Trim() == targetRole || v.TEN_VAITRO.Trim() == targetRole);
                         if (roleObj == null)
                         {
@@ -1255,15 +1336,28 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     }
                 }
 
-                nv.LUONG = luong ?? nv.LUONG;
+                if (luong.HasValue && luong.Value >= 0)
+                {
+                    nv.LUONG = luong.Value;
+                }
+
                 if (!string.IsNullOrWhiteSpace(maRap))
                 {
                     nv.MA_RAP = maRap.Trim();
                 }
 
-                db.SaveChanges();
-                TempData["Success"] = "Cập nhật hồ sơ nhân viên thành công!";
-                return RedirectToAction("QuanLyNhanVien");
+                try
+                {
+                    db.SaveChanges();
+                    TempData["Success"] = $"Cập nhật hồ sơ nhân viên [{targetId} - {nv.TAIKHOAN?.HOTEN}] thành công!";
+                    return RedirectToAction("QuanLyNhanVien");
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Lỗi khi lưu dữ liệu cập nhật: " + ex.Message;
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View(nv);
+                }
             }
         }
 
