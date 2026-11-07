@@ -1,4 +1,4 @@
-﻿﻿/* ============================================================================
+/* ============================================================================
    HỆ THỐNG QUẢN LÝ VÉ PHIM (QL_VEPHIM)
    ----------------------------------------------------------------------------
     */
@@ -73,8 +73,8 @@ GO
 CREATE TABLE KHACHHANG (
     MA_KHACHHANG    NCHAR(5) PRIMARY KEY,
     CCCD            NCHAR(12) NULL,
-    DIEMTICHLUY     INT NOT NULL,
-    HANGTHANHVIEN   NVARCHAR(20) NOT NULL
+    DIEMTICHLUY     INT NOT NULL DEFAULT 0,
+    HANGTHANHVIEN   NVARCHAR(20) NOT NULL DEFAULT N'Member',
     FOREIGN KEY (MA_KHACHHANG) REFERENCES TAIKHOAN(MA_TAIKHOAN)
 );
 GO
@@ -459,11 +459,11 @@ INSERT INTO TAIKHOAN_VAITRO VALUES
 ('TK007', 'NHANVIEN');
 GO
 
-INSERT INTO KHACHHANG (MA_KHACHHANG, CCCD) VALUES
-('TK001', NULL),
-('TK002', '123456789012'),
-('TK003', '234567890123'),
-('TK004', '345678901234');
+INSERT INTO KHACHHANG (MA_KHACHHANG, CCCD, DIEMTICHLUY, HANGTHANHVIEN) VALUES
+('TK001', NULL, 0, N'Member'),
+('TK002', '123456789012', 120, N'Member'),
+('TK003', '234567890123', 650, N'VIP'),
+('TK004', '345678901234', 1800, N'VVIP');
 GO
 
 INSERT INTO NHANVIEN (MA_NHANVIEN, LUONG, MA_RAP, NGAYVAOLAM) VALUES

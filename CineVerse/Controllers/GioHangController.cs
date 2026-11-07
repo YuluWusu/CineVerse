@@ -125,8 +125,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         [HttpPost]
         public ActionResult ThemBapNuocVaoGio(string maSanPham, string tuyChon = "Tiêu chuẩn (Size Vừa)", int soLuong = 1, string returnUrl = null)
         {
+            bool isAjax = Request.IsAjaxRequest() || Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (string.IsNullOrWhiteSpace(maSanPham))
             {
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = "Sản phẩm không hợp lệ." });
+                }
                 TempData["ToastMessage"] = "Sản phẩm không hợp lệ.";
                 TempData["ToastType"] = "danger";
                 return RedirectToAction("CuaHangBapNuoc");
@@ -138,6 +144,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             var sp = db.BAPNUOCs.FirstOrDefault(b => b.MA_SANPHAM.Trim() == id);
             if (sp == null)
             {
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy món ăn/nước uống." });
+                }
                 TempData["ToastMessage"] = "Không tìm thấy món ăn/nước uống.";
                 TempData["ToastType"] = "danger";
                 return RedirectToAction("CuaHangBapNuoc");
@@ -186,14 +196,27 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 });
             }
 
-            TempData["ToastMessage"] = $"Đã thêm {soLuong}x {sp.TEN_SANPHAM} ({tuyChon}) vào giỏ hàng!";
+            string msg = $"Đã thêm {soLuong}x {sp.TEN_SANPHAM} ({tuyChon}) vào giỏ hàng!";
+            TempData["ToastMessage"] = msg;
             TempData["ToastType"] = "success";
+
+            if (isAjax)
+            {
+                int totalCount = gioHang.Sum(i => i.SoLuong);
+                return Json(new
+                {
+                    success = true,
+                    message = msg,
+                    totalItems = totalCount,
+                    cartUrl = Url.Action("Index", "GioHang")
+                });
+            }
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("CuaHangBapNuoc");
         }
 
         /// <summary>
