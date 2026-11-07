@@ -235,9 +235,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult XoaPhim(string id)
         {
-            movieService.DeleteMovie(id);
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                TempData["Error"] = "Mã phim không hợp lệ.";
+                return RedirectToAction("QuanLyPhim");
+            }
+
+            string cleanId = id.Trim();
+            if (movieService.DeleteMovie(cleanId, out string error))
+            {
+                TempData["Success"] = "Đã xóa phim thành công!";
+            }
+            else
+            {
+                TempData["Error"] = error ?? "Không thể xóa phim.";
+            }
+
             return RedirectToAction("QuanLyPhim");
         }
 
