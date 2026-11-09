@@ -776,7 +776,7 @@
 
 @{
     string ageClass = "badge-p";
-    string ageLimit = Model.GIOI_HAN_TUOI.ToUpper() ?? "";
+    string ageLimit = !string.IsNullOrEmpty(Model.GIOI_HAN_TUOI) ? Model.GIOI_HAN_TUOI.Trim().ToUpper() : "";
     if (ageLimit == "T13") { ageClass = "badge-t13"; }
     else if (ageLimit == "T16") { ageClass = "badge-t16"; }
     else if (ageLimit == "T18") { ageClass = "badge-t18"; }
@@ -852,7 +852,7 @@
                         <span>Chi tiết</span>
                     </div>
 
-                    <div class="age-badge @ageClass">@Model.GIOI_HAN_TUOI</div>
+                    <div class="age-badge @ageClass">@(string.IsNullOrWhiteSpace(Model.GIOI_HAN_TUOI) ? "P" : Model.GIOI_HAN_TUOI)</div>
 
                     <h1 class="detail-title">@Model.TEN_PHIM</h1>
 
@@ -936,12 +936,8 @@
                             <span class="detail-label">Quy định vé</span>
                             <div class="detail-value">
                                 @{
-                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.
-Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.
-Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.
-Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
-                                    var arrQuyDinh = qdStr.Split('
-');
+                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.\nKhông mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.\nTrẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.\nVé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
+                                    var arrQuyDinh = qdStr.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                                 }
                                 <ul style="margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 1.7;">
                                     @foreach (var qd in arrQuyDinh)
@@ -1000,13 +996,16 @@ Vé điện tử đã phát hành được tích lũy điểm thưởng thành v
                         <div class="showtime-date-panel" id="date-@group.Key.ToString("yyyyMMdd")" style="display: @(isFirst ? "block" : "none")">
                             
                             @{
-                                var groupedByCinema = group.GroupBy(l => l.PHONGCHIEU.RAPCHIEU).ToList();
+                                var groupedByCinema = group
+                                    .Where(l => l.PHONGCHIEU != null && l.PHONGCHIEU.RAPCHIEU != null)
+                                    .GroupBy(l => l.PHONGCHIEU.RAPCHIEU)
+                                    .ToList();
                             }
                             
                             @foreach (var cinemaGroup in groupedByCinema)
                             {
                                 <div class="showtime-group">
-                                    <div class="showtime-group-label">@(cinemaGroup.Key.TEN_RAP ?? "Rạp")</div>
+                                    <div class="showtime-group-label">@(cinemaGroup.Key?.TEN_RAP ?? "Rạp CinéVerse")</div>
                                     <div class="showtime-grid">
                                         @foreach (var lc in cinemaGroup)
                                         {
