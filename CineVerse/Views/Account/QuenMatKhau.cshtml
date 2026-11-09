@@ -1,0 +1,146 @@
+﻿
+@{
+    ViewBag.Title = "Quên mật khẩu";
+    Layout = "~/Views/Shared/_Khung.cshtml";
+}
+
+@section Styles {
+    <style>
+        .forgot-container {
+            min-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 15px;
+            background: var(--bg-void);
+        }
+
+        .forgot-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 38px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,.1);
+            box-shadow: 0 15px 45px rgba(0,0,0,.2);
+        }
+
+        .forgot-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59,130,246,.12);
+            color: #3b82f6;
+            font-size: 28px;
+        }
+
+        .forgot-card h3 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .forgot-description {
+            text-align: center;
+            color: var(--text-muted, #999);
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .forgot-card label {
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .forgot-input {
+            height: 50px;
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+
+        .forgot-btn {
+            height: 50px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: .2s;
+        }
+
+            .forgot-btn:hover {
+                transform: translateY(-2px);
+            }
+
+        .forgot-back {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            text-decoration: none;
+        }
+
+            .forgot-back:hover {
+                text-decoration: underline;
+            }
+    </style>
+}
+
+<div class="forgot-container">
+    <div class="forgot-card">
+
+        <div class="forgot-icon">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+
+        <h3>Quên mật khẩu?</h3>
+
+        <p class="forgot-description">
+            Đừng lo lắng! Hãy nhập địa chỉ Gmail đã đăng ký.
+            Chúng tôi sẽ gửi đường dẫn đặt lại mật khẩu cho bạn.
+        </p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.Error
+            </div>
+        }
+
+        @if (ViewBag.Success != null)
+        {
+            <div class="alert alert-success">
+                @ViewBag.Success
+            </div>
+        }
+
+        @using (Html.BeginForm("QuenMatKhau", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group mb-3">
+                <label for="email">Địa chỉ Gmail</label>
+
+                <input type="email"
+                       id="email"
+                       name="email"
+                       class="form-control forgot-input"
+                       placeholder="example@gmail.com"
+                       autocomplete="email"
+                       required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 forgot-btn">
+                <i class="fas fa-paper-plane me-2"></i>
+                Gửi link đặt lại mật khẩu
+            </button>
+        }
+
+        <a href="@Url.Action("DangNhap", "Account")" class="forgot-back">
+            <i class="fas fa-arrow-left me-1"></i>
+            Quay lại đăng nhập
+        </a>
+
+    </div>
+</div>

@@ -44,41 +44,61 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
         /// Xác thực thông tin đăng nhập theo Số điện thoại và Mật khẩu.
         /// Tự động nâng cấp hash mật khẩu nếu tài khoản đang dùng mật khẩu plain-text cũ.
         /// </summary>
-        public AuthResult Authenticate(string soDienThoai, string matKhau)
+        public AuthResult Authenticate(string email, string matKhau)
         {
-            if (string.IsNullOrWhiteSpace(soDienThoai) || string.IsNullOrWhiteSpace(matKhau))
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(matKhau))
             {
-                return new AuthResult { Success = false, ErrorMessage = "Vui lòng nhập đầy đủ số điện thoại và mật khẩu." };
+                return new AuthResult
+                {
+                    Success = false,
+                    ErrorMessage = "Vui lòng nhập đầy đủ email và mật khẩu."
+                };
             }
 
-            string sdtTrim = soDienThoai.Trim();
+            string emailTrim = email.Trim().ToLower();
 
             var tk = _db.TAIKHOANs
                 .Include(t => t.KHACHHANG)
                 .Include(t => t.NHANVIEN)
                 .Include(t => t.VAITROes)
-                .FirstOrDefault(t => t.SDT.Trim() == sdtTrim);
+                .FirstOrDefault(t => t.EMAIL != null &&
+                                     t.EMAIL.Trim().ToLower() == emailTrim);
 
             if (tk == null)
             {
-                return new AuthResult { Success = false, ErrorMessage = "Số điện thoại hoặc mật khẩu không chính xác." };
+                return new AuthResult
+                {
+                    Success = false,
+                    ErrorMessage = "Email hoặc mật khẩu không chính xác."
+                };
             }
 
             if (string.Equals(tk.TRANGTHAI, "Khoa", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(tk.TRANGTHAI, "DaNghi", StringComparison.OrdinalIgnoreCase))
             {
-                return new AuthResult { Success = false, ErrorMessage = "Tài khoản của bạn đã bị khóa hoặc ngừng hoạt động. Vui lòng liên hệ quản trị viên." };
+                return new AuthResult
+                {
+                    Success = false,
+                    ErrorMessage = "Tài khoản của bạn đã bị khóa hoặc ngừng hoạt động. Vui lòng liên hệ quản trị viên."
+                };
             }
 
-            // Xác thực mật khẩu qua PasswordHelper
-            bool isValidPassword = PasswordHelper.VerifyPassword(matKhau, tk.MATKHAU, out bool needsUpgrade);
+            bool isValidPassword = PasswordHelper.VerifyPassword(
+                matKhau,
+                tk.MATKHAU,
+                out bool needsUpgrade
+            );
 
             if (!isValidPassword)
             {
-                return new AuthResult { Success = false, ErrorMessage = "Số điện thoại hoặc mật khẩu không chính xác." };
+                return new AuthResult
+                {
+                    Success = false,
+                    ErrorMessage = "Email hoặc mật khẩu không chính xác."
+                };
             }
 
-            // Tự động nâng cấp hash sang PBKDF2 nếu mật khẩu cũ đang lưu plain-text
+            // Tự động nâng cấp mật khẩu cũ sang PBKDF2
             if (needsUpgrade)
             {
                 try
@@ -88,20 +108,29 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 }
                 catch
                 {
-                    // Lỗi ghi log nếu có, không chặn quá trình đăng nhập của người dùng
+                    // Không chặn đăng nhập nếu nâng cấp hash thất bại
                 }
             }
 
             bool laAdmin = tk.VAITROes.Any(v => CheckRole(v, "ADMIN"));
-            bool laNhanVien = tk.VAITROes.Any(v => CheckRole(v, "NHANVIEN") || CheckRole(v, "QUANLYRAP")) || tk.NHANVIEN != null;
-            bool laKhachHang = tk.VAITROes.Any(v => CheckRole(v, "KHACHHANG")) || tk.KHACHHANG != null;
+
+            bool laNhanVien = tk.VAITROes.Any(v =>
+                CheckRole(v, "NHANVIEN") || CheckRole(v, "QUANLYRAP"))
+                || tk.NHANVIEN != null;
+
+            bool laKhachHang = tk.VAITROes.Any(v =>
+                CheckRole(v, "KHACHHANG")) || tk.KHACHHANG != null;
 
             string primaryRole = "KHACHHANG";
-            if (laAdmin) primaryRole = "ADMIN";
-            else if (laNhanVien) primaryRole = "NHANVIEN";
+
+            if (laAdmin)
+                primaryRole = "ADMIN";
+            else if (laNhanVien)
+                primaryRole = "NHANVIEN";
+
+            var kh = tk.KHACHHANG;
 
             // Đảm bảo khách hàng luôn có bản ghi KHACHHANG
-            var kh = tk.KHACHHANG;
             if (kh == null && !laNhanVien && !laAdmin)
             {
                 kh = new KHACHHANG
@@ -269,6 +298,61 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 _db?.Dispose();
             }
         }
+
+
+        // reset password
+        public bool ResetPassword(
+            string maTaiKhoan,
+            string matKhauMoi,
+            out string errorMessage)
+        {
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(maTaiKhoan))
+            {
+                errorMessage = "Tài khoản không hợp lệ.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(matKhauMoi))
+            {
+                errorMessage = "Vui lòng nhập mật khẩu mới.";
+                return false;
+            }
+
+            if (matKhauMoi.Length < 6)
+            {
+                errorMessage = "Mật khẩu phải có ít nhất 6 ký tự.";
+                return false;
+            }
+
+            try
+            {
+                var taiKhoan = _db.TAIKHOANs.FirstOrDefault(
+                    x => x.MA_TAIKHOAN.Trim() == maTaiKhoan.Trim()
+                );
+
+                if (taiKhoan == null)
+                {
+                    errorMessage = "Không tìm thấy tài khoản.";
+                    return false;
+                }
+
+                // Băm mật khẩu bằng helper hiện tại
+                taiKhoan.MATKHAU = PasswordHelper.HashPassword(matKhauMoi);
+
+                _db.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Không thể cập nhật mật khẩu: " + ex.Message;
+                return false;
+            }
+        }
+
     }
+
 }
 

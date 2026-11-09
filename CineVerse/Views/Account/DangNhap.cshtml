@@ -131,8 +131,15 @@
                 <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
             }
             <div class="form-group">
-                <label for="SDT">Số điện thoại</label>
-                <input style="color:white" type="tel" id="SDT" name="SDT" class="form-control" placeholder="Nhập số điện thoại" required />
+                <label for="EMAIL">Địa chỉ Email</label>
+                <input style="color:white"
+                       type="email"
+                       id="EMAIL"
+                       name="EMAIL"
+                       class="form-control"
+                       placeholder="Nhập địa chỉ email"
+                       autocomplete="email"
+                       required />
             </div>
 
             <div class="form-group">
@@ -140,11 +147,18 @@
                 <input style="color:white" type="password" id="MATKHAU" name="MATKHAU" class="form-control" placeholder="Nhập mật khẩu" required />
             </div>
 
+
+
             <button type="submit" class="btn-auth">ĐĂNG NHẬP</button>
         </form>
 
         <div class="auth-links">
             Chưa có tài khoản? <a href="/Account/DangKy">Đăng ký ngay</a>
+        </div>
+        <div class="text-end mb-3">
+            <a href="@Url.Action("QuenMatKhau", "Account")">
+                Quên mật khẩu?
+            </a>
         </div>
     </div>
 </div>

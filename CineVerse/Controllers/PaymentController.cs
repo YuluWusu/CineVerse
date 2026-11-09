@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using DoAn_QuanLyVeXemPhimTrucTiep.Helpers;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
 using DoAn_QuanLyVeXemPhimTrucTiep.Services;
+using System.Threading.Tasks;
 
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
@@ -80,7 +81,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         /// Nhận Callback GET trả về từ VNPay sau khi khách thao tác
         /// </summary>
         [HttpGet]
-        public ActionResult PaymentCallback()
+        public async Task<ActionResult> PaymentCallback()
         {
             if (Request.QueryString.Count > 0)
             {
@@ -119,7 +120,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                             SeatHoldService.Instance.ReleaseSeats(donHang.MA_LICHCHIEU, donHang.MA_KHACHHANG);
 
                             // Gửi email vé điện tử nền bất đồng bộ
-                            EmailService.SendTicketConfirmationBackground(donHang);
+                            bool emailSent = await new EmailService()
+                                 .SendTicketConfirmationAsync(donHang);
+
+                            System.Diagnostics.Debug.WriteLine(
+                                emailSent
+                                    ? "[PAYMENT] Gửi email vé thành công."
+                                    : "[PAYMENT] Thanh toán thành công nhưng gửi email thất bại."
+                            );
 
                             TempData["ThongBao"] = "Thanh toán qua VNPay thành công! Mã giao dịch: " + vnp_TransactionNo;
                             return RedirectToAction("ETicket", new { maDonHang = donHang.MA_DONHANG.Trim() });
@@ -203,7 +211,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         /// AJAX Endpoint xác nhận chuyển khoản VietQR (phục vụ demo kiểm thử hoặc Webhook ngân hàng)
         /// </summary>
         [HttpPost]
-        public ActionResult XacNhanVietQR(string maDonHang)
+        public async Task<ActionResult> XacNhanVietQR(string maDonHang)
         {
             if (string.IsNullOrEmpty(maDonHang))
             {
@@ -225,7 +233,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 SeatHoldService.Instance.ReleaseSeats(donHang.MA_LICHCHIEU, donHang.MA_KHACHHANG);
 
                 // Gửi email vé điện tử nền
-                EmailService.SendTicketConfirmationBackground(donHang);
+                bool emailSent = await new EmailService()
+                        .SendTicketConfirmationAsync(donHang);
+
+                System.Diagnostics.Debug.WriteLine(
+                    emailSent
+                        ? "[VIETQR] Gửi email vé thành công."
+                        : "[VIETQR] Gửi email vé thất bại."
+                );
 
                 return Json(new
                 {
@@ -313,8 +328,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 success = true,
                 maDonHang = donHang.MA_DONHANG.Trim(),
                 maCheckIn = donHang.MACHECKIN.Trim(),
-                tenKhachHang = donHang.KHACHHANG?.HOTEN ?? "Khách vãng lai",
-                sdt = donHang.KHACHHANG?.SDT,
+                tenKhachHang = donHang.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khách vãng lai",
+                sdt = donHang.KHACHHANG?.TAIKHOAN?.SDT,
                 tenPhim = donHang.LICHCHIEU?.PHIM?.TEN_PHIM,
                 tenRap = donHang.LICHCHIEU?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP,
                 tenPhong = donHang.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG,

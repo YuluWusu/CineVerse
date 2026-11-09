@@ -30,6 +30,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             bool.TryParse(ConfigurationManager.AppSettings["SmtpEnableSsl"] ?? "true", out _enableSsl);
         }
 
+
+ 
+
+
         /// <summary>
         /// Gửi email xác nhận vé điện tử E-Ticket bất đồng bộ (chạy ngầm, không chặn luồng thanh toán).
         /// Hỗ trợ gọi trực tiếp qua static method: EmailService.SendTicketConfirmationBackground(donHang)
@@ -55,9 +59,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             if (donHang == null) return false;
 
             string emailTo = overrideEmail;
+
             if (string.IsNullOrWhiteSpace(emailTo))
             {
-                emailTo = donHang.KHACHHANG?.TAIKHOAN?.EMAIL ?? donHang.KHACHHANG?.EMAIL;
+                emailTo = donHang.KHACHHANG?.TAIKHOAN?.EMAIL;
             }
 
             if (string.IsNullOrWhiteSpace(emailTo) || !emailTo.Contains("@"))
@@ -65,7 +70,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 return false;
             }
 
-            string customerName = donHang.KHACHHANG?.HOTEN ?? donHang.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Quý khách";
+            string customerName =donHang.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Quý khách";
             string movieTitle = donHang.LICHCHIEU?.PHIM?.TEN_PHIM ?? "Phim chiếu rạp";
             string cinemaName = donHang.LICHCHIEU?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP ?? "CinéVerse Cinema";
             string roomName = donHang.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG ?? "Phòng chiếu";
@@ -175,10 +180,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             try
             {
                 // Kiểm tra nếu chưa cấu hình mật khẩu SMTP thực thì chỉ mô phỏng gửi thành công
-                if (string.IsNullOrWhiteSpace(_smtpPass) || _smtpPass == "your_app_password_here")
+                if (string.IsNullOrWhiteSpace(_smtpUser) || string.IsNullOrWhiteSpace(_smtpPass) ||   _smtpPass == "your_app_password_here")
                 {
-                    System.Diagnostics.Debug.WriteLine($"[EmailService DEMO] Đã tạo E-Ticket gửi tới {emailTo} (Mã đơn: {donHang.MA_DONHANG.Trim()})");
-                    return true;
+                    System.Diagnostics.Debug.WriteLine(
+                        "[EmailService] Chưa cấu hình Gmail SMTP.");
+                    return false;
                 }
 
                 using (var mail = new MailMessage())
@@ -205,5 +211,116 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 return false;
             }
         }
+
+
+        // gửi mật khẩu để reset
+        public async Task<bool> SendPasswordResetEmailAsync(
+            string recipientEmail,
+            string customerName,
+            string resetLink)
+        {
+            if (string.IsNullOrWhiteSpace(recipientEmail) ||
+                string.IsNullOrWhiteSpace(resetLink))
+            {
+                return false;
+            }
+
+            try
+            {
+               
+                if (string.IsNullOrWhiteSpace(_smtpUser) ||
+                    string.IsNullOrWhiteSpace(_smtpPass) ||
+                    _smtpPass == "your_app_password_here")
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "[EmailService] Chưa cấu hình Gmail SMTP.");
+                    return false;
+                }
+
+                string safeName = WebUtility.HtmlEncode(
+                    customerName ?? "Quý khách");
+
+                string safeLink = WebUtility.HtmlEncode(resetLink);
+
+                string htmlBody = $@"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='utf-8'/>
+        </head>
+        <body style='font-family:Arial;background:#f4f4f4;padding:25px;'>
+            <div style='max-width:550px;margin:auto;background:#fff;
+                        padding:30px;border-radius:12px;'>
+                <h2 style='color:#d99b20;text-align:center;'>
+                    CINÉVERSE CINEMA
+                </h2>
+
+                <h3>Yêu cầu đặt lại mật khẩu</h3>
+
+                <p>Xin chào <strong>{safeName}</strong>,</p>
+
+                <p>
+                    Chúng tôi nhận được yêu cầu đặt lại mật khẩu
+                    cho tài khoản CinéVerse của bạn.
+                </p>
+
+                <p style='text-align:center;margin:30px 0;'>
+                    <a href='{safeLink}'
+                       style='background:#d99b20;color:#fff;
+                              padding:14px 25px;text-decoration:none;
+                              border-radius:6px;font-weight:bold;'>
+                        ĐẶT LẠI MẬT KHẨU
+                    </a>
+                </p>
+
+                <p>Liên kết có hiệu lực trong <strong>15 phút</strong>
+                   và chỉ sử dụng được một lần.</p>
+
+                <p>
+                    Nếu bạn không yêu cầu đặt lại mật khẩu,
+                    hãy bỏ qua email này.
+                </p>
+
+                <hr/>
+                <p style='color:#888;font-size:12px;'>
+                    Email tự động từ hệ thống CinéVerse.
+                </p>
+            </div>
+        </body>
+        </html>";
+
+                using (var mail = new MailMessage())
+                {
+                    mail.From = new MailAddress(
+                        _fromEmail, _fromName, Encoding.UTF8);
+
+                    mail.To.Add(recipientEmail);
+                    mail.Subject = "[CinéVerse] Yêu cầu đặt lại mật khẩu";
+                    mail.Body = htmlBody;
+                    mail.IsBodyHtml = true;
+                    mail.BodyEncoding = Encoding.UTF8;
+
+                    using (var smtp = new SmtpClient(_smtpHost, _smtpPort))
+                    {
+                        smtp.Credentials =
+                            new NetworkCredential(_smtpUser, _smtpPass);
+
+                        smtp.EnableSsl = _enableSsl;
+
+                        await smtp.SendMailAsync(mail);
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[EmailService ForgotPassword] " + ex.Message);
+
+                return false;
+            }
+        }
+
     }
 }
