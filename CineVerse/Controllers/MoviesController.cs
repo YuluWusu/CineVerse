@@ -88,72 +88,91 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         public ActionResult ChiTietPhim(string id)
         {
-            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
             string maPhim = id.Trim();
 
-            PHIM phim = data.PHIMs.FirstOrDefault(p => p.MA_PHIM.Trim() == maPhim);
-            if (phim == null)
+            try
             {
-                return HttpNotFound();
-            }
+                PHIM phim = data.PHIMs
+                    .Include(p => p.THELOAIs)
+                    .FirstOrDefault(p => p.MA_PHIM.Trim() == maPhim);
 
-            var lichChieus = data.LICHCHIEUx
-                                .Include(l => l.KHUNGGIO)
-                                .Include(l => l.PHONGCHIEU.RAPCHIEU)
-                                .Where(l => l.MA_PHIM.Trim() == maPhim)
-                                .OrderByDescending(l => l.NGAYCHIEU)
-                                .ThenBy(l => l.KHUNGGIO.GIOBATDAU)
-                                .ToList();
-
-            ViewBag.LichChieu = lichChieus;
-
-            // Lấy danh sách đánh giá đã duyệt hiển thị
-            var danhGias = data.DANHGIAs
-                .Include(d => d.KHACHHANG.TAIKHOAN)
-                .Where(d => d.MA_PHIM.Trim() == maPhim && d.TRANGTHAI == "HienThi")
-                .OrderByDescending(d => d.NGAYDANHGIA)
-                .ToList();
-
-            int tongDanhGia = danhGias.Count;
-            double diemTB = tongDanhGia > 0 ? Math.Round(danhGias.Average(d => d.SOSAO), 1) : 5.0;
-
-            int[] starCounts = new int[6];
-            foreach (var dg in danhGias)
-            {
-                if (dg.SOSAO >= 1 && dg.SOSAO <= 5)
+                if (phim == null)
                 {
-                    starCounts[dg.SOSAO]++;
+                    return HttpNotFound();
                 }
+
+                var lichChieus = data.LICHCHIEUx
+                                    .Include(l => l.KHUNGGIO)
+                                    .Include(l => l.PHONGCHIEU.RAPCHIEU)
+                                    .Where(l => l.MA_PHIM.Trim() == maPhim)
+                                    .OrderByDescending(l => l.NGAYCHIEU)
+                                    .ThenBy(l => l.KHUNGGIO.GIOBATDAU)
+                                    .ToList();
+
+                ViewBag.LichChieu = lichChieus;
+
+                // Lấy danh sách đánh giá đã duyệt hiển thị
+                var danhGias = data.DANHGIAs
+                    .Include(d => d.KHACHHANG.TAIKHOAN)
+                    .Where(d => d.MA_PHIM.Trim() == maPhim && d.TRANGTHAI == "HienThi")
+                    .OrderByDescending(d => d.NGAYDANHGIA)
+                    .ToList();
+
+                int tongDanhGia = danhGias.Count;
+                double diemTB = tongDanhGia > 0 ? Math.Round(danhGias.Average(d => d.SOSAO), 1) : 5.0;
+
+                int[] starCounts = new int[6];
+                foreach (var dg in danhGias)
+                {
+                    if (dg.SOSAO >= 1 && dg.SOSAO <= 5)
+                    {
+                        starCounts[dg.SOSAO]++;
+                    }
+                }
+
+                // Kiểm tra phân quyền đánh giá của khách hiện tại
+                bool daDangNhap = false;
+                bool daMuaVe = false;
+                bool daDanhGia = false;
+                var sessionKh = Session["KhachHang"] as KHACHHANG;
+
+                if (sessionKh != null)
+                {
+                    daDangNhap = true;
+                    string maKh = sessionKh.MA_KHACHHANG.Trim();
+                    daDanhGia = data.DANHGIAs.Any(d => d.MA_PHIM.Trim() == maPhim && d.MA_KHACHHANG.Trim() == maKh);
+
+                    // Khách hàng phải có ít nhất 1 đơn hàng thanh toán thành công của phim này
+                    daMuaVe = data.DONHANGs.Any(d => d.MA_KHACHHANG.Trim() == maKh
+                        && (d.TRANGTHAI == "DaThanhToan" || d.TRANGTHAITHANHTOAN == "DaThanhToan")
+                        && d.LICHCHIEU.MA_PHIM.Trim() == maPhim);
+                }
+
+                ViewBag.DanhGias = danhGias;
+                ViewBag.TongDanhGia = tongDanhGia;
+                ViewBag.DiemTB = diemTB;
+                ViewBag.StarCounts = starCounts;
+                ViewBag.DaDangNhap = daDangNhap;
+                ViewBag.DaMuaVe = daMuaVe;
+                ViewBag.DaDanhGia = daDanhGia;
+
+                ViewBag.PhimLienQuan = GetRelatedMovies(phim, maPhim);
+
+                return View(phim);
             }
-
-            // Kiểm tra phân quyền đánh giá của khách hiện tại
-            bool daDangNhap = false;
-            bool daMuaVe = false;
-            bool daDanhGia = false;
-            var sessionKh = Session["KhachHang"] as KHACHHANG;
-
-            if (sessionKh != null)
+            catch (Exception)
             {
-                daDangNhap = true;
-                string maKh = sessionKh.MA_KHACHHANG.Trim();
-                daDanhGia = data.DANHGIAs.Any(d => d.MA_PHIM.Trim() == maPhim && d.MA_KHACHHANG.Trim() == maKh);
-
-                // Khách hàng phải có ít nhất 1 đơn hàng thanh toán thành công của phim này
-                daMuaVe = data.DONHANGs.Any(d => d.MA_KHACHHANG.Trim() == maKh
-                    && (d.TRANGTHAI == "DaThanhToan" || d.TRANGTHAITHANHTOAN == "DaThanhToan")
-                    && d.LICHCHIEU.MA_PHIM.Trim() == maPhim);
+                TempData["ToastMessage"] = "Không thể tải thông tin chi tiết phim vào lúc này. Vui lòng thử lại sau.";
+                TempData["ToastType"] = "error";
+                return RedirectToAction("DanhSachPhim");
             }
+        }
 
-            ViewBag.DanhGias = danhGias;
-            ViewBag.TongDanhGia = tongDanhGia;
-            ViewBag.DiemTB = diemTB;
-            ViewBag.StarCounts = starCounts;
-            ViewBag.DaDangNhap = daDangNhap;
-            ViewBag.DaMuaVe = daMuaVe;
-            ViewBag.DaDanhGia = daDanhGia;
-
-            // Lấy danh sách phim liên quan cùng thể loại (N-N THELOAI)
+        private List<PHIM> GetRelatedMovies(PHIM phim, string maPhim)
+        {
             var maTheLoais = phim.THELOAIs.Select(t => t.MA_THELOAI.Trim()).ToList();
+
             var phimLienQuan = data.PHIMs
                 .Include(p => p.THELOAIs)
                 .Where(p => p.MA_PHIM.Trim() != maPhim && p.THELOAIs.Any(t => maTheLoais.Contains(t.MA_THELOAI.Trim())))
@@ -163,16 +182,20 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
             if (phimLienQuan.Count < 4)
             {
+                var excludedIds = phimLienQuan.Select(pl => pl.MA_PHIM.Trim()).ToList();
+                excludedIds.Add(maPhim);
+
                 var additional = data.PHIMs
                     .Include(p => p.THELOAIs)
-                    .Where(p => p.MA_PHIM.Trim() != maPhim && !phimLienQuan.Select(pl => pl.MA_PHIM.Trim()).Contains(p.MA_PHIM.Trim()) && p.TRANGTHAI == "Đang chiếu")
+                    .Where(p => !excludedIds.Contains(p.MA_PHIM.Trim()) && p.TRANGTHAI == "Đang chiếu")
+                    .OrderByDescending(p => p.NGAYKHOICHIEU)
                     .Take(4 - phimLienQuan.Count)
                     .ToList();
+
                 phimLienQuan.AddRange(additional);
             }
-            ViewBag.PhimLienQuan = phimLienQuan;
 
-            return View(phim);
+            return phimLienQuan;
         }
 
         [HttpPost]
