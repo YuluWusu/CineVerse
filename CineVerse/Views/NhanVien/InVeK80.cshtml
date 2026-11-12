@@ -4,10 +4,10 @@
     Layout = null; // Dùng làm partial view trong modal POS hoặc in độc lập
 
     var lc = Model.LICHCHIEU;
-    var phim = lc?.PHIM;
-    var phong = lc?.PHONGCHIEU;
-    var rap = phong?.RAPCHIEU;
-    var danhSachGhe = Model.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+    var phim = lc.PHIM;
+    var phong = lc.PHONGCHIEU;
+    var rap = phong.RAPCHIEU;
+    var danhSachGhe = Model.VEs.Select(v => v.GHE.SOGHE.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
     var chiTietBapNuoc = Model.CHITIET_BAPNUOC.ToList();
     string maCheckIn = !string.IsNullOrEmpty(Model.MACHECKIN) ? Model.MACHECKIN.Trim() : ("CKI-" + Model.MA_DONHANG.Trim());
 }
@@ -102,26 +102,26 @@
 <body>
     <div class="receipt-header">
         <div class="brand-title">CINÉVERSE CINEMAS</div>
-        <div class="fw-bold">@(rap?.TEN_RAP ?? "CinéVerse Central")</div>
+        <div class="fw-bold">@(rap.TEN_RAP ?? "CinéVerse Central")</div>
         <div style="font-size:10px;">Hotline: 1900 8888 &bull; www.cineverse.vn</div>
         <div class="receipt-divider"></div>
         <div class="fw-bold text-uppercase" style="font-size:12px;">HÓA ĐƠN &amp; VÉ XEM PHIM</div>
-        <div style="font-size:10px;">Số HĐ: <strong>@Model.MA_DONHANG.Trim()</strong> &bull; Thu ngân: @(Model.NHANVIEN?.TAIKHOAN?.HOTEN ?? Model.MA_NHANVIEN ?? "Quầy POS")</div>
+        <div style="font-size:10px;">Số HĐ: <strong>@Model.MA_DONHANG.Trim()</strong> &bull; Thu ngân: @(Model.NHANVIEN.TAIKHOAN.HOTEN ?? Model.MA_NHANVIEN ?? "Quầy POS")</div>
         <div style="font-size:10px;">Ngày in: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</div>
     </div>
 
     <!-- Thông tin Suất chiếu -->
     <div>
         <div class="fw-bold text-uppercase" style="font-size:13px; margin-bottom: 2px;">
-            @(phim?.TEN_PHIM ?? "Phim điện ảnh")
+            @(phim.TEN_PHIM ?? "Phim điện ảnh")
         </div>
         <div class="receipt-row">
             <span>Rạp/Phòng:</span>
-            <span class="fw-bold">@(phong?.TEN_PHONG ?? "Phòng 1")</span>
+            <span class="fw-bold">@(phong.TEN_PHONG ?? "Phòng 1")</span>
         </div>
         <div class="receipt-row">
             <span>Suất chiếu:</span>
-            <span class="fw-bold">@(lc?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm") ?? "19:00") &bull; @(lc?.NGAYCHIEU.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy"))</span>
+            <span class="fw-bold">@(lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") ?? "19:00") &bull; @(lc.NGAYCHIEU.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy"))</span>
         </div>
         <div class="receipt-row">
             <span>Ghế ngồi (@danhSachGhe.Count vé):</span>
@@ -129,7 +129,7 @@
         </div>
         <div class="receipt-row">
             <span>Khách hàng:</span>
-            <span>@(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")</span>
+            <span>@(Model.KHACHHANG.HOTEN ?? "Khách vãng lai")</span>
         </div>
     </div>
 
@@ -142,7 +142,7 @@
         foreach (var ct in chiTietBapNuoc)
         {
             <div class="receipt-row" style="font-size:10px;">
-                <span>@(ct.BAPNUOC?.TEN_SANPHAM ?? "Món") x@(ct.SOLUONG)</span>
+                <span>@(ct.BAPNUOC.TEN_SANPHAM ?? "Món") x@(ct.SOLUONG)</span>
                 <span>@ct.THANHTIEN.ToString("#,##0") đ</span>
             </div>
         }

@@ -33,4 +33,3 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public virtual ICollection<CHITIET_BAPNUOC> CHITIET_BAPNUOC { get; set; }
     }
 }
-

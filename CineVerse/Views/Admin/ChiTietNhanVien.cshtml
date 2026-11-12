@@ -17,9 +17,9 @@
             <i class="bi bi-person-lines-fill text-warning me-2"></i>Hồ sơ &amp; Lịch sử Vận hành của Nhân viên
         </h5>
         <div class="text-muted small">
-            Nhân viên: <strong class="text-white">@(tk?.HOTEN)</strong> &bull;
+            Nhân viên: <strong class="text-white">@(tk.HOTEN)</strong> &bull;
             Mã: <span class="font-monospace text-warning fw-bold">@Model.MA_NHANVIEN.Trim()</span> &bull;
-            Rạp: <span class="badge bg-secondary">@(Model.RAPCHIEU?.TEN_RAP ?? "Chưa gán")</span>
+            Rạp: <span class="badge bg-secondary">@(Model.RAPCHIEU.TEN_RAP ?? "Chưa gán")</span>
         </div>
     </div>
     <div class="d-flex gap-2">
@@ -105,8 +105,8 @@
                                     <td><strong class="text-warning font-monospace">@d.MA_DONHANG.Trim()</strong></td>
                                     <td style="font-size:12px;">@d.NGAYDAT.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>
-                                        <strong>@(d.LICHCHIEU?.PHIM?.TEN_PHIM)</strong><br />
-                                        <span class="text-muted" style="font-size:11px;">@(d.LICHCHIEU?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm"))</span>
+                                        <strong>@(d.LICHCHIEU.PHIM.TEN_PHIM)</strong><br />
+                                        <span class="text-muted" style="font-size:11px;">@(d.LICHCHIEU.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm"))</span>
                                     </td>
                                     <td><span class="badge bg-secondary">@d.VEs.Count vé</span></td>
                                     <td class="font-monospace text-success fw-bold">@d.TONGTIEN.ToString("#,##0") đ</td>
@@ -157,14 +157,14 @@
                                     <td><span class="font-monospace text-warning fw-bold">@(s.MACHECKIN ?? s.MA_DONHANG)</span></td>
                                     <td><span class="font-monospace text-light">@s.MA_DONHANG.Trim()</span></td>
                                     <td>
-                                        <strong>@(s.LICHCHIEU?.PHIM?.TEN_PHIM)</strong><br />
-                                        <span class="text-muted" style="font-size:11px;">@(s.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG)</span>
+                                        <strong>@(s.LICHCHIEU.PHIM.TEN_PHIM)</strong><br />
+                                        <span class="text-muted" style="font-size:11px;">@(s.LICHCHIEU.PHONGCHIEU.TEN_PHONG)</span>
                                     </td>
                                     <td>
-                                        <span class="text-light fw-bold">@string.Join(", ", s.VEs.Select(v => v.GHE?.SOGHE?.Trim()))</span>
+                                        <span class="text-light fw-bold">@string.Join(", ", s.VEs.Select(v => v.GHE.SOGHE.Trim()))</span>
                                     </td>
                                     <td>
-                                        <span>@(s.KHACHHANG?.HOTEN ?? "Khách vãng lai")</span>
+                                        <span>@(s.KHACHHANG.HOTEN ?? "Khách vãng lai")</span>
                                     </td>
                                 </tr>
                             }

@@ -260,7 +260,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
         {
             if (_disposeDb)
             {
-                _db?.Dispose();
+                _db.Dispose();
             }
         }
     }

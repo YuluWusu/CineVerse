@@ -240,7 +240,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             var gheDuocChon = seatService.GetSeatsByIds(listMaGhe.ToList());
 
             decimal phuTroi = lichChieu.GIATVE_PHUTROI ?? 0m;
-            decimal tongTienVe = gheDuocChon.Sum(g => (g.LOAIGHE?.GIATVE ?? 0m) + phuTroi);
+            decimal tongTienVe = gheDuocChon.Sum(g => (g.LOAIGHE.GIATVE) + phuTroi);
 
             // Lấy danh sách sản phẩm bắp nước đang mở bán
             var danhSachBapNuoc = _fnBService.GetAll(onlyActive: true);
@@ -333,7 +333,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
             foreach (var item in fnbDict)
             {
-                string code = item.Key?.Trim() ?? "";
+                string code = item.Key.Trim() ?? "";
                 if (item.Value > 0 && fnbLookup.TryGetValue(code, out BAPNUOC product))
                 {
                     decimal subTotal = product.GIABAN * item.Value;
@@ -342,7 +342,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     {
                         MaSanPham = product.MA_SANPHAM.Trim(),
                         TenSanPham = product.TEN_SANPHAM.Trim(),
-                        PhanLoai = product.PHANLOAI?.Trim(),
+                        PhanLoai = product.PHANLOAI.Trim(),
                         SoLuong = item.Value,
                         DonGia = product.GIABAN,
                         ThanhTien = subTotal
@@ -351,7 +351,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
 
             decimal phuTroi = lichChieu.GIATVE_PHUTROI ?? 0m;
-            decimal tongTienVe = gheDuocChon.Sum(g => (g.LOAIGHE?.GIATVE ?? 0m) + phuTroi);
+            decimal tongTienVe = gheDuocChon.Sum(g => (g.LOAIGHE.GIATVE) + phuTroi);
 
             KHACHHANG khachHang = null;
             if (Session["KhachHang"] != null)
@@ -488,7 +488,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             TempData["SoTienGiam"] = tongSoTienGiam;
             TempData["GiamGiaThanhVien"] = giamGiaThanhVien;
             TempData["TongTienSauGiam"] = tongTienSauGiam;
-            TempData["TenKhuyenMai"] = khuyenMai?.TEN_KM;
+            TempData["TenKhuyenMai"] = khuyenMai != null ? khuyenMai.TEN_KM : "Không áp dụng";
 
             // Điều hướng theo phương thức thanh toán
             if (string.Equals(paymentMethod, "VNPay", StringComparison.OrdinalIgnoreCase))

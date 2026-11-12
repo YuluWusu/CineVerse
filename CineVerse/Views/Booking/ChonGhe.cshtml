@@ -328,9 +328,9 @@
                                 bool daDat = gheDaDat.Contains(maGhe);
                                 bool otherHold = otherHeldSeats.Contains(maGhe);
                                 bool myHold = myHeldSeats.Contains(maGhe);
-                                string tenLoai = ghe.LOAIGHE?.TEN_LOAIGHE?.Trim() ?? "Thường";
+                                string tenLoai = ghe.LOAIGHE.TEN_LOAIGHE.Trim() ?? "Thường";
                                 bool laVIP = (tenLoai == "VIP");
-                                bool laDoi = (tenLoai.Contains("Đôi") || ghe.MA_LOAIGHE?.Trim() == "LG03");
+                                bool laDoi = (tenLoai.Contains("Đôi") || ghe.MA_LOAIGHE.Trim() == "LG03");
 
                                 string lop = "seat";
                                 if (laVIP) { lop += " vip"; }

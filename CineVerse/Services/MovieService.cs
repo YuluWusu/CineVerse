@@ -109,7 +109,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             }
             catch (Exception ex)
             {
-                error = "Lỗi khi xóa phim: " + (ex.InnerException?.Message ?? ex.Message);
+                error = "Lỗi khi xóa phim: " + (ex.InnerException.Message ?? ex.Message);
                 return false;
             }
         }

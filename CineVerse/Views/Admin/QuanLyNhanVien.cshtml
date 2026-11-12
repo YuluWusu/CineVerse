@@ -103,9 +103,9 @@
                     @foreach (var item in Model)
                     {
                         var tk = item.TAIKHOAN;
-                        var vaiTroList = tk?.VAITROes.Select(v => v.MA_VAITRO.Trim()).ToList() ?? new List<string>();
+                        var vaiTroList = tk.VAITROes.Select(v => v.MA_VAITRO.Trim()).ToList() ?? new List<string>();
                         bool isAdmin = vaiTroList.Contains("ADMIN");
-                        bool isLocked = string.Equals(tk?.TRANGTHAI?.Trim(), "Khoa", StringComparison.OrdinalIgnoreCase);
+                        bool isLocked = string.Equals(tk.TRANGTHAI.Trim(), "Khoa", StringComparison.OrdinalIgnoreCase);
 
                         <tr id="row_@item.MA_NHANVIEN.Trim()">
                             <td>
@@ -114,16 +114,16 @@
                                 </span>
                             </td>
                             <td>
-                                <strong class="text-white">@(tk?.HOTEN ?? "Chưa đặt tên")</strong><br />
+                                <strong class="text-white">@(tk.HOTEN ?? "Chưa đặt tên")</strong><br />
                                 <span style="font-size:11px; color: var(--text-muted);">Ngày vào: @item.NGAYVAOLAM.ToString("dd/MM/yyyy")</span>
                             </td>
                             <td>
-                                <div><i class="bi bi-telephone text-muted me-1"></i>@(tk?.SDT ?? "—")</div>
-                                <div style="font-size:11px; color: var(--text-muted);"><i class="bi bi-envelope text-muted me-1"></i>@(tk?.EMAIL ?? "—")</div>
+                                <div><i class="bi bi-telephone text-muted me-1"></i>@(tk.SDT ?? "—")</div>
+                                <div style="font-size:11px; color: var(--text-muted);"><i class="bi bi-envelope text-muted me-1"></i>@(tk.EMAIL ?? "—")</div>
                             </td>
                             <td>
                                 <span class="badge bg-dark border border-secondary">
-                                    @(item.RAPCHIEU?.TEN_RAP ?? "Chưa gán rạp")
+                                    @(item.RAPCHIEU.TEN_RAP ?? "Chưa gán rạp")
                                 </span>
                             </td>
                             <td>

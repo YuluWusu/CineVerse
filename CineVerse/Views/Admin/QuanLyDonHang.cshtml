@@ -119,7 +119,7 @@
                         {
                             var lc = item.LICHCHIEU;
                             var kh = item.KHACHHANG;
-                            var listGhe = item.VEs != null ? item.VEs.Select(v => v.GHE?.SOGHE ?? v.MA_GHE).ToList() : new List<string>();
+                            var listGhe = item.VEs != null ? item.VEs.Select(v => v.GHE.SOGHE ?? v.MA_GHE).ToList() : new List<string>();
                             string collapseId = "collapseDH_" + item.MA_DONHANG.Replace("-", "_");
 
                             <tr>
@@ -134,18 +134,18 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <strong class="text-white">@(kh?.HOTEN ?? "Khách vãng lai")</strong><br />
-                                    <span class="text-muted small"><i class="bi bi-telephone me-1"></i>@(kh?.SDT ?? "Không có")</span>
-                                    @if (!string.IsNullOrEmpty(kh?.HANGTHANHVIEN))
+                                    <strong class="text-white">@(kh.HOTEN ?? "Khách vãng lai")</strong><br />
+                                    <span class="text-muted small"><i class="bi bi-telephone me-1"></i>@(kh.SDT ?? "Không có")</span>
+                                    @if (!string.IsNullOrEmpty(kh.HANGTHANHVIEN))
                                     {
                                         <div><span class="badge bg-secondary" style="font-size: 10px;">@kh.HANGTHANHVIEN</span></div>
                                     }
                                 </td>
                                 <td>
-                                    <strong style="color: var(--accent);">@(lc?.PHIM?.TEN_PHIM ?? "Phim điện ảnh")</strong><br />
+                                    <strong style="color: var(--accent);">@(lc.PHIM.TEN_PHIM ?? "Phim điện ảnh")</strong><br />
                                     <span class="text-muted small">
-                                        @(lc?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP) | @(lc?.PHONGCHIEU?.TEN_PHONG)<br />
-                                        Suất: @(lc?.NGAYCHIEU.ToString("dd/MM/yyyy")) @(lc?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm"))
+                                        @(lc.PHONGCHIEU.RAPCHIEU.TEN_RAP) | @(lc.PHONGCHIEU.TEN_PHONG)<br />
+                                        Suất: @(lc.NGAYCHIEU.ToString("dd/MM/yyyy")) @(lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm"))
                                     </span>
                                     @if (listGhe.Any())
                                     {
@@ -222,7 +222,7 @@
                                                     {
                                                         foreach (var v in item.VEs)
                                                         {
-                                                            <li>Mã vé: <code class="text-white">@v.MA_VE</code> - Ghế: <strong class="text-white">@(v.GHE?.SOGHE ?? v.MA_GHE)</strong> - Giá: <span class="text-warning">@v.DONGIA.ToString("N0") đ</span> (@v.TRANGTHAI)</li>
+                                                            <li>Mã vé: <code class="text-white">@v.MA_VE</code> - Ghế: <strong class="text-white">@(v.GHE.SOGHE ?? v.MA_GHE)</strong> - Giá: <span class="text-warning">@v.DONGIA.ToString("N0") đ</span> (@v.TRANGTHAI)</li>
                                                         }
                                                     }
                                                     else
@@ -238,7 +238,7 @@
                                                     {
                                                         foreach (var cb in item.CHITIET_BAPNUOC)
                                                         {
-                                                            <li><strong class="text-white">@cb.SOLUONG x @(cb.BAPNUOC?.TEN_SANPHAM ?? cb.MA_SANPHAM)</strong> - Đơn giá: @cb.DONGIA.ToString("N0") đ = <span class="text-info">@cb.THANHTIEN.ToString("N0") đ</span></li>
+                                                            <li><strong class="text-white">@cb.SOLUONG x @(cb.BAPNUOC.TEN_SANPHAM ?? cb.MA_SANPHAM)</strong> - Đơn giá: @cb.DONGIA.ToString("N0") đ = <span class="text-info">@cb.THANHTIEN.ToString("N0") đ</span></li>
                                                         }
                                                     }
                                                     else

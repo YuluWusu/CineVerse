@@ -41,17 +41,17 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="adm-form-label">Họ và Tên *</label>
-                            <input type="text" name="hoTen" class="adm-input" value="@(tk?.HOTEN)" required />
+                            <input type="text" name="hoTen" class="adm-input" value="@(tk.HOTEN)" required />
                         </div>
 
                         <div class="col-md-6">
                             <label class="adm-form-label">Số điện thoại *</label>
-                            <input type="tel" name="sdt" class="adm-input" value="@(tk?.SDT)" required />
+                            <input type="tel" name="sdt" class="adm-input" value="@(tk.SDT)" required />
                         </div>
 
                         <div class="col-md-6">
                             <label class="adm-form-label">Email công tác</label>
-                            <input type="email" name="email" class="adm-input" value="@(tk?.EMAIL)" />
+                            <input type="email" name="email" class="adm-input" value="@(tk.EMAIL)" />
                         </div>
 
                         <div class="col-md-6">
@@ -67,8 +67,8 @@
                         <div class="col-md-6">
                             <label class="adm-form-label">Trạng thái tài khoản</label>
                             <select name="trangThai" class="adm-select">
-                                <option value="HoatDong" @(tk?.TRANGTHAI == "HoatDong" ? "selected" : "")>Hoạt động bình thường</option>
-                                <option value="Khoa" @(tk?.TRANGTHAI == "Khoa" ? "selected" : "")>Khóa tài khoản</option>
+                                <option value="HoatDong" @(tk.TRANGTHAI == "HoatDong" ? "selected" : "")>Hoạt động bình thường</option>
+                                <option value="Khoa" @(tk.TRANGTHAI == "Khoa" ? "selected" : "")>Khóa tài khoản</option>
                             </select>
                         </div>
 

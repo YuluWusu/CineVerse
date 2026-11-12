@@ -5,14 +5,14 @@
     Layout = "~/Views/Shared/_Khung.cshtml";
 
     var lichChieu = Model.LICHCHIEU;
-    var phim = lichChieu?.PHIM;
-    var phong = lichChieu?.PHONGCHIEU;
-    var rap = phong?.RAPCHIEU;
-    var khungGio = lichChieu?.KHUNGGIO;
-    var danhSachGhe = Model.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+    var phim = lichChieu.PHIM;
+    var phong = lichChieu.PHONGCHIEU;
+    var rap = phong.RAPCHIEU;
+    var khungGio = lichChieu.KHUNGGIO;
+    var danhSachGhe = Model.VEs.Select(v => v.GHE.SOGHE.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
     var danhSachBapNuoc = Model.CHITIET_BAPNUOC.ToList();
     string maCheckIn = !string.IsNullOrEmpty(Model.MACHECKIN) ? Model.MACHECKIN.Trim() : ("CKI-" + Model.MA_DONHANG.Trim());
-    bool daSoatVe = string.Equals(Model.TRANGTHAISOATVE?.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
+    bool daSoatVe = string.Equals(Model.TRANGTHAISOATVE.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
 }
 
 @section Styles {
@@ -321,13 +321,13 @@
                     <div>
                         <h3 class="text-white fw-bold mb-1">@(phim != null ? phim.TEN_PHIM : "Vé xem phim")</h3>
                         <div class="text-muted small mb-2">
-                            <span><i class="bi bi-clock me-1"></i> @(phim?.THOILUONG ?? 120) phút</span> &bull;
-                            <span class="badge bg-danger ms-1">@(phim?.GIOIHANTUOI ?? "16+")</span> &bull;
-                            <span class="text-warning ms-1">@(lichChieu?.DINHDANG ?? "2D Phụ đề")</span>
+                            <span><i class="bi bi-clock me-1"></i> @(phim.THOILUONG ?? 120) phút</span> &bull;
+                            <span class="badge bg-danger ms-1">@(phim.GIOI_HAN_TUOI ?? "16+")</span> &bull;
+                            <span class="text-warning ms-1">2D Phụ đề</span>
                         </div>
                         <div class="text-light" style="font-size: 14px;">
                             <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                            <strong>@(rap?.TEN_RAP ?? "CinéVerse Central")</strong> &bull; @(phong?.TEN_PHONG ?? "Phòng Chiếu")
+                            <strong>@(rap.TEN_RAP ?? "CinéVerse Central")</strong> &bull; @(phong.TEN_PHONG ?? "Phòng Chiếu")
                         </div>
                     </div>
                 </div>
@@ -366,7 +366,7 @@
                                 @foreach (var fnb in danhSachBapNuoc)
                                 {
                                     <span class="badge bg-secondary me-1 mb-1">
-                                        @(fnb.BAPNUOC?.TEN_SANPHAM ?? "Sản phẩm") x@(fnb.SOLUONG)
+                                        @(fnb.BAPNUOC.TEN_SANPHAM ?? "Sản phẩm") x@(fnb.SOLUONG)
                                     </span>
                                 }
                             </div>
@@ -376,7 +376,7 @@
                     <div>
                         <div class="ticket-field-label">Khách hàng</div>
                         <div class="ticket-field-value small">
-                            @(Model.KHACHHANG?.HOTEN ?? "Khách vãng lai")
+                            @(Model.KHACHHANG.HOTEN ?? "Khách vãng lai")
                         </div>
                     </div>
 

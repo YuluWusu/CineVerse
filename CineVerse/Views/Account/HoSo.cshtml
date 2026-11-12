@@ -29,11 +29,7 @@
             margin: 0 auto;
         }
 
-        @media (max-width: 991px) {
-            .profile-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+       
 
         /* Thẻ Thành Viên Điện Tử Cinematic */
         .membership-card-wrap {
@@ -405,8 +401,8 @@
                     <div class="benefit-item">
                         <div class="benefit-icon bg-warning text-dark"><i class="bi bi-percent"></i></div>
                         <div>
-                            <strong>Chiết khấu giá vé:</strong> 
-                            @(loyalty.DiscountRate > 0 ? $"Giảm {loyalty.DiscountRate * 100}% trực tiếp khi đặt vé" : "Nâng hạng VIP để nhận giảm 5% giá vé")
+                            <strong>Chiết khấu giá vé:</strong>
+                            @(loyalty.DiscountRate > 0 ? "Giảm " + (loyalty.DiscountRate * 100) + "% trực tiếp khi đặt vé" : "Nâng hạng VIP để nhận giảm 5% giá vé")
                         </div>
                     </div>
 

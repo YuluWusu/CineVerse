@@ -288,6 +288,22 @@
     <Content Include="Content\HinhAnh\themarvels.jpg" />
     <Content Include="Content\HinhAnh\venom3.jpg" />
     <Content Include="Content\HinhAnh\wonka.jpg" />
+    <Content Include="Content\img\fnb\7up.png" />
+    <Content Include="Content\img\fnb\aquafina.png" />
+    <Content Include="Content\img\fnb\bap-bo.png" />
+    <Content Include="Content\img\fnb\bap-caramel.png" />
+    <Content Include="Content\img\fnb\bap-phomai.png" />
+    <Content Include="Content\img\fnb\bap-socola.png" />
+    <Content Include="Content\img\fnb\coca-zero.png" />
+    <Content Include="Content\img\fnb\combo-couple.png" />
+    <Content Include="Content\img\fnb\combo-family.png" />
+    <Content Include="Content\img\fnb\combo-solo.png" />
+    <Content Include="Content\img\fnb\combo-vip.png" />
+    <Content Include="Content\img\fnb\fnb-default.png" />
+    <Content Include="Content\img\fnb\pepsi.png" />
+    <Content Include="Content\img\fnb\snack-lays.png" />
+    <Content Include="Content\img\fnb\tra-dao.png" />
+    <Content Include="Content\img\fnb\xuc-xich.png" />
     <Content Include="Content\Logo\Logo HUIT-01.ico" />
     <Content Include="Content\Poster\avengers.jpg" />
     <Content Include="Content\Poster\conan.jpg" />
@@ -420,7 +436,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\img\fnb\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

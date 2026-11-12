@@ -21,8 +21,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         public decimal DONGIA { get; set; }
         public decimal THANHTIEN { get; set; }
     
-        public virtual DONHANG DONHANG { get; set; }
         public virtual BAPNUOC BAPNUOC { get; set; }
+        public virtual DONHANG DONHANG { get; set; }
     }
 }
-

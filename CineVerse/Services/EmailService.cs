@@ -6,6 +6,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
+using System.Data.Entity;
 
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 {
@@ -45,19 +46,35 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[EmailService] Lỗi gửi email vé {donHang?.MA_DONHANG}: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"[EmailService] Lỗi gửi email vé {donHang.MA_DONHANG}: {ex.Message}");
                 }
             });
         }
-
+        private static DONHANG NapLaiDonHang(string maDonHang)
+        {
+            string ma = maDonHang.Trim();
+            using (var db = new QL_VEPHIMEntities())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                return db.DONHANGs.AsNoTracking()
+                    .Include(d => d.KHACHHANG.TAIKHOAN)
+                    .Include(d => d.LICHCHIEU.PHIM)
+                    .Include(d => d.LICHCHIEU.KHUNGGIO)
+                    .Include(d => d.LICHCHIEU.PHONGCHIEU.RAPCHIEU)
+                    .Include(d => d.VEs.Select(v => v.GHE))
+                    .Include(d => d.CHITIET_BAPNUOC.Select(c => c.BAPNUOC))
+                    .FirstOrDefault(d => d.MA_DONHANG.Trim() == ma);
+            }
+        }
         public async Task<bool> SendTicketConfirmationAsync(DONHANG donHang, string overrideEmail = null)
         {
             if (donHang == null) return false;
+            donHang = NapLaiDonHang(donHang.MA_DONHANG) ?? donHang;
 
             string emailTo = overrideEmail;
             if (string.IsNullOrWhiteSpace(emailTo))
             {
-                emailTo = donHang.KHACHHANG?.TAIKHOAN?.EMAIL ?? donHang.KHACHHANG?.EMAIL;
+                emailTo = donHang.KHACHHANG.TAIKHOAN.EMAIL ?? donHang.KHACHHANG.EMAIL;
             }
 
             if (string.IsNullOrWhiteSpace(emailTo) || !emailTo.Contains("@"))
@@ -66,14 +83,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             }
 
             string customerName = donHang.KHACHHANG?.HOTEN ?? donHang.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Quý khách";
-            string movieTitle = donHang.LICHCHIEU?.PHIM?.TEN_PHIM ?? "Phim chiếu rạp";
+            string movieTitle = donHang.LICHCHIEU.PHIM?.TEN_PHIM ?? "Phim chiếu rạp";
             string cinemaName = donHang.LICHCHIEU?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP ?? "CinéVerse Cinema";
             string roomName = donHang.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG ?? "Phòng chiếu";
             string showDate = donHang.LICHCHIEU?.NGAYCHIEU.ToString("dd/MM/yyyy") ?? "";
             string showTime = donHang.LICHCHIEU?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm") ?? "";
 
             var seatNames = donHang.VEs != null && donHang.VEs.Any()
-                ? string.Join(", ", donHang.VEs.Select(v => v.GHE?.SOGHE?.Trim() ?? v.MA_GHE.Trim()))
+                ? string.Join(", ", donHang.VEs.Select(v => v.GHE.SOGHE.Trim() ?? v.MA_GHE.Trim()))
                 : "Chưa xác định";
 
             string checkInCode = !string.IsNullOrEmpty(donHang.MACHECKIN) ? donHang.MACHECKIN.Trim() : donHang.MA_DONHANG.Trim();
@@ -86,7 +103,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 fnbHtml.Append("<strong style='color:#e5a623; font-size:13px;'>🍿 BẮP NƯỚC & COMBO ĐI KÈM:</strong><br/>");
                 foreach (var ct in donHang.CHITIET_BAPNUOC)
                 {
-                    string spName = ct.BAPNUOC?.TEN_SANPHAM ?? ct.MA_SANPHAM.Trim();
+                    string spName = ct.BAPNUOC.TEN_SANPHAM ?? ct.MA_SANPHAM.Trim();
                     fnbHtml.Append($"<span style='color:#fff; font-size:13px;'>• {spName} <strong>x{ct.SOLUONG}</strong> ({ct.THANHTIEN:N0} đ)</span><br/>");
                 }
                 fnbHtml.Append("</div>");

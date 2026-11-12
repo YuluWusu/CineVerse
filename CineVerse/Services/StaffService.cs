@@ -600,9 +600,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 SoGhe = g.SOGHE.Trim(),
                 HangGhe = !string.IsNullOrEmpty(g.SOGHE) ? g.SOGHE.Substring(0, 1) : ("H" + g.SO_HANG),
                 CotGhe = g.SO_COT,
-                MaLoaiGhe = g.MA_LOAIGHE?.Trim(),
-                TenLoaiGhe = g.LOAIGHE?.TEN_LOAIGHE ?? "Thường",
-                GiaGhe = (g.LOAIGHE?.GIATVE ?? 0m) + phuTroi,
+                MaLoaiGhe = g.MA_LOAIGHE.Trim(),
+                TenLoaiGhe = g.LOAIGHE.TEN_LOAIGHE ?? "Thường",
+                GiaGhe = (g.LOAIGHE.GIATVE) + phuTroi,
                 DaDat = gheDaDat.Contains(g.MA_GHE.Trim())
             }).OrderBy(s => s.HangGhe).ThenBy(s => s.CotGhe).ToList();
 
@@ -779,10 +779,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             var donHang = new DONHANG
             {
                 MA_DONHANG = maDonHang,
-                MA_KHACHHANG = khachHang?.MA_KHACHHANG.Trim(),
+                MA_KHACHHANG = khachHang.MA_KHACHHANG.Trim(),
                 MA_NHANVIEN = nhanVien.MA_NHANVIEN.Trim(),
                 MA_LICHCHIEU = maLich,
-                MA_KM = khuyenMai?.MA_KM.Trim(),
+                MA_KM = khuyenMai.MA_KM.Trim(),
                 NGAYDAT = DateTime.Now,
                 TIENVE = tienVe,
                 TIENMONAN = tienBapNuoc,
@@ -899,17 +899,17 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             // Điền thông tin cơ bản
             res.MaDonHang = donHang.MA_DONHANG.Trim();
             res.MaCheckIn = !string.IsNullOrEmpty(donHang.MACHECKIN) ? donHang.MACHECKIN.Trim() : ("CKI-" + res.MaDonHang);
-            res.TenPhim = donHang.LICHCHIEU?.PHIM?.TEN_PHIM;
-            res.Poster = donHang.LICHCHIEU?.PHIM?.POSTER;
-            res.TenRap = donHang.LICHCHIEU?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP;
-            res.TenPhong = donHang.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG;
+            res.TenPhim = donHang.LICHCHIEU.PHIM.TEN_PHIM;
+            res.Poster = donHang.LICHCHIEU.PHIM.POSTER;
+            res.TenRap = donHang.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP;
+            res.TenPhong = donHang.LICHCHIEU.PHONGCHIEU.TEN_PHONG;
             res.GioChieu = donHang.LICHCHIEU != null ? GioChieu(donHang.LICHCHIEU) : "";
             res.NgayChieu = donHang.LICHCHIEU != null ? donHang.LICHCHIEU.NGAYCHIEU.ToString("dd/MM/yyyy") : "";
-            res.DanhSachGhe = donHang.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+            res.DanhSachGhe = donHang.VEs.Select(v => v.GHE.SOGHE.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
             res.TongTien = donHang.TONGTIEN;
-            res.TenKhachHang = donHang.KHACHHANG?.HOTEN ?? donHang.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khách vãng lai";
-            res.SdtKhachHang = donHang.KHACHHANG?.SDT ?? donHang.KHACHHANG?.TAIKHOAN?.SDT;
-            res.DaSoatVe = string.Equals(donHang.TRANGTHAISOATVE?.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
+            res.TenKhachHang = donHang.KHACHHANG.HOTEN ?? donHang.KHACHHANG.TAIKHOAN.HOTEN ?? "Khách vãng lai";
+            res.SdtKhachHang = donHang.KHACHHANG.SDT ?? donHang.KHACHHANG.TAIKHOAN.SDT;
+            res.DaSoatVe = string.Equals(donHang.TRANGTHAISOATVE.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
             res.ThoiGianCheckIn = donHang.THOIGIANCHECKIN;
             res.NhanVienSoatVe = donHang.MANV_SOATVE;
             res.TrangThaiNhanBapNuoc = donHang.TRANGTHAINHANBAPNUOC ?? "KhongCo";
@@ -918,9 +918,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             {
                 res.DanhSachBapNuoc.Add(new CheckInBapNuocItem
                 {
-                    TenSanPham = ct.BAPNUOC?.TEN_SANPHAM ?? "Sản phẩm",
+                    TenSanPham = ct.BAPNUOC.TEN_SANPHAM ?? "Sản phẩm",
                     SoLuong = ct.SOLUONG,
-                    PhanLoai = ct.BAPNUOC?.PHANLOAI
+                    PhanLoai = ct.BAPNUOC.PHANLOAI
                 });
             }
 
@@ -952,7 +952,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             }
 
             // Kiểm tra Rạp
-            if (!string.IsNullOrEmpty(maRapNhanVien) && donHang.LICHCHIEU?.PHONGCHIEU?.MA_RAP.Trim() != maRapNhanVien.Trim())
+            if (!string.IsNullOrEmpty(maRapNhanVien) && donHang.LICHCHIEU.PHONGCHIEU.MA_RAP.Trim() != maRapNhanVien.Trim())
             {
                 res.HopLe = false;
                 res.LoaiKetQua = "SAI_RAP";

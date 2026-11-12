@@ -771,6 +771,43 @@
             align-items: center;
             gap: 4px;
         }
+        /* PHIM CÙNG THỂ LOẠI: giữ lớp phủ nằm gọn trong poster của từng thẻ */
+        .related-movies-section .movie-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .25s, border-color .25s;
+        }
+
+            .related-movies-section .movie-card:hover {
+                transform: translateY(-4px);
+                border-color: rgba(232,184,75,.4);
+            }
+
+        .related-movies-section .movie-poster {
+            position: relative;
+            aspect-ratio: 2/3;
+            overflow: hidden;
+        }
+
+            .related-movies-section .movie-poster img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .related-movies-section .poster-overlay {
+            z-index: 1;
+        }
+
+        .related-movies-section .movie-card:hover .poster-overlay {
+            opacity: 1;
+        }
     </style>
 }
 
@@ -936,12 +973,8 @@
                             <span class="detail-label">Quy định vé</span>
                             <div class="detail-value">
                                 @{
-                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.
-Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.
-Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.
-Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
-                                    var arrQuyDinh = qdStr.Split('
-');
+                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in. Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse. Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm. Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
+                                    var arrQuyDinh = qdStr.Split('|');
                                 }
                                 <ul style="margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 1.7;">
                                     @foreach (var qd in arrQuyDinh)
@@ -1189,7 +1222,7 @@ Vé điện tử đã phát hành được tích lũy điểm thưởng thành v
                     {
                         foreach (var dg in danhGias)
                         {
-                            string tenKhach = dg.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khan gia CineVerse";
+                            string tenKhach = dg.KHACHHANG.TAIKHOAN.HOTEN ?? "Khan gia CineVerse";
                             string initial = !string.IsNullOrWhiteSpace(tenKhach) ? tenKhach.Substring(0, 1).ToUpper() : "K";
                             <div class="review-item-card">
                                 <div class="d-flex justify-content-between align-items-start mb-2">

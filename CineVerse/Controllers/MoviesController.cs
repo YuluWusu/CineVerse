@@ -217,7 +217,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
 
             if (soSao < 1 || soSao > 5) soSao = 5;
-            string reviewText = noiDung?.Trim();
+            string reviewText = noiDung.Trim();
             if (string.IsNullOrEmpty(reviewText))
             {
                 TempData["ToastMessage"] = "Vui lòng nhập nội dung đánh giá của bạn.";
@@ -276,7 +276,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         {
             if (disposing)
             {
-                data?.Dispose();
+                data.Dispose();
             }
             base.Dispose(disposing);
         }

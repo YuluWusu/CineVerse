@@ -80,7 +80,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 return result;
             }
 
-            decimal phuTroiSuat = lichChieu?.GIATVE_PHUTROI ?? 0m;
+            decimal phuTroiSuat = lichChieu.GIATVE_PHUTROI ?? 0m;
             bool laCuoiTuan = lichChieu != null && IsWeekend(lichChieu.NGAYCHIEU);
             decimal phuThuCuoiTuan = (laCuoiTuan && WeekendSurchargePerSeat > 0) ? WeekendSurchargePerSeat : 0m;
 
@@ -90,7 +90,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
             foreach (var ghe in danhSachGhe)
             {
-                decimal giaGoc = ghe.LOAIGHE?.GIATVE ?? 0m;
+                decimal giaGoc = ghe.LOAIGHE.GIATVE;
                 decimal donGiaGhe = giaGoc + phuTroiSuat + phuThuCuoiTuan;
 
                 tongGiaGoc += giaGoc;
@@ -99,9 +99,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
                 result.ChiTietGhe.Add(new SeatPriceItem
                 {
-                    MaGhe = ghe.MA_GHE?.Trim(),
-                    SoGhe = ghe.SOGHE?.Trim(),
-                    TenLoaiGhe = ghe.LOAIGHE?.TEN_LOAIGHE?.Trim() ?? "Thường",
+                    MaGhe = ghe.MA_GHE.Trim(),
+                    SoGhe = ghe.SOGHE.Trim(),
+                    TenLoaiGhe = ghe.LOAIGHE.TEN_LOAIGHE.Trim() ?? "Thường",
                     GiaGoc = giaGoc,
                     PhuTroiSuat = phuTroiSuat,
                     PhuThuCuoiTuan = phuThuCuoiTuan,
@@ -121,7 +121,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 var bapNuocLookup = danhSachBapNuoc.ToDictionary(b => b.MA_SANPHAM.Trim(), b => b);
                 foreach (var item in bapNuocDict)
                 {
-                    string maSp = item.Key?.Trim() ?? "";
+                    string maSp = item.Key.Trim() ?? "";
                     int soLuong = item.Value;
                     if (soLuong > 0 && bapNuocLookup.TryGetValue(maSp, out BAPNUOC product))
                     {
@@ -131,7 +131,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                         {
                             MaSanPham = product.MA_SANPHAM.Trim(),
                             TenSanPham = product.TEN_SANPHAM.Trim(),
-                            PhanLoai = product.PHANLOAI?.Trim(),
+                            PhanLoai = product.PHANLOAI.Trim(),
                             SoLuong = soLuong,
                             DonGia = product.GIABAN,
                             ThanhTien = thanhTien
@@ -146,8 +146,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             decimal tienGiam = 0m;
             if (khuyenMai != null && IsPromotionValid(khuyenMai))
             {
-                result.MaKhuyenMai = khuyenMai.MA_KM?.Trim();
-                result.TenKhuyenMai = khuyenMai.TEN_KM?.Trim();
+                result.MaKhuyenMai = khuyenMai.MA_KM.Trim();
+                result.TenKhuyenMai = khuyenMai.TEN_KM.Trim();
                 result.PhanTramGiam = khuyenMai.GIAMGIA_PHANTRAM;
 
                 // Giảm giá áp dụng trên tổng tiền vé
@@ -184,7 +184,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 return result;
             }
 
-            decimal phuTroiSuat = lichChieu?.GIATVE_PHUTROI ?? 0m;
+            decimal phuTroiSuat = lichChieu.GIATVE_PHUTROI ?? 0m;
             bool laCuoiTuan = lichChieu != null && IsWeekend(lichChieu.NGAYCHIEU);
             decimal phuThuCuoiTuan = (laCuoiTuan && WeekendSurchargePerSeat > 0) ? WeekendSurchargePerSeat : 0m;
 
@@ -194,7 +194,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
             foreach (var ghe in danhSachGhe)
             {
-                decimal giaGoc = ghe.LOAIGHE?.GIATVE ?? 0m;
+                decimal giaGoc = ghe.LOAIGHE.GIATVE;
                 decimal donGiaGhe = giaGoc + phuTroiSuat + phuThuCuoiTuan;
 
                 tongGiaGoc += giaGoc;
@@ -203,9 +203,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
                 result.ChiTietGhe.Add(new SeatPriceItem
                 {
-                    MaGhe = ghe.MA_GHE?.Trim(),
-                    SoGhe = ghe.SOGHE?.Trim(),
-                    TenLoaiGhe = ghe.LOAIGHE?.TEN_LOAIGHE?.Trim() ?? "Thường",
+                    MaGhe = ghe.MA_GHE.Trim(),
+                    SoGhe = ghe.SOGHE.Trim(),
+                    TenLoaiGhe = ghe.LOAIGHE.TEN_LOAIGHE.Trim() ?? "Thường",
                     GiaGoc = giaGoc,
                     PhuTroiSuat = phuTroiSuat,
                     PhuThuCuoiTuan = phuThuCuoiTuan,
@@ -225,7 +225,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 var monAnLookup = danhSachMonAn.ToDictionary(m => m.MA_MON.Trim(), m => m.GIA);
                 foreach (var item in monAnDict)
                 {
-                    string maMon = item.Key?.Trim() ?? "";
+                    string maMon = item.Key.Trim() ?? "";
                     int soLuong = item.Value;
                     if (soLuong > 0 && monAnLookup.TryGetValue(maMon, out decimal giaMon))
                     {
@@ -240,8 +240,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             decimal tienGiam = 0m;
             if (khuyenMai != null && IsPromotionValid(khuyenMai))
             {
-                result.MaKhuyenMai = khuyenMai.MA_KM?.Trim();
-                result.TenKhuyenMai = khuyenMai.TEN_KM?.Trim();
+                result.MaKhuyenMai = khuyenMai.MA_KM.Trim();
+                result.TenKhuyenMai = khuyenMai.TEN_KM.Trim();
                 result.PhanTramGiam = khuyenMai.GIAMGIA_PHANTRAM;
 
                 // Giảm giá áp dụng trên tiền vé
@@ -270,7 +270,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
             DateTime now = DateTime.Now;
 
-            bool conHieuLuc = string.Equals(km.TRANGTHAI?.Trim(), "HoatDong", StringComparison.OrdinalIgnoreCase)
+            bool conHieuLuc = string.Equals(km.TRANGTHAI.Trim(), "HoatDong", StringComparison.OrdinalIgnoreCase)
                            && km.NGAYBATDAU <= now
                            && km.NGAYKETTHUC >= now;
 
