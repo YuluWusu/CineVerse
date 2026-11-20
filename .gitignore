@@ -423,5 +423,7 @@ FodyWeavers.xsd
 # Temp folder and file
 docs/
 tasks/
+specs/
 scripts/
+*.bak
 CineVerse/ConnectionStrings.config

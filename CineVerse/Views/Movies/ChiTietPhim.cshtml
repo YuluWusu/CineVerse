@@ -973,13 +973,8 @@
                             <span class="detail-label">Quy định vé</span>
                             <div class="detail-value">
                                 @{
-<<<<<<< HEAD
-                                    string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in. Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse. Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm. Vé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
-                                    var arrQuyDinh = qdStr.Split('|');
-=======
                                     string qdStr = "Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.\nKhông mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.\nTrẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.\nVé điện tử đã phát hành được tích lũy điểm thưởng thành viên.";
                                     var arrQuyDinh = qdStr.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
->>>>>>> 602415a120e71a3dbea9cbed36b5227e45dbdb70
                                 }
                                 <ul style="margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 1.7;">
                                     @foreach (var qd in arrQuyDinh)
@@ -1047,11 +1042,11 @@
                             @foreach (var cinemaGroup in groupedByCinema)
                             {
                                 <div class="showtime-group">
-                                    <div class="showtime-group-label">@(cinemaGroup.Key?.TEN_RAP ?? "Rạp CinéVerse")</div>
+                                    <div class="showtime-group-label">@(cinemaGroup.Key != null && !string.IsNullOrEmpty(cinemaGroup.Key.TEN_RAP) ? cinemaGroup.Key.TEN_RAP.Trim() : "Rạp CinéVerse")</div>
                                     <div class="showtime-grid">
                                         @foreach (var lc in cinemaGroup)
                                         {
-                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU" class="showtime-btn">
+                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU.Trim()" class="showtime-btn">
                                                 <span class="showtime-time">@lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</span>
                                                 <span class="showtime-type">@lc.PHONGCHIEU.TEN_PHONG</span>
                                                 @if(lc.GIATVE_PHUTROI > 0)
