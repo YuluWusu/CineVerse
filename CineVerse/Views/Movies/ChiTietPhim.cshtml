@@ -1042,11 +1042,11 @@
                             @foreach (var cinemaGroup in groupedByCinema)
                             {
                                 <div class="showtime-group">
-                                    <div class="showtime-group-label">@(cinemaGroup.Key?.TEN_RAP ?? "Rạp CinéVerse")</div>
+                                    <div class="showtime-group-label">@(cinemaGroup.Key != null && !string.IsNullOrEmpty(cinemaGroup.Key.TEN_RAP) ? cinemaGroup.Key.TEN_RAP.Trim() : "Rạp CinéVerse")</div>
                                     <div class="showtime-grid">
                                         @foreach (var lc in cinemaGroup)
                                         {
-                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU" class="showtime-btn">
+                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU.Trim()" class="showtime-btn">
                                                 <span class="showtime-time">@lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</span>
                                                 <span class="showtime-type">@lc.PHONGCHIEU.TEN_PHONG</span>
                                                 @if(lc.GIATVE_PHUTROI > 0)
