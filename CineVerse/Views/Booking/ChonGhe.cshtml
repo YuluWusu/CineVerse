@@ -5,15 +5,18 @@
 @using DoAn_QuanLyVeXemPhimTrucTiep.Services
 @using DoAn_QuanLyVeXemPhimTrucTiep.Models
 @{
-    ViewBag.Title = "Chọn ghế ngồi - " + ((LICHCHIEU)ViewBag.LichChieu).PHIM.TEN_PHIM;
-    Layout = "~/Views/Shared/_Khung.cshtml";
     var lichChieu = ViewBag.LichChieu as LICHCHIEU;
+    var tenPhim = (lichChieu != null && lichChieu.PHIM != null && !string.IsNullOrEmpty(lichChieu.PHIM.TEN_PHIM))
+        ? lichChieu.PHIM.TEN_PHIM.Trim()
+        : "CinéVerse";
+    ViewBag.Title = "Chọn ghế ngồi - " + tenPhim;
+    Layout = "~/Views/Shared/_Khung.cshtml";
     var gheDaDat = ViewBag.GheDaDat as List<string> ?? new List<string>();
     var otherHeldSeats = ViewBag.OtherHeldSeats as List<string> ?? new List<string>();
     var myHeldSeats = ViewBag.MyHeldSeats as List<string> ?? new List<string>();
     int remainingSeconds = (int)(ViewBag.RemainingSeconds ?? 0);
-    decimal phuTroi = lichChieu.GIATVE_PHUTROI ?? 0m;
-    var cacHang = Model.GroupBy(g => g.SO_HANG).OrderBy(h => h.Key).ToList();
+    decimal phuTroi = (lichChieu != null && lichChieu.GIATVE_PHUTROI.HasValue) ? lichChieu.GIATVE_PHUTROI.Value : 0m;
+    var cacHang = (Model != null) ? Model.GroupBy(g => g.SO_HANG).OrderBy(h => h.Key).ToList() : new List<IGrouping<int, GHE>>();
 }
 
 @section Styles {
@@ -294,12 +297,12 @@
         <div class="adm-card" style="margin-bottom:20px">
             <div class="adm-card-body d-flex flex-wrap justify-content-between align-items-center gap-2" style="padding:15px 20px">
                 <div>
-                    <strong style="font-size:18px; color:#fff;">@lichChieu.PHIM.TEN_PHIM</strong><br />
+                    <strong style="font-size:18px; color:#fff;">@(lichChieu != null && lichChieu.PHIM != null && !string.IsNullOrEmpty(lichChieu.PHIM.TEN_PHIM) ? lichChieu.PHIM.TEN_PHIM.Trim() : "Phim CinéVerse")</strong><br />
                     <span style="color:var(--text-sec); font-size:14px;">
-                        <i class="bi bi-building me-1"></i> @lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP &nbsp;·&nbsp;
-                        <i class="bi bi-door-open me-1"></i> @lichChieu.PHONGCHIEU.TEN_PHONG &nbsp;·&nbsp;
-                        <i class="bi bi-calendar3 me-1"></i> @lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") &nbsp;·&nbsp;
-                        <i class="bi bi-clock me-1"></i> @lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")
+                        <i class="bi bi-building me-1"></i> @(lichChieu != null && lichChieu.PHONGCHIEU != null && lichChieu.PHONGCHIEU.RAPCHIEU != null && !string.IsNullOrEmpty(lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP) ? lichChieu.PHONGCHIEU.RAPCHIEU.TEN_RAP.Trim() : "CinéVerse") &nbsp;·&nbsp;
+                        <i class="bi bi-door-open me-1"></i> @(lichChieu != null && lichChieu.PHONGCHIEU != null && !string.IsNullOrEmpty(lichChieu.PHONGCHIEU.TEN_PHONG) ? lichChieu.PHONGCHIEU.TEN_PHONG.Trim() : "") &nbsp;·&nbsp;
+                        <i class="bi bi-calendar3 me-1"></i> @(lichChieu != null ? lichChieu.NGAYCHIEU.ToString("dd/MM/yyyy") : "") &nbsp;·&nbsp;
+                        <i class="bi bi-clock me-1"></i> @(lichChieu != null && lichChieu.KHUNGGIO != null ? lichChieu.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") : "")
                     </span>
                 </div>
                 <div class="live-status-pill">
@@ -315,65 +318,79 @@
                 <small class="text-muted"><i class="bi bi-shield-check me-1"></i> Ghế được bảo lưu 7 phút khi bạn tiếp tục</small>
             </div>
             <div class="adm-card-body">
-                <div class="screen-label">MÀN HÌNH CHIẾU</div>
-                <div class="screen-bar"></div>
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-grid-3x3 text-muted" style="font-size: 48px; opacity: 0.5;"></i>
+                        <h5 class="text-white mt-3 mb-2">Chưa có sơ đồ ghế cho suất chiếu này</h5>
+                        <p class="text-muted mb-4" style="max-width: 480px; margin: 0 auto;">Phòng chiếu hiện đang được cập nhật cấu hình ghế ngồi hoặc bảo trì. Quý khách vui lòng quay lại chọn suất chiếu khác.</p>
+                        <a href="@(lichChieu != null && !string.IsNullOrEmpty(lichChieu.MA_PHIM) ? "/Movies/ChiTietPhim/" + lichChieu.MA_PHIM.Trim() : "/Movies/DanhSachPhim")" class="btn-adm-primary">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại chi tiết phim
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="screen-label">MÀN HÌNH CHIẾU</div>
+                    <div class="screen-bar"></div>
 
-                <div class="seat-wrap">
-                    @foreach (var hang in cacHang)
-                    {
-                        <div class="seat-row" data-hang="@hang.Key">
-                            @foreach (var ghe in hang.OrderBy(g => g.SO_COT))
-                            {
-                                string maGhe = ghe.MA_GHE.Trim().ToUpper();
-                                bool daDat = gheDaDat.Contains(maGhe);
-                                bool otherHold = otherHeldSeats.Contains(maGhe);
-                                bool myHold = myHeldSeats.Contains(maGhe);
-                                string tenLoai = ghe.LOAIGHE.TEN_LOAIGHE.Trim() ?? "Thường";
-                                bool laVIP = (tenLoai == "VIP");
-                                bool laDoi = (tenLoai.Contains("Đôi") || ghe.MA_LOAIGHE.Trim() == "LG03");
+                    <div class="seat-wrap">
+                        @foreach (var hang in cacHang)
+                        {
+                            <div class="seat-row" data-hang="@hang.Key">
+                                @foreach (var ghe in hang.OrderBy(g => g.SO_COT))
+                                {
+                                    string maGhe = ghe.MA_GHE != null ? ghe.MA_GHE.Trim().ToUpper() : "";
+                                    bool daDat = gheDaDat.Contains(maGhe);
+                                    bool otherHold = otherHeldSeats.Contains(maGhe);
+                                    bool myHold = myHeldSeats.Contains(maGhe);
+                                    string tenLoai = (ghe.LOAIGHE != null && !string.IsNullOrEmpty(ghe.LOAIGHE.TEN_LOAIGHE)) ? ghe.LOAIGHE.TEN_LOAIGHE.Trim() : "Thường";
+                                    bool laVIP = (tenLoai == "VIP");
+                                    bool laDoi = (tenLoai.IndexOf("Đôi", StringComparison.OrdinalIgnoreCase) >= 0 || (ghe.MA_LOAIGHE != null && ghe.MA_LOAIGHE.Trim() == "LG03"));
 
-                                string lop = "seat";
-                                if (laVIP) { lop += " vip"; }
-                                if (laDoi) { lop += " doi"; }
+                                    string lop = "seat";
+                                    if (laVIP) { lop += " vip"; }
+                                    if (laDoi) { lop += " doi"; }
 
-                                if (daDat) { lop += " taken"; }
-                                else if (otherHold) { lop += " held"; }
-                                else if (myHold) { lop += " chon"; }
+                                    if (daDat) { lop += " taken"; }
+                                    else if (otherHold) { lop += " held"; }
+                                    else if (myHold) { lop += " chon"; }
 
-                                string soGheHienThi = !string.IsNullOrEmpty(ghe.SOGHE) ? ghe.SOGHE.Trim() : maGhe;
-                                decimal donGiaGhe = (ghe.LOAIGHE != null ? ghe.LOAIGHE.GIATVE : 0m) + phuTroi;
-                                string gia = donGiaGhe.ToString("0");
-                                string tieuDeGhe = tenLoai + " (" + soGheHienThi + ") - " + String.Format("{0:0,0}", donGiaGhe) + "đ";
-                                if (daDat) { tieuDeGhe += " [Đã bán]"; }
-                                else if (otherHold) { tieuDeGhe += " [Đang có người giữ]"; }
+                                    string soGheHienThi = !string.IsNullOrEmpty(ghe.SOGHE) ? ghe.SOGHE.Trim() : maGhe;
+                                    decimal donGiaGhe = (ghe.LOAIGHE != null ? ghe.LOAIGHE.GIATVE : 0m) + phuTroi;
+                                    string gia = donGiaGhe.ToString("0");
+                                    string tieuDeGhe = tenLoai + " (" + soGheHienThi + ") - " + String.Format("{0:0,0}", donGiaGhe) + "đ";
+                                    if (daDat) { tieuDeGhe += " [Đã bán]"; }
+                                    else if (otherHold) { tieuDeGhe += " [Đang có người giữ]"; }
 
-                                <button type="button"
-                                        class="@lop"
-                                        id="btn-seat-@maGhe"
-                                        data-ma="@maGhe"
-                                        data-soghe="@soGheHienThi"
-                                        data-hang="@ghe.SO_HANG"
-                                        data-cot="@ghe.SO_COT"
-                                        data-loai="@tenLoai"
-                                        data-gia="@gia"
-                                        @(daDat || otherHold ? "disabled" : "")
-                                        title="@tieuDeGhe">
-                                    @soGheHienThi
-                                </button>
-                            }
-                        </div>
-                    }
-                </div>
+                                    <button type="button"
+                                            class="@lop"
+                                            id="btn-seat-@maGhe"
+                                            data-ma="@maGhe"
+                                            data-soghe="@soGheHienThi"
+                                            data-hang="@ghe.SO_HANG"
+                                            data-cot="@ghe.SO_COT"
+                                            data-loai="@tenLoai"
+                                            data-gia="@gia"
+                                            @(daDat || otherHold ? "disabled" : "")
+                                            title="@tieuDeGhe">
+                                        @soGheHienThi
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
 
-                <!-- Bảng Chú Thích (4 Trạng thái trực quan) -->
-                <div class="legend">
-                    <div class="legend-item"><span class="legend-box"></span> Ghế thường</div>
-                    <div class="legend-item"><span class="legend-box" style="border-color:rgba(229,166,35,.7)"></span> VIP</div>
-                    <div class="legend-item"><span class="legend-box" style="border-color:rgba(75,139,232,.7); width:28px;"></span> Ghế đôi</div>
-                    <div class="legend-item"><span class="legend-box" style="background:#e5a623; border-color:#e5a623;"></span> Đang chọn (Bạn)</div>
-                    <div class="legend-item"><span class="legend-box" style="background:rgba(255,140,0,0.3); border-color:#ff9800;"></span> Đang giữ chỗ (Người khác ⏳)</div>
-                    <div class="legend-item"><span class="legend-box" style="background:rgba(232,75,75,.3); border-color:rgba(232,75,75,.5); text-decoration:line-through;"></span> Đã bán</div>
-                </div>
+                    <!-- Bảng Chú Thích (4 Trạng thái trực quan) -->
+                    <div class="legend">
+                        <div class="legend-item"><span class="legend-box"></span> Ghế thường</div>
+                        <div class="legend-item"><span class="legend-box" style="border-color:rgba(229,166,35,.7)"></span> VIP</div>
+                        <div class="legend-item"><span class="legend-box" style="border-color:rgba(75,139,232,.7); width:28px;"></span> Ghế đôi</div>
+                        <div class="legend-item"><span class="legend-box" style="background:#e5a623; border-color:#e5a623;"></span> Đang chọn (Bạn)</div>
+                        <div class="legend-item"><span class="legend-box" style="background:rgba(255,140,0,0.3); border-color:#ff9800;"></span> Đang giữ chỗ (Người khác ⏳)</div>
+                        <div class="legend-item"><span class="legend-box" style="background:rgba(232,75,75,.3); border-color:rgba(232,75,75,.5); text-decoration:line-through;"></span> Đã bán</div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -386,7 +403,7 @@
                     <div style="font-size:13px;color:var(--text-sec);margin-top:4px" id="gheDangChon">Chưa chọn ghế</div>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <a href="/Movies/ChiTietPhim/@lichChieu.MA_PHIM.Trim()" class="btn-adm-ghost">Quay lại</a>
+                    <a href="@(lichChieu != null && !string.IsNullOrEmpty(lichChieu.MA_PHIM) ? "/Movies/ChiTietPhim/" + lichChieu.MA_PHIM.Trim() : "/Movies/DanhSachPhim")" class="btn-adm-ghost">Quay lại</a>
                     <button type="button" class="btn-adm-ghost text-warning border-warning" id="nutThemGio" disabled onclick="themVaoGioHang()">
                         <i class="bi bi-cart-plus me-1"></i> Thêm vào Giỏ hàng
                     </button>
@@ -403,7 +420,7 @@
 @section Scripts {
     <script>
         (function () {
-            var maLichChieu = "@lichChieu.MA_LICHCHIEU.Trim()";
+            var maLichChieu = "@(lichChieu != null && !string.IsNullOrEmpty(lichChieu.MA_LICHCHIEU) ? lichChieu.MA_LICHCHIEU.Trim() : "")";
             var daChon = [];
             var nut = document.getElementById('nutThanhToan');
             var alertDiv = document.getElementById('seatRuleAlert');
@@ -414,7 +431,7 @@
             {
                 foreach (var s in myHeldSeats)
                 {
-                    <text>daChon.push("@s.Trim().ToUpper()");</text>
+                    <text>daChon.push("@(s != null ? s.Trim().ToUpper() : "")");</text>
                 }
             }
 
