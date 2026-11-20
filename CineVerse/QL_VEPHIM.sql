@@ -3,10 +3,17 @@
    ----------------------------------------------------------------------------
     */
 
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'QL_VEPHIM')
+USE master;
+GO
+
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'QL_VEPHIM')
 BEGIN
-    CREATE DATABASE QL_VEPHIM;
+    ALTER DATABASE QL_VEPHIM SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE QL_VEPHIM;
 END
+GO
+
+CREATE DATABASE QL_VEPHIM;
 GO
 
 USE QL_VEPHIM;
@@ -420,16 +427,191 @@ INSERT INTO KHUNGGIO VALUES
 ('KG06', '21:45', '23:59');
 GO
 
-INSERT INTO LICHCHIEU VALUES
-('LC001', 'P0001', 'PA01', 'KG03', '2025-04-15', 0),
-('LC002', 'P0001', 'PA01', 'KG05', '2025-04-15', 20000), 
-('LC003', 'P0002', 'PA01', 'KG02', '2025-04-15', 0),
-('LC004', 'P0001', 'PA01', 'KG03', '2025-04-16', 0),
-('LC005', 'P0015', 'PC01', 'KG05', '2025-04-30', 30000),
-('LC006', 'P0001', 'PD01', 'KG06', '2025-04-30', 25000),
-('LC007', 'P0005', 'PC02', 'KG03', '2025-04-30', 0),
-('LC008', 'P0012', 'PD02', 'KG04', '2025-04-30', 0),
-('LC009', 'P0018', 'PC05', 'KG01', '2025-05-01', 10000);
+INSERT INTO LICHCHIEU (MA_LICHCHIEU, MA_PHIM, MA_PHONG, MA_KHUNGGIO, NGAYCHIEU, GIATVE_PHUTROI) VALUES
+/* --- 1. CÁC SUẤT CHIẾU MẪU BAN ĐẦU (GẮN LIỀN VỚI ĐƠN HÀNG DH001, DH002) --- */
+('LC001', 'P0001', 'PA01', 'KG03', '2025-04-15', 0), -- Huế - Avengers chiều
+('LC002', 'P0001', 'PA01', 'KG05', '2025-04-15', 20000), -- Huế - Avengers tối
+('LC003', 'P0002', 'PA01', 'KG02', '2025-04-15', 0), -- Huế - Conan trưa
+('LC004', 'P0001', 'PA01', 'KG03', '2025-04-16', 0), -- Huế - Avengers chiều
+('LC005', 'P0015', 'PC01', 'KG05', '2025-04-30', 30000), -- HN - Dune 2 tối VIP
+('LC006', 'P0001', 'PD01', 'KG06', '2025-04-30', 25000), -- HCM - Avengers đêm VIP
+('LC007', 'P0005', 'PC02', 'KG03', '2025-04-30', 0), -- HN - Nhà Bà Nữ 2 chiều
+('LC008', 'P0012', 'PD02', 'KG04', '2025-04-30', 0), -- HCM - Kẻ Ăn Hồn chiều
+('LC009', 'P0018', 'PC05', 'KG01', '2025-05-01', 10000), -- HN - Inside Out 2 sáng
+
+/* --- 2. DẢI 1: MỞ RỘNG SUẤT CHIẾU LỊCH SỬ (THÁNG 04 - THÁNG 05/2025) --- */
+('LC010', 'P0002', 'PA02', 'KG03', '2025-04-15', 0), -- Huế - Conan chiều
+('LC011', 'P0005', 'PA02', 'KG05', '2025-04-15', 15000), -- Huế - Nhà Bà Nữ 2 tối
+('LC012', 'P0001', 'PB01', 'KG03', '2025-04-15', 0), -- Đà Nẵng - Avengers chiều
+('LC013', 'P0001', 'PB01', 'KG05', '2025-04-15', 20000), -- Đà Nẵng - Avengers tối
+('LC014', 'P0006', 'PC01', 'KG03', '2025-04-15', 0), -- Hà Nội - Oppenheimer chiều
+('LC015', 'P0006', 'PC01', 'KG05', '2025-04-15', 30000), -- Hà Nội - Oppenheimer tối VIP
+('LC016', 'P0007', 'PC02', 'KG02', '2025-04-15', 0), -- Hà Nội - Barbie trưa
+('LC017', 'P0008', 'PC02', 'KG04', '2025-04-15', 0), -- Hà Nội - Wonka chiều
+('LC018', 'P0001', 'PD01', 'KG03', '2025-04-15', 0), -- TP.HCM - Avengers chiều
+('LC019', 'P0001', 'PD01', 'KG05', '2025-04-15', 30000), -- TP.HCM - Avengers tối VIP
+('LC020', 'P0010', 'PD02', 'KG04', '2025-04-15', 0), -- TP.HCM - Godzilla x Kong chiều
+('LC021', 'P0010', 'PD02', 'KG05', '2025-04-15', 25000), -- TP.HCM - Godzilla x Kong tối
+('LC022', 'P0001', 'PA01', 'KG05', '2025-04-16', 20000), -- Huế - Avengers tối
+('LC023', 'P0002', 'PA02', 'KG04', '2025-04-16', 0), -- Huế - Conan chiều
+('LC024', 'P0015', 'PC01', 'KG04', '2025-04-16', 0), -- Hà Nội - Dune 2 chiều
+('LC025', 'P0015', 'PC01', 'KG05', '2025-04-16', 30000), -- Hà Nội - Dune 2 tối VIP
+('LC026', 'P0014', 'PD01', 'KG04', '2025-04-16', 0), -- TP.HCM - Deadpool 3 chiều
+('LC027', 'P0014', 'PD01', 'KG05', '2025-04-16', 30000), -- TP.HCM - Deadpool 3 tối VIP
+('LC028', 'P0001', 'PA01', 'KG04', '2025-04-30', 0), -- Huế - Avengers chiều lễ
+('LC029', 'P0001', 'PA01', 'KG05', '2025-04-30', 20000), -- Huế - Avengers tối lễ
+('LC030', 'P0013', 'PA02', 'KG03', '2025-04-30', 0), -- Huế - Đất Rừng Phương Nam chiều
+('LC031', 'P0013', 'PA02', 'KG05', '2025-04-30', 15000), -- Huế - Đất Rừng Phương Nam tối
+('LC032', 'P0014', 'PB01', 'KG04', '2025-04-30', 0), -- Đà Nẵng - Deadpool 3 chiều lễ
+('LC033', 'P0014', 'PB01', 'KG05', '2025-04-30', 20000), -- Đà Nẵng - Deadpool 3 tối lễ
+('LC034', 'P0006', 'PC01', 'KG03', '2025-04-30', 0), -- Hà Nội - Oppenheimer chiều lễ
+('LC035', 'P0010', 'PC03', 'KG04', '2025-04-30', 0), -- Hà Nội - Godzilla x Kong chiều lễ
+('LC036', 'P0010', 'PC03', 'KG05', '2025-04-30', 25000), -- Hà Nội - Godzilla x Kong tối lễ
+('LC037', 'P0018', 'PC04', 'KG02', '2025-04-30', 0), -- Hà Nội - Inside Out 2 trưa lễ
+('LC038', 'P0018', 'PC04', 'KG04', '2025-04-30', 0), -- Hà Nội - Inside Out 2 chiều lễ
+('LC039', 'P0015', 'PD01', 'KG03', '2025-04-30', 0), -- TP.HCM - Dune 2 chiều lễ
+('LC040', 'P0015', 'PD01', 'KG05', '2025-04-30', 30000), -- TP.HCM - Dune 2 tối lễ VIP
+('LC041', 'P0005', 'PD03', 'KG03', '2025-04-30', 0), -- TP.HCM - Nhà Bà Nữ 2 chiều lễ
+('LC042', 'P0005', 'PD03', 'KG05', '2025-04-30', 25000), -- TP.HCM - Nhà Bà Nữ 2 tối lễ
+('LC043', 'P0020', 'PD04', 'KG02', '2025-04-30', 0), -- TP.HCM - Kung Fu Panda 4 trưa lễ
+('LC044', 'P0020', 'PD04', 'KG04', '2025-04-30', 0), -- TP.HCM - Kung Fu Panda 4 chiều lễ
+('LC045', 'P0002', 'PA01', 'KG03', '2025-05-01', 0), -- Huế - Conan chiều
+('LC046', 'P0002', 'PA01', 'KG05', '2025-05-01', 15000), -- Huế - Conan tối
+('LC047', 'P0009', 'PB01', 'KG04', '2025-05-01', 0), -- Đà Nẵng - Aquaman 2 chiều
+('LC048', 'P0009', 'PB01', 'KG05', '2025-05-01', 20000), -- Đà Nẵng - Aquaman 2 tối
+('LC049', 'P0001', 'PC01', 'KG04', '2025-05-01', 0), -- Hà Nội - Avengers chiều lễ
+('LC050', 'P0001', 'PC01', 'KG05', '2025-05-01', 30000), -- Hà Nội - Avengers tối lễ VIP
+('LC051', 'P0019', 'PC02', 'KG02', '2025-05-01', 0), -- Hà Nội - Despicable Me 4 trưa
+('LC052', 'P0019', 'PC02', 'KG04', '2025-05-01', 0), -- Hà Nội - Despicable Me 4 chiều
+('LC053', 'P0014', 'PD01', 'KG04', '2025-05-01', 0), -- TP.HCM - Deadpool 3 chiều lễ
+('LC054', 'P0014', 'PD01', 'KG05', '2025-05-01', 30000), -- TP.HCM - Deadpool 3 tối lễ VIP
+('LC055', 'P0022', 'PD02', 'KG05', '2025-05-01', 25000), -- TP.HCM - Venom 3 tối
+('LC056', 'P0022', 'PD02', 'KG06', '2025-05-01', 20000), -- TP.HCM - Venom 3 đêm muộn
+
+/* --- 3. DẢI 2: MỞ RỘNG SUẤT CHIẾU TUẦN THỰC TẾ HIỆN TẠI (THÁNG 11/2026) --- */
+('LC057', 'P0001', 'PC01', 'KG02', '2026-11-20', 0), -- HN - Avengers trưa T6
+('LC058', 'P0001', 'PC01', 'KG04', '2026-11-20', 0), -- HN - Avengers chiều T6
+('LC059', 'P0001', 'PC01', 'KG05', '2026-11-20', 30000), -- HN - Avengers tối VIP T6
+('LC060', 'P0001', 'PC01', 'KG06', '2026-11-20', 20000), -- HN - Avengers đêm T6
+('LC061', 'P0002', 'PC02', 'KG02', '2026-11-20', 0), -- HN - Conan trưa T6
+('LC062', 'P0002', 'PC02', 'KG04', '2026-11-20', 0), -- HN - Conan chiều T6
+('LC063', 'P0002', 'PC02', 'KG05', '2026-11-20', 20000), -- HN - Conan tối T6
+('LC064', 'P0006', 'PC03', 'KG03', '2026-11-20', 0), -- HN - Oppenheimer chiều T6
+('LC065', 'P0006', 'PC03', 'KG05', '2026-11-20', 25000), -- HN - Oppenheimer tối T6
+('LC066', 'P0015', 'PC04', 'KG04', '2026-11-20', 0), -- HN - Dune 2 chiều T6
+('LC067', 'P0015', 'PC04', 'KG05', '2026-11-20', 25000), -- HN - Dune 2 tối T6
+('LC068', 'P0018', 'PC05', 'KG01', '2026-11-20', 0), -- HN - Inside Out 2 sáng T6
+('LC069', 'P0018', 'PC05', 'KG03', '2026-11-20', 0), -- HN - Inside Out 2 chiều T6
+('LC070', 'P0012', 'PC05', 'KG05', '2026-11-20', 20000), -- HN - Kẻ Ăn Hồn tối T6
+('LC071', 'P0012', 'PC05', 'KG06', '2026-11-20', 15000), -- HN - Kẻ Ăn Hồn đêm T6
+('LC072', 'P0020', 'PC06', 'KG02', '2026-11-20', 0), -- HN - Kung Fu Panda 4 trưa T6
+('LC073', 'P0021', 'PC06', 'KG05', '2026-11-20', 20000), -- HN - Furiosa tối T6
+('LC074', 'P0014', 'PD01', 'KG02', '2026-11-20', 0), -- HCM - Deadpool 3 trưa T6
+('LC075', 'P0014', 'PD01', 'KG04', '2026-11-20', 0), -- HCM - Deadpool 3 chiều T6
+('LC076', 'P0014', 'PD01', 'KG05', '2026-11-20', 30000), -- HCM - Deadpool 3 tối VIP T6
+('LC077', 'P0014', 'PD01', 'KG06', '2026-11-20', 25000), -- HCM - Deadpool 3 đêm T6
+('LC078', 'P0005', 'PD02', 'KG03', '2026-11-20', 0), -- HCM - Nhà Bà Nữ 2 chiều T6
+('LC079', 'P0005', 'PD02', 'KG05', '2026-11-20', 25000), -- HCM - Nhà Bà Nữ 2 tối T6
+('LC080', 'P0010', 'PD03', 'KG04', '2026-11-20', 0), -- HCM - Godzilla x Kong chiều T6
+('LC081', 'P0010', 'PD03', 'KG05', '2026-11-20', 25000), -- HCM - Godzilla x Kong tối T6
+('LC082', 'P0019', 'PD04', 'KG01', '2026-11-20', 0), -- HCM - Despicable Me 4 sáng T6
+('LC083', 'P0019', 'PD04', 'KG03', '2026-11-20', 0), -- HCM - Despicable Me 4 chiều T6
+('LC084', 'P0022', 'PD04', 'KG05', '2026-11-20', 25000), -- HCM - Venom 3 tối T6
+('LC085', 'P0022', 'PD04', 'KG06', '2026-11-20', 20000), -- HCM - Venom 3 đêm T6
+('LC086', 'P0009', 'PD05', 'KG04', '2026-11-20', 0), -- HCM - Aquaman 2 chiều T6
+('LC087', 'P0009', 'PD05', 'KG05', '2026-11-20', 20000), -- HCM - Aquaman 2 tối T6
+('LC088', 'P0008', 'PD06', 'KG02', '2026-11-20', 0), -- HCM - Wonka trưa T6
+('LC089', 'P0017', 'PD06', 'KG05', '2026-11-20', 20000), -- HCM - Joker 2 tối T6
+('LC090', 'P0001', 'PA01', 'KG03', '2026-11-20', 0), -- Huế - Avengers chiều T6
+('LC091', 'P0001', 'PA01', 'KG05', '2026-11-20', 20000), -- Huế - Avengers tối T6
+('LC092', 'P0002', 'PA02', 'KG04', '2026-11-20', 0), -- Huế - Conan chiều T6
+('LC093', 'P0002', 'PA02', 'KG05', '2026-11-20', 15000), -- Huế - Conan tối T6
+('LC094', 'P0015', 'PB01', 'KG03', '2026-11-20', 0), -- Đà Nẵng - Dune 2 chiều T6
+('LC095', 'P0015', 'PB01', 'KG05', '2026-11-20', 20000), -- Đà Nẵng - Dune 2 tối T6
+('LC096', 'P0001', 'PC01', 'KG01', '2026-11-21', 0), -- HN - Avengers sáng T7
+('LC097', 'P0001', 'PC01', 'KG03', '2026-11-21', 0), -- HN - Avengers chiều T7
+('LC098', 'P0001', 'PC01', 'KG05', '2026-11-21', 30000), -- HN - Avengers tối VIP T7
+('LC099', 'P0001', 'PC01', 'KG06', '2026-11-21', 25000), -- HN - Avengers đêm T7
+('LC100', 'P0002', 'PC02', 'KG02', '2026-11-21', 0), -- HN - Conan trưa T7
+('LC101', 'P0002', 'PC02', 'KG04', '2026-11-21', 0), -- HN - Conan chiều T7
+('LC102', 'P0002', 'PC02', 'KG05', '2026-11-21', 25000), -- HN - Conan tối T7
+('LC103', 'P0014', 'PC03', 'KG04', '2026-11-21', 0), -- HN - Deadpool 3 chiều T7
+('LC104', 'P0014', 'PC03', 'KG05', '2026-11-21', 30000), -- HN - Deadpool 3 tối T7
+('LC105', 'P0018', 'PC04', 'KG01', '2026-11-21', 0), -- HN - Inside Out 2 sáng T7
+('LC106', 'P0018', 'PC04', 'KG03', '2026-11-21', 0), -- HN - Inside Out 2 chiều T7
+('LC107', 'P0011', 'PC04', 'KG05', '2026-11-21', 20000), -- HN - FNAF tối T7
+('LC108', 'P0011', 'PC04', 'KG06', '2026-11-21', 20000), -- HN - FNAF đêm T7
+('LC109', 'P0023', 'PC05', 'KG02', '2026-11-21', 0), -- HN - Cậu Bé Và Chim Diệc trưa T7
+('LC110', 'P0016', 'PC05', 'KG05', '2026-11-21', 20000), -- HN - The Fall Guy tối T7
+('LC111', 'P0003', 'PC06', 'KG05', '2026-11-21', 25000), -- HN - Sneak Show Kinh Dị Vùng Rừng Sâu tối T7
+('LC112', 'P0003', 'PC06', 'KG06', '2026-11-21', 20000), -- HN - Sneak Show Kinh Dị Vùng Rừng Sâu đêm T7
+('LC113', 'P0015', 'PD01', 'KG02', '2026-11-21', 0), -- HCM - Dune 2 trưa T7
+('LC114', 'P0015', 'PD01', 'KG04', '2026-11-21', 0), -- HCM - Dune 2 chiều T7
+('LC115', 'P0015', 'PD01', 'KG05', '2026-11-21', 30000), -- HCM - Dune 2 tối VIP T7
+('LC116', 'P0015', 'PD01', 'KG06', '2026-11-21', 25000), -- HCM - Dune 2 đêm T7
+('LC117', 'P0005', 'PD02', 'KG03', '2026-11-21', 0), -- HCM - Nhà Bà Nữ 2 chiều T7
+('LC118', 'P0005', 'PD02', 'KG05', '2026-11-21', 30000), -- HCM - Nhà Bà Nữ 2 tối T7
+('LC119', 'P0001', 'PD03', 'KG04', '2026-11-21', 0), -- HCM - Avengers chiều T7
+('LC120', 'P0001', 'PD03', 'KG05', '2026-11-21', 30000), -- HCM - Avengers tối T7
+('LC121', 'P0020', 'PD04', 'KG01', '2026-11-21', 0), -- HCM - Kung Fu Panda 4 sáng T7
+('LC122', 'P0020', 'PD04', 'KG03', '2026-11-21', 0), -- HCM - Kung Fu Panda 4 chiều T7
+('LC123', 'P0026', 'PD04', 'KG05', '2026-11-21', 30000), -- HCM - Sneak Show Deadpool & Wolverine tối T7
+('LC124', 'P0010', 'PD05', 'KG04', '2026-11-21', 0), -- HCM - Godzilla x Kong chiều T7
+('LC125', 'P0010', 'PD05', 'KG05', '2026-11-21', 25000), -- HCM - Godzilla x Kong tối T7
+('LC126', 'P0007', 'PD06', 'KG02', '2026-11-21', 0), -- HCM - Barbie trưa T7
+('LC127', 'P0022', 'PD06', 'KG05', '2026-11-21', 25000), -- HCM - Venom 3 tối T7
+('LC128', 'P0014', 'PA01', 'KG03', '2026-11-21', 0), -- Huế - Deadpool 3 chiều T7
+('LC129', 'P0014', 'PA01', 'KG05', '2026-11-21', 20000), -- Huế - Deadpool 3 tối T7
+('LC130', 'P0005', 'PA02', 'KG04', '2026-11-21', 0), -- Huế - Nhà Bà Nữ 2 chiều T7
+('LC131', 'P0005', 'PA02', 'KG05', '2026-11-21', 15000), -- Huế - Nhà Bà Nữ 2 tối T7
+('LC132', 'P0001', 'PB01', 'KG03', '2026-11-21', 0), -- Đà Nẵng - Avengers chiều T7
+('LC133', 'P0001', 'PB01', 'KG05', '2026-11-21', 20000), -- Đà Nẵng - Avengers tối T7
+('LC134', 'P0001', 'PC01', 'KG03', '2026-11-22', 0), -- HN - Avengers chiều CN
+('LC135', 'P0001', 'PC01', 'KG05', '2026-11-22', 30000), -- HN - Avengers tối VIP CN
+('LC136', 'P0002', 'PC02', 'KG04', '2026-11-22', 0), -- HN - Conan chiều CN
+('LC137', 'P0002', 'PC02', 'KG05', '2026-11-22', 20000), -- HN - Conan tối CN
+('LC138', 'P0006', 'PC03', 'KG04', '2026-11-22', 0), -- HN - Oppenheimer chiều CN
+('LC139', 'P0006', 'PC03', 'KG05', '2026-11-22', 25000), -- HN - Oppenheimer tối CN
+('LC140', 'P0019', 'PC04', 'KG02', '2026-11-22', 0), -- HN - Despicable Me 4 trưa CN
+('LC141', 'P0019', 'PC04', 'KG04', '2026-11-22', 0), -- HN - Despicable Me 4 chiều CN
+('LC142', 'P0014', 'PD01', 'KG03', '2026-11-22', 0), -- HCM - Deadpool 3 chiều CN
+('LC143', 'P0014', 'PD01', 'KG05', '2026-11-22', 30000), -- HCM - Deadpool 3 tối VIP CN
+('LC144', 'P0015', 'PD02', 'KG04', '2026-11-22', 0), -- HCM - Dune 2 chiều CN
+('LC145', 'P0015', 'PD02', 'KG05', '2026-11-22', 25000), -- HCM - Dune 2 tối CN
+('LC146', 'P0018', 'PD03', 'KG02', '2026-11-22', 0), -- HCM - Inside Out 2 trưa CN
+('LC147', 'P0018', 'PD03', 'KG04', '2026-11-22', 0), -- HCM - Inside Out 2 chiều CN
+('LC148', 'P0001', 'PA01', 'KG05', '2026-11-22', 20000), -- Huế - Avengers tối CN
+('LC149', 'P0014', 'PB01', 'KG05', '2026-11-22', 20000), -- Đà Nẵng - Deadpool 3 tối CN
+('LC150', 'P0001', 'PC01', 'KG04', '2026-11-23', 0), -- HN - Avengers chiều T2
+('LC151', 'P0001', 'PC01', 'KG05', '2026-11-23', 25000), -- HN - Avengers tối T2
+('LC152', 'P0015', 'PC02', 'KG05', '2026-11-23', 20000), -- HN - Dune 2 tối T2
+('LC153', 'P0014', 'PD01', 'KG04', '2026-11-23', 0), -- HCM - Deadpool 3 chiều T2
+('LC154', 'P0014', 'PD01', 'KG05', '2026-11-23', 25000), -- HCM - Deadpool 3 tối T2
+('LC155', 'P0005', 'PD02', 'KG05', '2026-11-23', 20000), -- HCM - Nhà Bà Nữ 2 tối T2
+('LC156', 'P0002', 'PC01', 'KG04', '2026-11-24', 0), -- HN - Conan chiều T3
+('LC157', 'P0002', 'PC01', 'KG05', '2026-11-24', 20000), -- HN - Conan tối T3
+('LC158', 'P0010', 'PC02', 'KG05', '2026-11-24', 20000), -- HN - Godzilla x Kong tối T3
+('LC159', 'P0001', 'PD01', 'KG04', '2026-11-24', 0), -- HCM - Avengers chiều T3
+('LC160', 'P0001', 'PD01', 'KG05', '2026-11-24', 25000), -- HCM - Avengers tối T3
+('LC161', 'P0022', 'PD02', 'KG05', '2026-11-24', 20000), -- HCM - Venom 3 tối T3
+('LC162', 'P0001', 'PC01', 'KG03', '2026-11-25', 0), -- HN - Avengers chiều T4
+('LC163', 'P0001', 'PC01', 'KG05', '2026-11-25', 15000), -- HN - Avengers tối T4 ưu đãi
+('LC164', 'P0006', 'PC02', 'KG05', '2026-11-25', 15000), -- HN - Oppenheimer tối T4
+('LC165', 'P0014', 'PD01', 'KG03', '2026-11-25', 0), -- HCM - Deadpool 3 chiều T4
+('LC166', 'P0014', 'PD01', 'KG05', '2026-11-25', 15000), -- HCM - Deadpool 3 tối T4 ưu đãi
+('LC167', 'P0015', 'PD02', 'KG05', '2026-11-25', 15000), -- HCM - Dune 2 tối T4
+('LC168', 'P0002', 'PC01', 'KG04', '2026-11-26', 0), -- HN - Conan chiều T5
+('LC169', 'P0002', 'PC01', 'KG05', '2026-11-26', 20000), -- HN - Conan tối T5
+('LC170', 'P0018', 'PC03', 'KG04', '2026-11-26', 0), -- HN - Inside Out 2 chiều T5
+('LC171', 'P0001', 'PD01', 'KG04', '2026-11-26', 0), -- HCM - Avengers chiều T5
+('LC172', 'P0001', 'PD01', 'KG05', '2026-11-26', 25000), -- HCM - Avengers tối T5
+('LC173', 'P0010', 'PD03', 'KG05', '2026-11-26', 20000), -- HCM - Godzilla x Kong tối T5
+('LC174', 'P0001', 'PC01', 'KG04', '2026-11-27', 0), -- HN - Avengers chiều T6
+('LC175', 'P0001', 'PC01', 'KG05', '2026-11-27', 30000), -- HN - Avengers tối VIP T6
+('LC176', 'P0015', 'PC02', 'KG05', '2026-11-27', 25000), -- HN - Dune 2 tối T6
+('LC177', 'P0014', 'PD01', 'KG04', '2026-11-27', 0), -- HCM - Deadpool 3 chiều T6
+('LC178', 'P0014', 'PD01', 'KG05', '2026-11-27', 30000), -- HCM - Deadpool 3 tối VIP T6
+('LC179', 'P0005', 'PD02', 'KG05', '2026-11-27', 25000); -- HCM - Nhà Bà Nữ 2 tối T6
 GO
 
 INSERT INTO VAITRO VALUES
