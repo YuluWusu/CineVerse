@@ -13,7 +13,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string HOTEN
         {
-            get => TAIKHOAN.HOTEN;
+            get { return TAIKHOAN != null ? TAIKHOAN.HOTEN : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.HOTEN = value;
@@ -22,7 +22,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string SDT
         {
-            get => TAIKHOAN.SDT;
+            get { return TAIKHOAN != null ? TAIKHOAN.SDT : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.SDT = value;
@@ -31,7 +31,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string EMAIL
         {
-            get => TAIKHOAN.EMAIL;
+            get { return TAIKHOAN != null ? TAIKHOAN.EMAIL : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.EMAIL = value;
@@ -40,7 +40,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string MATKHAU
         {
-            get => TAIKHOAN.MATKHAU;
+            get { return TAIKHOAN != null ? TAIKHOAN.MATKHAU : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.MATKHAU = value;
@@ -49,7 +49,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public DateTime? NGAYTAO
         {
-            get => TAIKHOAN.NGAYTAO;
+            get { return TAIKHOAN != null ? TAIKHOAN.NGAYTAO : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.NGAYTAO = value;
@@ -60,7 +60,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
         {
             get
             {
-                if (TAIKHOAN.VAITROes == null) return "KhachHang";
+                if (TAIKHOAN == null || TAIKHOAN.VAITROes == null) return "KhachHang";
                 bool isAdmin = TAIKHOAN.VAITROes.Any(v =>
                     (v.MA_VAITRO != null && v.MA_VAITRO.Trim().Equals("Admin", StringComparison.OrdinalIgnoreCase)) ||
                     (v.TEN_VAITRO != null && v.TEN_VAITRO.Trim().Equals("Admin", StringComparison.OrdinalIgnoreCase)));
@@ -94,7 +94,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string HOTEN
         {
-            get => TAIKHOAN.HOTEN;
+            get { return TAIKHOAN != null ? TAIKHOAN.HOTEN : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.HOTEN = value;
@@ -103,7 +103,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string SDT
         {
-            get => TAIKHOAN.SDT;
+            get { return TAIKHOAN != null ? TAIKHOAN.SDT : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.SDT = value;
@@ -112,7 +112,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string EMAIL
         {
-            get => TAIKHOAN.EMAIL;
+            get { return TAIKHOAN != null ? TAIKHOAN.EMAIL : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.EMAIL = value;
@@ -121,7 +121,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Models
 
         public string MATKHAU
         {
-            get => TAIKHOAN.MATKHAU;
+            get { return TAIKHOAN != null ? TAIKHOAN.MATKHAU : null; }
             set
             {
                 if (TAIKHOAN != null) TAIKHOAN.MATKHAU = value;

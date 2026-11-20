@@ -779,10 +779,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             var donHang = new DONHANG
             {
                 MA_DONHANG = maDonHang,
-                MA_KHACHHANG = khachHang.MA_KHACHHANG.Trim(),
+                MA_KHACHHANG = (khachHang != null && khachHang.MA_KHACHHANG != null) ? khachHang.MA_KHACHHANG.Trim() : null,
                 MA_NHANVIEN = nhanVien.MA_NHANVIEN.Trim(),
                 MA_LICHCHIEU = maLich,
-                MA_KM = khuyenMai.MA_KM.Trim(),
+                MA_KM = (khuyenMai != null && khuyenMai.MA_KM != null) ? khuyenMai.MA_KM.Trim() : null,
                 NGAYDAT = DateTime.Now,
                 TIENVE = tienVe,
                 TIENMONAN = tienBapNuoc,
@@ -899,17 +899,17 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             // Điền thông tin cơ bản
             res.MaDonHang = donHang.MA_DONHANG.Trim();
             res.MaCheckIn = !string.IsNullOrEmpty(donHang.MACHECKIN) ? donHang.MACHECKIN.Trim() : ("CKI-" + res.MaDonHang);
-            res.TenPhim = donHang.LICHCHIEU.PHIM.TEN_PHIM;
-            res.Poster = donHang.LICHCHIEU.PHIM.POSTER;
-            res.TenRap = donHang.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP;
-            res.TenPhong = donHang.LICHCHIEU.PHONGCHIEU.TEN_PHONG;
+            res.TenPhim = (donHang.LICHCHIEU != null && donHang.LICHCHIEU.PHIM != null) ? donHang.LICHCHIEU.PHIM.TEN_PHIM : "";
+            res.Poster = (donHang.LICHCHIEU != null && donHang.LICHCHIEU.PHIM != null) ? donHang.LICHCHIEU.PHIM.POSTER : "";
+            res.TenRap = (donHang.LICHCHIEU != null && donHang.LICHCHIEU.PHONGCHIEU != null && donHang.LICHCHIEU.PHONGCHIEU.RAPCHIEU != null) ? donHang.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP : "";
+            res.TenPhong = (donHang.LICHCHIEU != null && donHang.LICHCHIEU.PHONGCHIEU != null) ? donHang.LICHCHIEU.PHONGCHIEU.TEN_PHONG : "";
             res.GioChieu = donHang.LICHCHIEU != null ? GioChieu(donHang.LICHCHIEU) : "";
             res.NgayChieu = donHang.LICHCHIEU != null ? donHang.LICHCHIEU.NGAYCHIEU.ToString("dd/MM/yyyy") : "";
-            res.DanhSachGhe = donHang.VEs.Select(v => v.GHE.SOGHE.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+            res.DanhSachGhe = donHang.VEs.Select(v => (v.GHE != null && v.GHE.SOGHE != null) ? v.GHE.SOGHE.Trim() : "").Where(s => !string.IsNullOrEmpty(s)).ToList();
             res.TongTien = donHang.TONGTIEN;
-            res.TenKhachHang = donHang.KHACHHANG.HOTEN ?? donHang.KHACHHANG.TAIKHOAN.HOTEN ?? "Khách vãng lai";
-            res.SdtKhachHang = donHang.KHACHHANG.SDT ?? donHang.KHACHHANG.TAIKHOAN.SDT;
-            res.DaSoatVe = string.Equals(donHang.TRANGTHAISOATVE.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
+            res.TenKhachHang = (donHang.KHACHHANG != null ? (donHang.KHACHHANG.HOTEN ?? (donHang.KHACHHANG.TAIKHOAN != null ? donHang.KHACHHANG.TAIKHOAN.HOTEN : null)) : null) ?? "Khách vãng lai";
+            res.SdtKhachHang = donHang.KHACHHANG != null ? (donHang.KHACHHANG.SDT ?? (donHang.KHACHHANG.TAIKHOAN != null ? donHang.KHACHHANG.TAIKHOAN.SDT : null)) : null;
+            res.DaSoatVe = string.Equals(donHang.TRANGTHAISOATVE != null ? donHang.TRANGTHAISOATVE.Trim() : "", "DaSoatVe", StringComparison.OrdinalIgnoreCase);
             res.ThoiGianCheckIn = donHang.THOIGIANCHECKIN;
             res.NhanVienSoatVe = donHang.MANV_SOATVE;
             res.TrangThaiNhanBapNuoc = donHang.TRANGTHAINHANBAPNUOC ?? "KhongCo";

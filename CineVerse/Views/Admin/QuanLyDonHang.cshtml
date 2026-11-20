@@ -119,7 +119,7 @@
                         {
                             var lc = item.LICHCHIEU;
                             var kh = item.KHACHHANG;
-                            var listGhe = item.VEs != null ? item.VEs.Select(v => v.GHE.SOGHE ?? v.MA_GHE).ToList() : new List<string>();
+                            var listGhe = item.VEs != null ? item.VEs.Select(v => (v.GHE != null && v.GHE.SOGHE != null) ? v.GHE.SOGHE : v.MA_GHE).ToList() : new List<string>();
                             string collapseId = "collapseDH_" + item.MA_DONHANG.Replace("-", "_");
 
                             <tr>
@@ -134,18 +134,18 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <strong class="text-white">@(kh.HOTEN ?? "Khách vãng lai")</strong><br />
-                                    <span class="text-muted small"><i class="bi bi-telephone me-1"></i>@(kh.SDT ?? "Không có")</span>
-                                    @if (!string.IsNullOrEmpty(kh.HANGTHANHVIEN))
+                                    <strong class="text-white">@(kh != null && kh.HOTEN != null ? kh.HOTEN : "Khách vãng lai")</strong><br />
+                                    <span class="text-muted small"><i class="bi bi-telephone me-1"></i>@(kh != null && kh.SDT != null ? kh.SDT : "Không có")</span>
+                                    @if (kh != null && !string.IsNullOrEmpty(kh.HANGTHANHVIEN))
                                     {
                                         <div><span class="badge bg-secondary" style="font-size: 10px;">@kh.HANGTHANHVIEN</span></div>
                                     }
                                 </td>
                                 <td>
-                                    <strong style="color: var(--accent);">@(lc.PHIM.TEN_PHIM ?? "Phim điện ảnh")</strong><br />
+                                    <strong style="color: var(--accent);">@(lc != null && lc.PHIM != null && lc.PHIM.TEN_PHIM != null ? lc.PHIM.TEN_PHIM : "Phim điện ảnh")</strong><br />
                                     <span class="text-muted small">
-                                        @(lc.PHONGCHIEU.RAPCHIEU.TEN_RAP) | @(lc.PHONGCHIEU.TEN_PHONG)<br />
-                                        Suất: @(lc.NGAYCHIEU.ToString("dd/MM/yyyy")) @(lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm"))
+                                        @(lc != null && lc.PHONGCHIEU != null && lc.PHONGCHIEU.RAPCHIEU != null ? lc.PHONGCHIEU.RAPCHIEU.TEN_RAP : "") | @(lc != null && lc.PHONGCHIEU != null ? lc.PHONGCHIEU.TEN_PHONG : "")<br />
+                                        Suất: @(lc != null ? lc.NGAYCHIEU.ToString("dd/MM/yyyy") : "") @(lc != null && lc.KHUNGGIO != null ? lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") : "")
                                     </span>
                                     @if (listGhe.Any())
                                     {

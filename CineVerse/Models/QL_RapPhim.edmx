@@ -239,14 +239,14 @@
           <Key>
             <PropertyRef Name="MA_VE" />
           </Key>
-          <Property Name="MA_VE" Type="nchar" MaxLength="10" Nullable="false" />
+          <Property Name="MA_VE" Type="nchar" MaxLength="5" Nullable="false" />
           <Property Name="MA_DONHANG" Type="nchar" MaxLength="5" Nullable="false" />
           <Property Name="MA_LICHCHIEU" Type="nchar" MaxLength="5" Nullable="false" />
           <Property Name="MA_GHE" Type="nchar" MaxLength="5" Nullable="false" />
           <Property Name="DONGIA" Type="decimal" Precision="10" Scale="0" Nullable="false" />
           <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" />
         </EntityType>
-        <Association Name="FK__DONHANG__MA_KHAC__05D8E0BE">
+        <Association Name="FK__DONHANG__MA_KHAC__72C60C4A">
           <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -258,7 +258,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG__MA_KM__08B54D69">
+        <Association Name="FK__DONHANG__MA_KM__75A278F5">
           <End Role="KHUYENMAI" Type="Self.KHUYENMAI" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -270,7 +270,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG__MA_LICH__07C12930">
+        <Association Name="FK__DONHANG__MA_LICH__74AE54BC">
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -282,7 +282,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG__MA_NHAN__06CD04F7">
+        <Association Name="FK__DONHANG__MA_NHAN__73BA3083">
           <End Role="NHANVIEN" Type="Self.NHANVIEN" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -294,7 +294,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG_M__MA_DO__151B244E">
+        <Association Name="FK__DONHANG_M__MA_DO__02084FDA">
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="1" />
           <End Role="DONHANG_MONAN" Type="Self.DONHANG_MONAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -306,7 +306,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__DONHANG_M__MA_MO__160F4887">
+        <Association Name="FK__DONHANG_M__MA_MO__02FC7413">
           <End Role="MONAN" Type="Self.MONAN" Multiplicity="1" />
           <End Role="DONHANG_MONAN" Type="Self.DONHANG_MONAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -318,7 +318,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__GHE__MA_LOAIGHE__75A278F5">
+        <Association Name="FK__GHE__MA_LOAIGHE__628FA481">
           <End Role="LOAIGHE" Type="Self.LOAIGHE" Multiplicity="0..1" />
           <End Role="GHE" Type="Self.GHE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -330,7 +330,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__GHE__MA_PHONG__74AE54BC">
+        <Association Name="FK__GHE__MA_PHONG__619B8048">
           <End Role="PHONGCHIEU" Type="Self.PHONGCHIEU" Multiplicity="1" />
           <End Role="GHE" Type="Self.GHE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -342,7 +342,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__KHACHHANG__MA_KH__5070F446">
+        <Association Name="FK__KHACHHANG__MA_KH__3D5E1FD2">
           <End Role="TAIKHOAN" Type="Self.TAIKHOAN" Multiplicity="1" />
           <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
           <ReferentialConstraint>
@@ -354,7 +354,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__LICHCHIEU__MA_KH__7C4F7684">
+        <Association Name="FK__LICHCHIEU__MA_KH__693CA210">
           <End Role="KHUNGGIO" Type="Self.KHUNGGIO" Multiplicity="1" />
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -366,7 +366,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__LICHCHIEU__MA_PH__7A672E12">
+        <Association Name="FK__LICHCHIEU__MA_PH__6754599E">
           <End Role="PHIM" Type="Self.PHIM" Multiplicity="1" />
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -378,7 +378,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__LICHCHIEU__MA_PH__7B5B524B">
+        <Association Name="FK__LICHCHIEU__MA_PH__68487DD7">
           <End Role="PHONGCHIEU" Type="Self.PHONGCHIEU" Multiplicity="1" />
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -390,7 +390,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__NHANVIEN__MA_NHA__6383C8BA">
+        <Association Name="FK__NHANVIEN__MA_NHA__5070F446">
           <End Role="TAIKHOAN" Type="Self.TAIKHOAN" Multiplicity="1" />
           <End Role="NHANVIEN" Type="Self.NHANVIEN" Multiplicity="0..1" />
           <ReferentialConstraint>
@@ -402,7 +402,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__NHANVIEN__MA_RAP__6477ECF3">
+        <Association Name="FK__NHANVIEN__MA_RAP__5165187F">
           <End Role="RAPCHIEU" Type="Self.RAPCHIEU" Multiplicity="1" />
           <End Role="NHANVIEN" Type="Self.NHANVIEN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -414,7 +414,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__PHIM_THEL__MA_PH__6FE99F9F">
+        <Association Name="FK__PHIM_THEL__MA_PH__5CD6CB2B">
           <End Role="PHIM" Type="Self.PHIM" Multiplicity="1" />
           <End Role="PHIM_THELOAI" Type="Self.PHIM_THELOAI" Multiplicity="*" />
           <ReferentialConstraint>
@@ -426,7 +426,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__PHIM_THEL__MA_TH__70DDC3D8">
+        <Association Name="FK__PHIM_THEL__MA_TH__5DCAEF64">
           <End Role="THELOAI" Type="Self.THELOAI" Multiplicity="1" />
           <End Role="PHIM_THELOAI" Type="Self.PHIM_THELOAI" Multiplicity="*" />
           <ReferentialConstraint>
@@ -438,7 +438,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__PHONGCHIE__MA_RA__6D0D32F4">
+        <Association Name="FK__PHONGCHIE__MA_RA__59FA5E80">
           <End Role="RAPCHIEU" Type="Self.RAPCHIEU" Multiplicity="1" />
           <End Role="PHONGCHIEU" Type="Self.PHONGCHIEU" Multiplicity="*" />
           <ReferentialConstraint>
@@ -450,7 +450,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TAIKHOAN___MA_TA__4AB81AF0">
+        <Association Name="FK__TAIKHOAN___MA_TA__37A5467C">
           <End Role="TAIKHOAN" Type="Self.TAIKHOAN" Multiplicity="1" />
           <End Role="TAIKHOAN_VAITRO" Type="Self.TAIKHOAN_VAITRO" Multiplicity="*" />
           <ReferentialConstraint>
@@ -462,7 +462,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TAIKHOAN___MA_VA__4BAC3F29">
+        <Association Name="FK__TAIKHOAN___MA_VA__38996AB5">
           <End Role="VAITRO" Type="Self.VAITRO" Multiplicity="1" />
           <End Role="TAIKHOAN_VAITRO" Type="Self.TAIKHOAN_VAITRO" Multiplicity="*" />
           <ReferentialConstraint>
@@ -474,7 +474,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__VE__MA_DONHANG__0F624AF8">
+        <Association Name="FK__VE__MA_DONHANG__7C4F7684">
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="1" />
           <End Role="VE" Type="Self.VE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -486,7 +486,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__VE__MA_GHE__114A936A">
+        <Association Name="FK__VE__MA_GHE__7E37BEF6">
           <End Role="GHE" Type="Self.GHE" Multiplicity="1" />
           <End Role="VE" Type="Self.VE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -498,7 +498,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__VE__MA_LICHCHIEU__10566F31">
+        <Association Name="FK__VE__MA_LICHCHIEU__7D439ABD">
           <End Role="LICHCHIEU" Type="Self.LICHCHIEU" Multiplicity="1" />
           <End Role="VE" Type="Self.VE" Multiplicity="*" />
           <ReferentialConstraint>
@@ -587,91 +587,91 @@
           <EntitySet Name="THELOAI" EntityType="Self.THELOAI" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VAITRO" EntityType="Self.VAITRO" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VE" EntityType="Self.VE" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__DONHANG__MA_KHAC__05D8E0BE" Association="Self.FK__DONHANG__MA_KHAC__05D8E0BE">
+          <AssociationSet Name="FK__DONHANG__MA_KHAC__72C60C4A" Association="Self.FK__DONHANG__MA_KHAC__72C60C4A">
             <End Role="KHACHHANG" EntitySet="KHACHHANG" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_KM__08B54D69" Association="Self.FK__DONHANG__MA_KM__08B54D69">
+          <AssociationSet Name="FK__DONHANG__MA_KM__75A278F5" Association="Self.FK__DONHANG__MA_KM__75A278F5">
             <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_LICH__07C12930" Association="Self.FK__DONHANG__MA_LICH__07C12930">
+          <AssociationSet Name="FK__DONHANG__MA_LICH__74AE54BC" Association="Self.FK__DONHANG__MA_LICH__74AE54BC">
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_NHAN__06CD04F7" Association="Self.FK__DONHANG__MA_NHAN__06CD04F7">
+          <AssociationSet Name="FK__DONHANG__MA_NHAN__73BA3083" Association="Self.FK__DONHANG__MA_NHAN__73BA3083">
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG_M__MA_DO__151B244E" Association="Self.FK__DONHANG_M__MA_DO__151B244E">
+          <AssociationSet Name="FK__DONHANG_M__MA_DO__02084FDA" Association="Self.FK__DONHANG_M__MA_DO__02084FDA">
             <End Role="DONHANG" EntitySet="DONHANG" />
             <End Role="DONHANG_MONAN" EntitySet="DONHANG_MONAN" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG_M__MA_MO__160F4887" Association="Self.FK__DONHANG_M__MA_MO__160F4887">
+          <AssociationSet Name="FK__DONHANG_M__MA_MO__02FC7413" Association="Self.FK__DONHANG_M__MA_MO__02FC7413">
             <End Role="MONAN" EntitySet="MONAN" />
             <End Role="DONHANG_MONAN" EntitySet="DONHANG_MONAN" />
           </AssociationSet>
-          <AssociationSet Name="FK__GHE__MA_LOAIGHE__75A278F5" Association="Self.FK__GHE__MA_LOAIGHE__75A278F5">
+          <AssociationSet Name="FK__GHE__MA_LOAIGHE__628FA481" Association="Self.FK__GHE__MA_LOAIGHE__628FA481">
             <End Role="LOAIGHE" EntitySet="LOAIGHE" />
             <End Role="GHE" EntitySet="GHE" />
           </AssociationSet>
-          <AssociationSet Name="FK__GHE__MA_PHONG__74AE54BC" Association="Self.FK__GHE__MA_PHONG__74AE54BC">
+          <AssociationSet Name="FK__GHE__MA_PHONG__619B8048" Association="Self.FK__GHE__MA_PHONG__619B8048">
             <End Role="PHONGCHIEU" EntitySet="PHONGCHIEU" />
             <End Role="GHE" EntitySet="GHE" />
           </AssociationSet>
-          <AssociationSet Name="FK__KHACHHANG__MA_KH__5070F446" Association="Self.FK__KHACHHANG__MA_KH__5070F446">
+          <AssociationSet Name="FK__KHACHHANG__MA_KH__3D5E1FD2" Association="Self.FK__KHACHHANG__MA_KH__3D5E1FD2">
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
             <End Role="KHACHHANG" EntitySet="KHACHHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__LICHCHIEU__MA_KH__7C4F7684" Association="Self.FK__LICHCHIEU__MA_KH__7C4F7684">
+          <AssociationSet Name="FK__LICHCHIEU__MA_KH__693CA210" Association="Self.FK__LICHCHIEU__MA_KH__693CA210">
             <End Role="KHUNGGIO" EntitySet="KHUNGGIO" />
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__LICHCHIEU__MA_PH__7A672E12" Association="Self.FK__LICHCHIEU__MA_PH__7A672E12">
+          <AssociationSet Name="FK__LICHCHIEU__MA_PH__6754599E" Association="Self.FK__LICHCHIEU__MA_PH__6754599E">
             <End Role="PHIM" EntitySet="PHIM" />
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__LICHCHIEU__MA_PH__7B5B524B" Association="Self.FK__LICHCHIEU__MA_PH__7B5B524B">
+          <AssociationSet Name="FK__LICHCHIEU__MA_PH__68487DD7" Association="Self.FK__LICHCHIEU__MA_PH__68487DD7">
             <End Role="PHONGCHIEU" EntitySet="PHONGCHIEU" />
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__NHANVIEN__MA_NHA__6383C8BA" Association="Self.FK__NHANVIEN__MA_NHA__6383C8BA">
+          <AssociationSet Name="FK__NHANVIEN__MA_NHA__5070F446" Association="Self.FK__NHANVIEN__MA_NHA__5070F446">
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
           </AssociationSet>
-          <AssociationSet Name="FK__NHANVIEN__MA_RAP__6477ECF3" Association="Self.FK__NHANVIEN__MA_RAP__6477ECF3">
+          <AssociationSet Name="FK__NHANVIEN__MA_RAP__5165187F" Association="Self.FK__NHANVIEN__MA_RAP__5165187F">
             <End Role="RAPCHIEU" EntitySet="RAPCHIEU" />
             <End Role="NHANVIEN" EntitySet="NHANVIEN" />
           </AssociationSet>
-          <AssociationSet Name="FK__PHIM_THEL__MA_PH__6FE99F9F" Association="Self.FK__PHIM_THEL__MA_PH__6FE99F9F">
+          <AssociationSet Name="FK__PHIM_THEL__MA_PH__5CD6CB2B" Association="Self.FK__PHIM_THEL__MA_PH__5CD6CB2B">
             <End Role="PHIM" EntitySet="PHIM" />
             <End Role="PHIM_THELOAI" EntitySet="PHIM_THELOAI" />
           </AssociationSet>
-          <AssociationSet Name="FK__PHIM_THEL__MA_TH__70DDC3D8" Association="Self.FK__PHIM_THEL__MA_TH__70DDC3D8">
+          <AssociationSet Name="FK__PHIM_THEL__MA_TH__5DCAEF64" Association="Self.FK__PHIM_THEL__MA_TH__5DCAEF64">
             <End Role="THELOAI" EntitySet="THELOAI" />
             <End Role="PHIM_THELOAI" EntitySet="PHIM_THELOAI" />
           </AssociationSet>
-          <AssociationSet Name="FK__PHONGCHIE__MA_RA__6D0D32F4" Association="Self.FK__PHONGCHIE__MA_RA__6D0D32F4">
+          <AssociationSet Name="FK__PHONGCHIE__MA_RA__59FA5E80" Association="Self.FK__PHONGCHIE__MA_RA__59FA5E80">
             <End Role="RAPCHIEU" EntitySet="RAPCHIEU" />
             <End Role="PHONGCHIEU" EntitySet="PHONGCHIEU" />
           </AssociationSet>
-          <AssociationSet Name="FK__TAIKHOAN___MA_TA__4AB81AF0" Association="Self.FK__TAIKHOAN___MA_TA__4AB81AF0">
+          <AssociationSet Name="FK__TAIKHOAN___MA_TA__37A5467C" Association="Self.FK__TAIKHOAN___MA_TA__37A5467C">
             <End Role="TAIKHOAN" EntitySet="TAIKHOAN" />
             <End Role="TAIKHOAN_VAITRO" EntitySet="TAIKHOAN_VAITRO" />
           </AssociationSet>
-          <AssociationSet Name="FK__TAIKHOAN___MA_VA__4BAC3F29" Association="Self.FK__TAIKHOAN___MA_VA__4BAC3F29">
+          <AssociationSet Name="FK__TAIKHOAN___MA_VA__38996AB5" Association="Self.FK__TAIKHOAN___MA_VA__38996AB5">
             <End Role="VAITRO" EntitySet="VAITRO" />
             <End Role="TAIKHOAN_VAITRO" EntitySet="TAIKHOAN_VAITRO" />
           </AssociationSet>
-          <AssociationSet Name="FK__VE__MA_DONHANG__0F624AF8" Association="Self.FK__VE__MA_DONHANG__0F624AF8">
+          <AssociationSet Name="FK__VE__MA_DONHANG__7C4F7684" Association="Self.FK__VE__MA_DONHANG__7C4F7684">
             <End Role="DONHANG" EntitySet="DONHANG" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
-          <AssociationSet Name="FK__VE__MA_GHE__114A936A" Association="Self.FK__VE__MA_GHE__114A936A">
+          <AssociationSet Name="FK__VE__MA_GHE__7E37BEF6" Association="Self.FK__VE__MA_GHE__7E37BEF6">
             <End Role="GHE" EntitySet="GHE" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
-          <AssociationSet Name="FK__VE__MA_LICHCHIEU__10566F31" Association="Self.FK__VE__MA_LICHCHIEU__10566F31">
+          <AssociationSet Name="FK__VE__MA_LICHCHIEU__7D439ABD" Association="Self.FK__VE__MA_LICHCHIEU__7D439ABD">
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
             <End Role="VE" EntitySet="VE" />
           </AssociationSet>
@@ -918,7 +918,7 @@
           <Key>
             <PropertyRef Name="MA_VE" />
           </Key>
-          <Property Name="MA_VE" Type="String" MaxLength="10" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="MA_VE" Type="String" MaxLength="5" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="MA_DONHANG" Type="String" MaxLength="5" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="MA_LICHCHIEU" Type="String" MaxLength="5" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="MA_GHE" Type="String" MaxLength="5" FixedLength="true" Unicode="true" Nullable="false" />
