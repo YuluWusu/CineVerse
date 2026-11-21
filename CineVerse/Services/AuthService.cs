@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Validation;
 using System.Linq;
 using DoAn_QuanLyVeXemPhimTrucTiep.Helpers;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
@@ -107,10 +108,19 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 kh = new KHACHHANG
                 {
                     MA_KHACHHANG = tk.MA_TAIKHOAN,
+                    HANGTHANHVIEN = "Member",
+                    DIEMTICHLUY = 0,
                     TAIKHOAN = tk
                 };
                 _db.KHACHHANGs.Add(kh);
-                _db.SaveChanges();
+                try
+                {
+                    _db.SaveChanges();
+                }
+                catch (DbEntityValidationException)
+                {
+                    // Tránh gây lỗi gián đoạn đăng nhập nếu xảy ra sự cố dữ liệu không hợp lệ
+                }
             }
 
             return new AuthResult
@@ -161,7 +171,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 MA_TAIKHOAN = newMaKhach,
                 HOTEN = hoTen.Trim(),
                 SDT = sdtTrim,
-                EMAIL = !string.IsNullOrWhiteSpace(email) ? email.Trim() : null,
+                EMAIL = !string.IsNullOrWhiteSpace(email) ? email.Trim() : (sdtTrim + "@cineverse.vn"),
                 MATKHAU = PasswordHelper.HashPassword(matKhau),
                 NGAYTAO = DateTime.Now,
                 TRANGTHAI = "HoatDong"
@@ -179,11 +189,42 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             {
                 MA_KHACHHANG = newMaKhach,
                 CCCD = !string.IsNullOrWhiteSpace(cccd) ? cccd.Trim() : null,
+                HANGTHANHVIEN = "Member",
+                DIEMTICHLUY = 0,
                 TAIKHOAN = tk
             };
 
             _db.KHACHHANGs.Add(kh);
-            _db.SaveChanges();
+            try
+            {
+                _db.SaveChanges();
+            }
+            catch (DbEntityValidationException ex)
+            {
+                var errors = new List<string>();
+                foreach (var validationErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        errors.Add(string.Format("{0}: {1}", validationError.PropertyName, validationError.ErrorMessage));
+                    }
+                }
+                string detailedError = string.Join("; ", errors);
+                return new AuthResult
+                {
+                    Success = false,
+                    ErrorMessage = "Lỗi xác thực dữ liệu: " + detailedError
+                };
+            }
+            catch (Exception ex)
+            {
+                string inner = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return new AuthResult
+                {
+                    Success = false,
+                    ErrorMessage = "Lỗi lưu dữ liệu: " + inner
+                };
+            }
 
             return new AuthResult
             {
