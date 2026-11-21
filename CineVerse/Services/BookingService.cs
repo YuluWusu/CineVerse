@@ -70,6 +70,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 khachHang = new KHACHHANG
                 {
                     MA_KHACHHANG = newMaKhach,
+                    HANGTHANHVIEN = "Member",
+                    DIEMTICHLUY = 0,
                     TAIKHOAN = tk
                 };
                 db.KHACHHANGs.Add(khachHang);
