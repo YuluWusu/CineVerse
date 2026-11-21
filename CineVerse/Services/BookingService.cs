@@ -137,6 +137,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             else if (trangThaiThanhToan == "DaHuy")
             {
                 order.TRANGTHAI = "DaHuy";
+                var ves = db.VEs.Where(v => v.MA_DONHANG.Trim() == trimmed).ToList();
+                foreach (var v in ves)
+                {
+                    v.TRANGTHAI = "Đã hủy";
+                }
             }
 
             if (!string.IsNullOrEmpty(maGiaoDich))
@@ -391,7 +396,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                             MA_LICHCHIEU = maLichChieu,
                             MA_GHE = ghe.MA_GHE.Trim(),
                             DONGIA = giaGhe,
-                            TRANGTHAI = isOnlinePayment ? "Chờ thanh toán" : "Đã thanh toán"
+                            TRANGTHAI = isOnlinePayment ? "Đã đặt" : "Đã thanh toán"
                         };
                         db.VEs.Add(veMoi);
                     }

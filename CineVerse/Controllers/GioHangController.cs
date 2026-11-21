@@ -538,7 +538,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     MA_LICHCHIEU = item.MaLichChieu,
                     MA_GHE = item.MaGhe,
                     DONGIA = item.DonGia,
-                    TRANGTHAI = "DaBan"
+                    TRANGTHAI = (form.PhuongThucThanhToan == "TaiQuay") ? "Đã đặt" : "Đã thanh toán"
                 };
 
                 db.VEs.Add(ve);
