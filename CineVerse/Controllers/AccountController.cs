@@ -6,6 +6,7 @@ using DoAn_QuanLyVeXemPhimTrucTiep.Filters;
 using DoAn_QuanLyVeXemPhimTrucTiep.Helpers;
 using DoAn_QuanLyVeXemPhimTrucTiep.Models;
 using DoAn_QuanLyVeXemPhimTrucTiep.Services;
+using System.Threading.Tasks;
 
 namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 {
@@ -13,6 +14,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
     {
         private readonly QL_VEPHIMEntities data = new QL_VEPHIMEntities();
         private readonly AuthService authService = new AuthService();
+        private readonly PasswordResetService passwordResetService = new PasswordResetService();
 
         // GET: Account/DangKy
         [HttpGet]
@@ -76,16 +78,18 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         // POST: Account/DangNhap
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DangNhap(string SDT, string MATKHAU, string returnUrl)
+        public ActionResult DangNhap(string EMAIL, string MATKHAU, string returnUrl)
         {
-            if (string.IsNullOrWhiteSpace(SDT) || string.IsNullOrWhiteSpace(MATKHAU))
+            if (string.IsNullOrWhiteSpace(EMAIL) ||
+                string.IsNullOrWhiteSpace(MATKHAU))
             {
-                ViewBag.Error = "Vui lòng nhập số điện thoại và mật khẩu.";
+                ViewBag.Error = "Vui lòng nhập email và mật khẩu.";
                 ViewBag.ReturnUrl = returnUrl;
                 return View();
             }
 
-            var result = authService.Authenticate(SDT, MATKHAU);
+            var result = authService.Authenticate(EMAIL, MATKHAU);
+
             if (!result.Success)
             {
                 ViewBag.Error = result.ErrorMessage;
@@ -101,23 +105,30 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 Session["VaiTro"] = "NHANVIEN";
                 Session["NhanVienMa"] = result.Staff.MA_NHANVIEN.Trim();
                 Session["NhanVienTen"] = result.User.HOTEN;
-                Session["NhanVienRap"] = result.Staff.MA_RAP == null ? null : result.Staff.MA_RAP.Trim();
+                Session["NhanVienRap"] = result.Staff.MA_RAP == null
+                    ? null
+                    : result.Staff.MA_RAP.Trim();
 
                 TempData["ToastMessage"] = "Đăng nhập thành công với quyền Nhân viên rạp.";
                 TempData["ToastType"] = "success";
+
                 return RedirectToAction("Index", "NhanVien");
             }
 
             var kh = result.Customer;
+
             Session["KhachHang"] = kh;
             Session["VaiTro"] = result.IsAdmin ? "ADMIN" : "KHACHHANG";
             Session["HoTen"] = result.User.HOTEN;
             Session["MaTaiKhoan"] = result.User.MA_TAIKHOAN.Trim();
 
-            TempData["ToastMessage"] = "Đăng nhập thành công! Chào mừng " + result.User.HOTEN + " đến với CinéVerse.";
+            TempData["ToastMessage"] =
+                "Đăng nhập thành công! Chào mừng " +
+                result.User.HOTEN + " đến với CinéVerse.";
+
             TempData["ToastType"] = "success";
 
-            // Kiểm tra returnUrl an toàn chống Open Redirect
+            // Kiểm tra returnUrl chống Open Redirect
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -214,6 +225,163 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             return RedirectToAction("TrangChu", "Home");
         }
 
+        [HttpGet]
+        public ActionResult QuenMatKhau()
+        {
+            return View();
+        }
+
+
+        // POST: Account/QuenMatKhau
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> QuenMatKhau(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                ViewBag.Error = "Vui lòng nhập địa chỉ email.";
+                return View();
+            }
+
+            string emailTrim = email.Trim().ToLower();
+
+            try
+            {
+                var taiKhoan = data.TAIKHOANs.FirstOrDefault(t =>
+                    t.EMAIL != null &&
+                    t.EMAIL.Trim().ToLower() == emailTrim
+                );
+
+                if (taiKhoan != null)
+                {
+                    string token = passwordResetService.CreateToken(
+                        taiKhoan.MA_TAIKHOAN
+                    );
+
+                    string resetLink = Url.Action(
+                        "DatLaiMatKhau",
+                        "Account",
+                        new { token = token },
+                        Request.Url.Scheme
+                    );
+
+                    var emailService = new EmailService();
+
+                    bool sent = await emailService.SendPasswordResetEmailAsync(
+                        taiKhoan.EMAIL,
+                        taiKhoan.HOTEN,
+                        resetLink
+                    );
+
+                    if (sent)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "GỬI EMAIL ĐẶT LẠI MẬT KHẨU THÀNH CÔNG: " + taiKhoan.EMAIL
+                        );
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "GỬI EMAIL ĐẶT LẠI MẬT KHẨU THẤT BẠI: " + taiKhoan.EMAIL
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "LỖI QUÊN MẬT KHẨU: " + ex.ToString()
+                );
+            }
+
+            ViewBag.Success =
+                "Nếu email đã được đăng ký, hệ thống sẽ gửi hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.";
+
+            return View();
+        }
+
+
+
+        [HttpGet]
+        public ActionResult DatLaiMatKhau(string token)
+        {
+            string maTaiKhoan;
+
+            if (!passwordResetService.TryGetAccountId(token, out maTaiKhoan))
+            {
+                ViewBag.Error = "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.";
+                return View();
+            }
+
+            ViewBag.Token = token;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DatLaiMatKhau(
+            string token,
+            string matKhauMoi,
+            string xacNhanMatKhau)
+        {
+            if (string.IsNullOrWhiteSpace(matKhauMoi) ||
+                string.IsNullOrWhiteSpace(xacNhanMatKhau))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ mật khẩu.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            if (matKhauMoi.Length < 6)
+            {
+                ViewBag.Error = "Mật khẩu phải có ít nhất 6 ký tự.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            if (matKhauMoi != xacNhanMatKhau)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+   
+            string maTaiKhoan;
+
+            if (!passwordResetService.TryGetAccountId(token, out maTaiKhoan))
+            {
+                ViewBag.Error = "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.";
+                return View();
+            }
+
+            // Tiêu thụ token: chỉ sử dụng được một lần
+            if (!passwordResetService.TryConsumeToken(token, out maTaiKhoan))
+            {
+                ViewBag.Error = "Link đã được sử dụng hoặc hết hạn.";
+                return View();
+            }
+
+            // Cập nhật mật khẩu
+            bool success = authService.ResetPassword(
+                maTaiKhoan,
+                matKhauMoi,
+                out string error
+            );
+
+            if (!success)
+            {
+                ViewBag.Error = error ?? "Không thể cập nhật mật khẩu.";
+                return View();
+            }
+
+            TempData["ToastMessage"] = "Đặt lại mật khẩu thành công! Hãy đăng nhập lại.";
+            TempData["ToastType"] = "success";
+
+            return RedirectToAction("DangNhap");
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -223,5 +391,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
             base.Dispose(disposing);
         }
+
+     
     }
 }

@@ -335,12 +335,17 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                     decimal tongTienSauGiam = (tongTienVe + tienMonAn) - soTienGiam;
                     if (tongTienSauGiam < 0) tongTienSauGiam = 0;
 
-                    // Sinh mã Check-in duy nhất dùng cho E-Ticket QR
+                 
                     string checkInCode = "CKI-" + maDonHang + "-" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+                    bool isOnlinePayment =
+                        phuongThucThanhToan == "VNPay" ||
+                        phuongThucThanhToan == "VietQR";
 
-                    bool isOnlinePayment = phuongThucThanhToan == "VNPay" || phuongThucThanhToan == "VietQR";
-                    string trangThaiDonHang = isOnlinePayment ? "ChoThanhToan" : "DaThanhToan";
-                    string trangThaiThanhToan = isOnlinePayment ? "ChoThanhToan" : "DaThanhToan";
+                    bool isTaiQuay = phuongThucThanhToan == "TaiQuay";
+
+                   
+                    string trangThaiDonHang = "ChoThanhToan";
+                    string trangThaiThanhToan = "ChoThanhToan";
 
                     // 4. Tạo DONHANG
                     DONHANG donHang = new DONHANG
@@ -422,7 +427,6 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                     {
                         string hId = !string.IsNullOrEmpty(holderId) ? holderId : maKhach;
                         SeatHoldService.Instance.ReleaseSeats(maLichChieu, hId);
-                        LoyaltyService.Instance.CongDiemVaXetHang(maKhach, tongTienSauGiam, db);
                     }
 
                     return donHang;

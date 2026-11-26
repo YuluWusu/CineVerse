@@ -246,19 +246,7 @@
           <Property Name="DONGIA" Type="decimal" Precision="10" Scale="0" Nullable="false" />
           <Property Name="TRANGTHAI" Type="nvarchar" MaxLength="20" />
         </EntityType>
-        <Association Name="FK__DONHANG__MA_KHAC__72C60C4A">
-          <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
-          <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="KHACHHANG">
-              <PropertyRef Name="MA_KHACHHANG" />
-            </Principal>
-            <Dependent Role="DONHANG">
-              <PropertyRef Name="MA_KHACHHANG" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__DONHANG__MA_KM__75A278F5">
+        <Association Name="FK__DONHANG__MA_KM__06CD04F7">
           <End Role="KHUYENMAI" Type="Self.KHUYENMAI" Multiplicity="0..1" />
           <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
           <ReferentialConstraint>
@@ -267,6 +255,18 @@
             </Principal>
             <Dependent Role="DONHANG">
               <PropertyRef Name="MA_KM" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__DONHANG__MA_KHAC__03F0984C">
+          <End Role="KHACHHANG" Type="Self.KHACHHANG" Multiplicity="0..1" />
+          <End Role="DONHANG" Type="Self.DONHANG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="KHACHHANG">
+              <PropertyRef Name="MA_KHACHHANG" />
+            </Principal>
+            <Dependent Role="DONHANG">
+              <PropertyRef Name="MA_KHACHHANG" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -587,15 +587,15 @@
           <EntitySet Name="THELOAI" EntityType="Self.THELOAI" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VAITRO" EntityType="Self.VAITRO" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VE" EntityType="Self.VE" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__DONHANG__MA_KHAC__72C60C4A" Association="Self.FK__DONHANG__MA_KHAC__72C60C4A">
-            <End Role="KHACHHANG" EntitySet="KHACHHANG" />
-            <End Role="DONHANG" EntitySet="DONHANG" />
-          </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_KM__75A278F5" Association="Self.FK__DONHANG__MA_KM__75A278F5">
+          <AssociationSet Name="FK__DONHANG__MA_KM__06CD04F7" Association="Self.FK__DONHANG__MA_KM__06CD04F7">
             <End Role="KHUYENMAI" EntitySet="KHUYENMAI" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
-          <AssociationSet Name="FK__DONHANG__MA_LICH__74AE54BC" Association="Self.FK__DONHANG__MA_LICH__74AE54BC">
+          <AssociationSet Name="FK__DONHANG__MA_KHAC__03F0984C" Association="Self.FK__DONHANG__MA_KHAC__03F0984C">
+            <End Role="KHACHHANG" EntitySet="KHACHHANG" />
+            <End Role="DONHANG" EntitySet="DONHANG" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DONHANG__MA_LICH__05D8E0BE" Association="Self.FK__DONHANG__MA_LICH__05D8E0BE">
             <End Role="LICHCHIEU" EntitySet="LICHCHIEU" />
             <End Role="DONHANG" EntitySet="DONHANG" />
           </AssociationSet>
