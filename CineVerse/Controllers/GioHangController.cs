@@ -125,8 +125,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         [HttpPost]
         public ActionResult ThemBapNuocVaoGio(string maSanPham, string tuyChon = "Tiêu chuẩn (Size Vừa)", int soLuong = 1, string returnUrl = null)
         {
+            bool isAjax = Request.IsAjaxRequest() || Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (string.IsNullOrWhiteSpace(maSanPham))
             {
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = "Sản phẩm không hợp lệ." });
+                }
                 TempData["ToastMessage"] = "Sản phẩm không hợp lệ.";
                 TempData["ToastType"] = "danger";
                 return RedirectToAction("CuaHangBapNuoc");
@@ -138,6 +144,10 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             var sp = db.BAPNUOCs.FirstOrDefault(b => b.MA_SANPHAM.Trim() == id);
             if (sp == null)
             {
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy món ăn/nước uống." });
+                }
                 TempData["ToastMessage"] = "Không tìm thấy món ăn/nước uống.";
                 TempData["ToastType"] = "danger";
                 return RedirectToAction("CuaHangBapNuoc");
@@ -164,7 +174,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
 
             // Key duy nhất cho sản phẩm kèm tùy chọn size
-            string itemKey = $"FNB_{id}_{tuyChon?.Replace(" ", "")}";
+            string itemKey = $"FNB_{id}_{tuyChon.Replace(" ", "")}";
 
             var tonTai = gioHang.FirstOrDefault(i => i.MaItem == itemKey);
             if (tonTai != null)
@@ -186,14 +196,27 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 });
             }
 
-            TempData["ToastMessage"] = $"Đã thêm {soLuong}x {sp.TEN_SANPHAM} ({tuyChon}) vào giỏ hàng!";
+            string msg = $"Đã thêm {soLuong}x {sp.TEN_SANPHAM} ({tuyChon}) vào giỏ hàng!";
+            TempData["ToastMessage"] = msg;
             TempData["ToastType"] = "success";
+
+            if (isAjax)
+            {
+                int totalCount = gioHang.Sum(i => i.SoLuong);
+                return Json(new
+                {
+                    success = true,
+                    message = msg,
+                    totalItems = totalCount,
+                    cartUrl = Url.Action("Index", "GioHang")
+                });
+            }
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("CuaHangBapNuoc");
         }
 
         /// <summary>
@@ -239,7 +262,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 string itemKey = $"VE_{lcId}_{maGhe}";
                 if (!gioHang.Any(i => i.MaItem == itemKey))
                 {
-                    decimal giaVe = (ghe.LOAIGHE?.GIATVE ?? 75000m) + (lc.GIATVE_PHUTROI ?? 0m);
+                    decimal giaVe = (ghe.LOAIGHE.GIATVE) + (lc.GIATVE_PHUTROI ?? 0m);
 
                     gioHang.Add(new GioHangItem
                     {
@@ -247,17 +270,17 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                         MaItem = itemKey,
                         MaLichChieu = lcId,
                         MaPhim = lc.MA_PHIM.Trim(),
-                        TenPhim = lc.PHIM?.TEN_PHIM,
-                        TenPhong = lc.PHONGCHIEU?.TEN_PHONG,
-                        TenRap = lc.PHONGCHIEU?.RAPCHIEU?.TEN_RAP,
+                        TenPhim = lc.PHIM.TEN_PHIM,
+                        TenPhong = lc.PHONGCHIEU.TEN_PHONG,
+                        TenRap = lc.PHONGCHIEU.RAPCHIEU.TEN_RAP,
                         MaGhe = ghe.MA_GHE.Trim(),
                         TenGhe = !string.IsNullOrEmpty(ghe.SOGHE) ? ghe.SOGHE.Trim() : ghe.MA_GHE.Trim(),
-                        LoaiGhe = ghe.LOAIGHE?.TEN_LOAIGHE ?? "Ghế thường",
+                        LoaiGhe = ghe.LOAIGHE.TEN_LOAIGHE ?? "Ghế thường",
                         NgayChieu = lc.NGAYCHIEU,
-                        GioChieu = lc.KHUNGGIO?.GIOBATDAU,
-                        TenSanPham = $"Vé xem phim: {lc.PHIM?.TEN_PHIM}",
-                        HinhAnh = lc.PHIM?.POSTER,
-                        TuyChon = $"Ghế {ghe.SOGHE} ({ghe.LOAIGHE?.TEN_LOAIGHE}) - {lc.PHONGCHIEU?.TEN_PHONG} ({lc.NGAYCHIEU:dd/MM/yyyy} {lc.KHUNGGIO?.GIOBATDAU:hh\\:mm})",
+                        GioChieu = lc.KHUNGGIO.GIOBATDAU,
+                        TenSanPham = $"Vé xem phim: {lc.PHIM.TEN_PHIM}",
+                        HinhAnh = lc.PHIM.POSTER,
+                        TuyChon = $"Ghế {ghe.SOGHE} ({ghe.LOAIGHE.TEN_LOAIGHE}) - {lc.PHONGCHIEU.TEN_PHONG} ({lc.NGAYCHIEU:dd/MM/yyyy} {lc.KHUNGGIO.GIOBATDAU:hh\\:mm})",
                         DonGia = giaVe,
                         SoLuong = 1
                     });
@@ -440,7 +463,31 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             decimal tongThanhToan = Math.Max(0m, tongTienHang - tongGiam);
 
             // 4. Tạo DONHANG
-            string maDonHang = "DH" + DateTime.Now.ToString("yyyyMMddHHmmss") + (new Random().Next(100, 999));
+            int soDonHang = 1;
+
+            var danhSachMaDH = db.DONHANGs.Select(d => d.MA_DONHANG).ToList();
+
+            foreach (var ma in danhSachMaDH)
+            {
+                if (!string.IsNullOrWhiteSpace(ma) && ma.Trim().StartsWith("DH"))
+                {
+                    int so;
+
+                    if (int.TryParse(ma.Trim().Substring(2), out so) && so >= soDonHang)
+                    {
+                        soDonHang = so + 1;
+                    }
+                }
+            }
+
+            if (soDonHang > 999)
+            {
+                TempData["ToastMessage"] = "Đã hết mã đơn hàng có thể sử dụng.";
+                TempData["ToastType"] = "danger";
+                return RedirectToAction("Index");
+            }
+
+            string maDonHang = "DH" + soDonHang.ToString("D3");
             string maCheckIn = "CV-" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
 
             var donHang = new DONHANG
@@ -454,7 +501,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 TIENMONAN = tienMonAn,
                 TIENGIAM = tongGiam,
                 TONGTIEN = tongThanhToan,
-                TRANGTHAI = "ChoXacNhan",
+                TRANGTHAI = "ChoThanhToan",
                 PHUONGTHUCTHANHTOAN = form.PhuongThucThanhToan ?? "VietQR",
                 TRANGTHAITHANHTOAN = (form.PhuongThucThanhToan == "TaiQuay") ? "ChuaThanhToan" : "DaThanhToan",
                 MACHECKIN = maCheckIn,
@@ -465,10 +512,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             db.DONHANGs.Add(donHang);
 
             // 5. Lưu VEs nếu có
-            int idxVe = 1;
+            int soVe = 1;
+
+            var danhSachMaVe = db.VEs.Select(v => v.MA_VE).ToList();
+            foreach (var ma in from ma in danhSachMaVe
+                               where !string.IsNullOrWhiteSpace(ma) && ma.Trim().StartsWith("VE")
+                               select ma)
+            {
+                int so;
+                if (int.TryParse(ma.Trim().Substring(2), out so) && so >= soVe)
+                {
+                    soVe = so + 1;
+                }
+            }
+
             foreach (var item in gioHang.Where(i => i.LoaiItem == "VE"))
             {
-                string maVe = "VE" + DateTime.Now.ToString("yyMMddHHmmss") + (idxVe++);
+                string maVe = "VE" + soVe.ToString("D3");
+                soVe++;
+
                 var ve = new VE
                 {
                     MA_VE = maVe,
@@ -476,16 +538,37 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     MA_LICHCHIEU = item.MaLichChieu,
                     MA_GHE = item.MaGhe,
                     DONGIA = item.DonGia,
-                    TRANGTHAI = "DaBan"
+                    TRANGTHAI = (form.PhuongThucThanhToan == "TaiQuay") ? "Đã đặt" : "Đã thanh toán"
                 };
+
                 db.VEs.Add(ve);
             }
 
             // 6. Lưu CHITIET_BAPNUOC nếu có
-            int idxCt = 1;
+            int soChiTiet = 1;
+
+            var danhSachMaCT = db.CHITIET_BAPNUOC
+                                 .Select(c => c.MA_CHITIET)
+                                 .ToList();
+
+            foreach (var ma in danhSachMaCT)
+            {
+                if (!string.IsNullOrWhiteSpace(ma) && ma.Trim().StartsWith("CTB"))
+                {
+                    int so;
+
+                    if (int.TryParse(ma.Trim().Substring(3), out so) && so >= soChiTiet)
+                    {
+                        soChiTiet = so + 1;
+                    }
+                }
+            }
+
             foreach (var item in gioHang.Where(i => i.LoaiItem == "BAPNUOC"))
             {
-                string maCt = "CTB" + DateTime.Now.ToString("yyMMddHHmmss") + (idxCt++);
+                string maCt = "CTB" + soChiTiet.ToString("D7");
+                soChiTiet++;
+
                 var ct = new CHITIET_BAPNUOC
                 {
                     MA_CHITIET = maCt,
@@ -495,16 +578,42 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     DONGIA = item.DonGia,
                     THANHTIEN = item.ThanhTien
                 };
+
                 db.CHITIET_BAPNUOC.Add(ct);
             }
 
+
+            // Lưu đơn hàng, vé và bắp nước
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                string chiTietLoi = "";
+
+                foreach (var entityError in ex.EntityValidationErrors)
+                {
+                    chiTietLoi += "Bảng: "
+                        + entityError.Entry.Entity.GetType().Name + "\n";
+
+                    foreach (var validationError in entityError.ValidationErrors)
+                    {
+                        chiTietLoi += "Thuộc tính: "
+                            + validationError.PropertyName
+                            + " - Lỗi: "
+                            + validationError.ErrorMessage + "\n";
+                    }
+                }
+
+                throw new Exception(chiTietLoi, ex);
+            }
             // 7. Cộng điểm tích lũy thành viên nếu có
+            // Cộng điểm thành viên sau khi lưu đơn hàng
             if (!string.IsNullOrEmpty(maKh))
             {
                 LoyaltyService.Instance.CongDiemVaXetHang(maKh, donHang.TONGTIEN, db);
             }
-
-            db.SaveChanges();
 
             // 8. Dọn dẹp giỏ hàng
             Session.Remove("GioHang");

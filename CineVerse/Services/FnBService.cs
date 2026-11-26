@@ -182,9 +182,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                     return false;
                 }
 
-                entity.TEN_SANPHAM = model.TEN_SANPHAM?.Trim();
-                entity.MOTA = model.MOTA?.Trim();
-                entity.PHANLOAI = model.PHANLOAI?.Trim();
+                entity.TEN_SANPHAM = model.TEN_SANPHAM.Trim();
+                entity.MOTA = model.MOTA.Trim();
+                entity.PHANLOAI = model.PHANLOAI.Trim();
                 entity.GIABAN = model.GIABAN;
                 entity.SOLUONGTON = model.SOLUONGTON;
                 entity.TRANGTHAI = string.IsNullOrWhiteSpace(model.TRANGTHAI) ? "DangBan" : model.TRANGTHAI.Trim();

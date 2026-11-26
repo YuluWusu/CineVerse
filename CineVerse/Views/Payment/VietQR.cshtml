@@ -12,7 +12,7 @@
     long amount = (long)(ViewBag.Amount ?? (long)Model.TONGTIEN);
     int remainingSeconds = (int)(ViewBag.RemainingSeconds ?? 300);
 
-    var danhSachGhe = Model.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+    var danhSachGhe = Model.VEs.Select(v => v.GHE.SOGHE.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
 }
 
 @section Styles {

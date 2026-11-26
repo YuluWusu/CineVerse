@@ -22,7 +22,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
         public KHACHHANG GetOrCreateCustomer(string hoTen, string soDienThoai, string email)
         {
-            string sdt = soDienThoai?.Trim() ?? "";
+            string sdt = soDienThoai.Trim() ?? "";
             var khachHang = db.KHACHHANGs
                 .Include(k => k.TAIKHOAN)
                 .Include(k => k.TAIKHOAN.VAITROes)
@@ -70,6 +70,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 khachHang = new KHACHHANG
                 {
                     MA_KHACHHANG = newMaKhach,
+                    HANGTHANHVIEN = "Member",
+                    DIEMTICHLUY = 0,
                     TAIKHOAN = tk
                 };
                 db.KHACHHANGs.Add(khachHang);
@@ -137,6 +139,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             else if (trangThaiThanhToan == "DaHuy")
             {
                 order.TRANGTHAI = "DaHuy";
+                var ves = db.VEs.Where(v => v.MA_DONHANG.Trim() == trimmed).ToList();
+                foreach (var v in ves)
+                {
+                    v.TRANGTHAI = "Đã hủy";
+                }
             }
 
             if (!string.IsNullOrEmpty(maGiaoDich))
@@ -154,7 +161,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
         public List<VE> GetBookingHistory(string maKhach)
         {
-            string trimmed = maKhach?.Trim() ?? "";
+            string trimmed = maKhach.Trim() ?? "";
             return db.VEs
                 .Include(v => v.DONHANG)
                 .Include(v => v.DONHANG.CHITIET_BAPNUOC)
@@ -194,7 +201,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             decimal tongTienGoc = 0;
             foreach (var ghe in gheList)
             {
-                tongTienGoc += (ghe.LOAIGHE?.GIATVE ?? 0m) + (lichChieu.GIATVE_PHUTROI ?? 0);
+                tongTienGoc += (ghe.LOAIGHE.GIATVE) + (lichChieu.GIATVE_PHUTROI ?? 0);
             }
 
             decimal soTienGiam = 0;
@@ -265,7 +272,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                     }
                     string maDonHang = "DH" + (maxDhId + 1).ToString("D3");
 
-                    decimal tongTienVe = gheList.Sum(g => (g.LOAIGHE?.GIATVE ?? 0m) + (lichChieu.GIATVE_PHUTROI ?? 0m));
+                    decimal tongTienVe = gheList.Sum(g => (g.LOAIGHE.GIATVE) + (lichChieu.GIATVE_PHUTROI ?? 0m));
                     decimal tienMonAn = 0m;
                     var chiTietBapNuocList = new List<CHITIET_BAPNUOC>();
 
@@ -290,7 +297,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
                         foreach (var pair in fnbItems)
                         {
-                            string maSp = pair.Key?.Trim() ?? "";
+                            string maSp = pair.Key.Trim() ?? "";
                             int soLuong = pair.Value;
                             if (soLuong <= 0) continue;
 
@@ -346,7 +353,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                         MA_DONHANG = maDonHang,
                         MA_KHACHHANG = maKhach,
                         MA_LICHCHIEU = maLichChieu,
-                        MA_KM = !string.IsNullOrEmpty(khuyenMai?.MA_KM) ? khuyenMai.MA_KM.Trim() : null,
+                        MA_KM = (khuyenMai != null && !string.IsNullOrEmpty(khuyenMai.MA_KM)) ? khuyenMai.MA_KM.Trim() : null,
                         NGAYDAT = DateTime.Now,
                         TIENVE = tongTienVe,
                         TIENMONAN = tienMonAn,
@@ -385,7 +392,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
                     foreach (var ghe in gheList)
                     {
-                        decimal giaGhe = (ghe.LOAIGHE?.GIATVE ?? 0m) + (lichChieu.GIATVE_PHUTROI ?? 0m);
+                        decimal giaGhe = (ghe.LOAIGHE.GIATVE) + (lichChieu.GIATVE_PHUTROI ?? 0m);
                         maxVeId++;
                         string maVeMoi = "VE" + maxVeId.ToString("D3");
 
@@ -435,7 +442,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
                 {
                     transaction.Rollback();
-                    var inner = ex.InnerException?.InnerException ?? ex.InnerException ?? ex;
+                    var inner = ex.InnerException.InnerException ?? ex.InnerException ?? ex;
                     throw new Exception("Lỗi lưu cơ sở dữ liệu: " + inner.Message, ex);
                 }
                 catch (Exception)

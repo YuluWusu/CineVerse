@@ -143,7 +143,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 if (string.IsNullOrEmpty(maRapXuLy))
                 {
                     var lc = staffService.GetSchedule(maLichChieu);
-                    maRapXuLy = lc?.PHONGCHIEU?.MA_RAP?.Trim();
+                    maRapXuLy = lc.PHONGCHIEU.MA_RAP.Trim();
                 }
 
                 string staffId = !string.IsNullOrEmpty(MaNhanVien) ? MaNhanVien : "TK005"; // fallback nhân viên trực
@@ -301,7 +301,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         {
             if (disposing)
             {
-                db?.Dispose();
+                db.Dispose();
             }
             base.Dispose(disposing);
         }

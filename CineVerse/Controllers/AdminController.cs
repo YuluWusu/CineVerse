@@ -235,9 +235,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult XoaPhim(string id)
         {
-            movieService.DeleteMovie(id);
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                TempData["Error"] = "Mã phim không hợp lệ.";
+                return RedirectToAction("QuanLyPhim");
+            }
+
+            string cleanId = id.Trim();
+            if (movieService.DeleteMovie(cleanId, out string error))
+            {
+                TempData["Success"] = "Đã xóa phim thành công!";
+            }
+            else
+            {
+                TempData["Error"] = error ?? "Không thể xóa phim.";
+            }
+
             return RedirectToAction("QuanLyPhim");
         }
 
@@ -428,12 +444,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
                 MA_PHONG = r.MA_PHONG.Trim(),
                 TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
-            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG?.Trim());
+            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG != null ? lichChieu.MA_PHONG.Trim() : null);
 
             ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
                 MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
                 GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
-            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO?.Trim());
+            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO != null ? lichChieu.MA_KHUNGGIO.Trim() : null);
 
             return View(lichChieu);
         }
@@ -447,7 +463,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.MA_PHIM = new SelectList(movieService.GetAllMovies(), "MA_PHIM", "TEN_PHIM", lichChieu.MA_PHIM);
 
             var room = cinemaService.GetRoomById(lichChieu.MA_PHONG);
-            string currentRap = room?.MA_RAP?.Trim();
+            string currentRap = (room != null && room.MA_RAP != null) ? room.MA_RAP.Trim() : null;
             ViewBag.SelectedRap = currentRap;
             ViewBag.Cinemas = cinemaService.GetAllCinemas();
             ViewBag.MA_RAP = new SelectList(cinemaService.GetAllCinemas(), "MA_RAP", "TEN_RAP", currentRap);
@@ -457,12 +473,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
                 MA_PHONG = r.MA_PHONG.Trim(),
                 TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
-            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG.Trim());
+            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG != null ? lichChieu.MA_PHONG.Trim() : null);
 
             ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
                 MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
                 GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
-            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO.Trim());
+            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO != null ? lichChieu.MA_KHUNGGIO.Trim() : null);
 
             return View(lichChieu);
         }
@@ -485,7 +501,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.MA_PHIM = new SelectList(movieService.GetAllMovies(), "MA_PHIM", "TEN_PHIM", lichChieu.MA_PHIM);
 
             var room = cinemaService.GetRoomById(lichChieu.MA_PHONG);
-            string currentRap = room?.MA_RAP?.Trim();
+            string currentRap = (room != null && room.MA_RAP != null) ? room.MA_RAP.Trim() : null;
             ViewBag.SelectedRap = currentRap;
             ViewBag.Cinemas = cinemaService.GetAllCinemas();
             ViewBag.MA_RAP = new SelectList(cinemaService.GetAllCinemas(), "MA_RAP", "TEN_RAP", currentRap);
@@ -495,12 +511,12 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             ViewBag.MA_PHONG = new SelectList(allRooms.Select(r => new {
                 MA_PHONG = r.MA_PHONG.Trim(),
                 TEN_PHONG = (r.RAPCHIEU != null ? r.RAPCHIEU.TEN_RAP + " - " : "") + r.TEN_PHONG
-            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG?.Trim());
+            }), "MA_PHONG", "TEN_PHONG", lichChieu.MA_PHONG != null ? lichChieu.MA_PHONG.Trim() : null);
 
             ViewBag.MA_KHUNGGIO = new SelectList(scheduleService.GetAllTimeSlots().Select(k => new {
                 MA_KHUNGGIO = k.MA_KHUNGGIO.Trim(),
                 GIOBATDAU = k.GIOBATDAU.ToString(@"hh\:mm") + " - " + k.GIOKETTHUC.ToString(@"hh\:mm")
-            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO?.Trim());
+            }), "MA_KHUNGGIO", "GIOBATDAU", lichChieu.MA_KHUNGGIO != null ? lichChieu.MA_KHUNGGIO.Trim() : null);
 
             return View(lichChieu);
         }
@@ -1003,7 +1019,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ThemBapNuoc(BAPNUOC model, HttpPostedFileBase hinhAnhFile)
         {
-            string uploadPath = Server.MapPath("~/Content/HinhAnh/FandB/");
+            string uploadPath = Server.MapPath("~/Content/img/fnb/");
             if (_fnBService.Create(model, hinhAnhFile, uploadPath, out string error))
             {
                 TempData["Success"] = "Thêm sản phẩm bắp nước thành công!";
@@ -1025,7 +1041,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SuaBapNuoc(BAPNUOC model, HttpPostedFileBase hinhAnhFile)
         {
-            string uploadPath = Server.MapPath("~/Content/HinhAnh/FandB/");
+            string uploadPath = Server.MapPath("~/Content/img/fnb/");
             if (_fnBService.Update(model, hinhAnhFile, uploadPath, out string error))
             {
                 TempData["Success"] = "Cập nhật sản phẩm thành công!";
@@ -1069,7 +1085,25 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         #region QUAN LY NHAN VIEN & PHAN QUYEN
 
-        public ActionResult QuanLyNhanVien(string tuKhoa, string maRap, string vaiTro)
+        private void PopulateStaffDropdowns(QL_VEPHIMEntities db, string selectedRap = null, string selectedVaiTro = null, bool asSelectList = true)
+        {
+            var raps = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+            var vaiTros = db.VAITROes.OrderBy(v => v.TEN_VAITRO).ToList();
+
+            if (asSelectList)
+            {
+                ViewBag.DanhSachRap = new SelectList(raps, "MA_RAP", "TEN_RAP", !string.IsNullOrWhiteSpace(selectedRap) ? selectedRap.Trim() : null);
+                ViewBag.DanhSachVaiTro = new SelectList(vaiTros, "MA_VAITRO", "TEN_VAITRO", !string.IsNullOrWhiteSpace(selectedVaiTro) ? selectedVaiTro.Trim() : null);
+            }
+            else
+            {
+                ViewBag.DanhSachRap = raps;
+                ViewBag.DanhSachVaiTro = vaiTros;
+            }
+            ViewBag.RapList = raps;
+        }
+
+        public ActionResult QuanLyNhanVien(string search, string tuKhoa, string maRap, string vaiTro)
         {
             using (var db = new QL_VEPHIMEntities())
             {
@@ -1079,13 +1113,15 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     .Include(n => n.RAPCHIEU)
                     .AsQueryable();
 
-                if (!string.IsNullOrWhiteSpace(tuKhoa))
+                string rawKeyword = !string.IsNullOrWhiteSpace(search) ? search : tuKhoa;
+                string keyword = !string.IsNullOrWhiteSpace(rawKeyword) ? rawKeyword.Trim() : null;
+                if (!string.IsNullOrWhiteSpace(keyword))
                 {
-                    string tk = tuKhoa.Trim().ToLower();
+                    string tk = keyword.ToLower();
                     query = query.Where(n => n.MA_NHANVIEN.ToLower().Contains(tk)
-                        || n.TAIKHOAN.HOTEN.ToLower().Contains(tk)
-                        || n.TAIKHOAN.SDT.Contains(tk)
-                        || n.TAIKHOAN.EMAIL.ToLower().Contains(tk));
+                        || (n.TAIKHOAN != null && n.TAIKHOAN.HOTEN != null && n.TAIKHOAN.HOTEN.ToLower().Contains(tk))
+                        || (n.TAIKHOAN != null && n.TAIKHOAN.SDT != null && n.TAIKHOAN.SDT.Contains(tk))
+                        || (n.TAIKHOAN != null && n.TAIKHOAN.EMAIL != null && n.TAIKHOAN.EMAIL.ToLower().Contains(tk)));
                 }
 
                 if (!string.IsNullOrWhiteSpace(maRap))
@@ -1100,10 +1136,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     query = query.Where(n => n.TAIKHOAN.VAITROes.Any(v => v.MA_VAITRO.Trim() == vt || v.TEN_VAITRO.Trim() == vt));
                 }
 
-                ViewBag.TuKhoa = tuKhoa;
-                ViewBag.MaRap = maRap;
-                ViewBag.VaiTro = vaiTro;
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                ViewBag.Search = keyword;
+                ViewBag.TuKhoa = keyword;
+                ViewBag.MaRap = !string.IsNullOrWhiteSpace(maRap) ? maRap.Trim() : null;
+                ViewBag.VaiTro = !string.IsNullOrWhiteSpace(vaiTro) ? vaiTro.Trim() : null;
+                PopulateStaffDropdowns(db, maRap, vaiTro, asSelectList: false);
 
                 return View(query.OrderByDescending(n => n.TAIKHOAN.NGAYTAO).ToList());
             }
@@ -1113,22 +1150,32 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         {
             using (var db = new QL_VEPHIMEntities())
             {
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                PopulateStaffDropdowns(db, null, "NHANVIEN", asSelectList: true);
             }
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ThemNhanVien(string hoTen, string sdt, string email, string matKhau, string maRap, string vaiTro, decimal? luong)
+        public ActionResult ThemNhanVien(string hoTen, string sdt, string email, string matKhau, string maRap, string maVaiTro, string vaiTro, decimal? luong)
         {
             using (var db = new QL_VEPHIMEntities())
             {
-                string sdtTrim = sdt?.Trim() ?? "";
-                if (db.TAIKHOANs.Any(t => t.SDT.Trim() == sdtTrim))
+                string sdtTrim = !string.IsNullOrWhiteSpace(sdt) ? sdt.Trim() : "";
+                string rawRole = !string.IsNullOrWhiteSpace(maVaiTro) ? maVaiTro : vaiTro;
+                string targetRole = !string.IsNullOrWhiteSpace(rawRole) ? rawRole.Trim().ToUpperInvariant() : "NHANVIEN";
+
+                if (!string.IsNullOrEmpty(sdtTrim) && db.TAIKHOANs.Any(t => t.SDT.Trim() == sdtTrim))
                 {
                     TempData["Error"] = "Số điện thoại này đã được sử dụng cho một tài khoản khác trong hệ thống.";
-                    ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View();
+                }
+
+                if (luong.HasValue && luong.Value < 0)
+                {
+                    TempData["Error"] = "Mức lương cơ bản không thể là số âm.";
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
                     return View();
                 }
 
@@ -1149,15 +1196,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 var tk = new TAIKHOAN
                 {
                     MA_TAIKHOAN = newMaNv,
-                    HOTEN = hoTen?.Trim() ?? "Nhân viên mới",
+                    HOTEN = !string.IsNullOrWhiteSpace(hoTen) ? hoTen.Trim() : "Nhân viên mới",
                     SDT = sdtTrim,
-                    EMAIL = email?.Trim(),
+                    EMAIL = !string.IsNullOrWhiteSpace(email) ? email.Trim() : null,
                     MATKHAU = hashedPass,
                     NGAYTAO = DateTime.Now,
                     TRANGTHAI = "HoatDong"
                 };
 
-                string targetRole = string.IsNullOrWhiteSpace(vaiTro) ? "NHANVIEN" : vaiTro.Trim().ToUpperInvariant();
                 var roleObj = db.VAITROes.FirstOrDefault(v => v.MA_VAITRO.Trim() == targetRole || v.TEN_VAITRO.Trim() == targetRole);
                 if (roleObj == null)
                 {
@@ -1170,21 +1216,30 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 var nv = new NHANVIEN
                 {
                     MA_NHANVIEN = newMaNv,
-                    LUONG = luong ?? 6500000m,
+                    LUONG = (luong.HasValue && luong.Value >= 0) ? luong.Value : 6500000m,
                     MA_RAP = string.IsNullOrWhiteSpace(maRap) ? db.RAPCHIEUx.Select(r => r.MA_RAP).FirstOrDefault() : maRap.Trim(),
                     NGAYVAOLAM = DateTime.Now
                 };
                 db.NHANVIENs.Add(nv);
 
-                db.SaveChanges();
-                TempData["Success"] = $"Thêm nhân viên [{newMaNv} - {tk.HOTEN}] thành công!";
-                return RedirectToAction("QuanLyNhanVien");
+                try
+                {
+                    db.SaveChanges();
+                    TempData["Success"] = $"Thêm nhân viên [{newMaNv} - {tk.HOTEN}] thành công!";
+                    return RedirectToAction("QuanLyNhanVien");
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Lỗi khi lưu dữ liệu: " + ex.Message;
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View();
+                }
             }
         }
 
         public ActionResult SuaNhanVien(string id)
         {
-            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
             using (var db = new QL_VEPHIMEntities())
             {
                 string trimmed = id.Trim();
@@ -1195,39 +1250,86 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
                 if (nv == null) return HttpNotFound();
 
-                ViewBag.RapList = db.RAPCHIEUx.OrderBy(r => r.TEN_RAP).ToList();
+                string currentRole = (nv.TAIKHOAN != null && nv.TAIKHOAN.VAITROes != null)
+                    ? (nv.TAIKHOAN.VAITROes.Select(v => v.MA_VAITRO.Trim()).FirstOrDefault() ?? "NHANVIEN")
+                    : "NHANVIEN";
+                PopulateStaffDropdowns(db, nv.MA_RAP != null ? nv.MA_RAP.Trim() : null, currentRole, asSelectList: true);
                 return View(nv);
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SuaNhanVien(string id, string hoTen, string sdt, string email, string matKhauMoi, string maRap, string vaiTro, decimal? luong)
+        public ActionResult SuaNhanVien(
+            string id,
+            string maNhanVien,
+            string hoTen,
+            string sdt,
+            string email,
+            string matKhauMoi,
+            string maRap,
+            string maVaiTro,
+            string vaiTro,
+            string trangThai,
+            decimal? luong)
         {
-            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+            string rawTargetId = !string.IsNullOrWhiteSpace(id) ? id : maNhanVien;
+            string targetId = !string.IsNullOrWhiteSpace(rawTargetId) ? rawTargetId.Trim() : null;
+            if (string.IsNullOrWhiteSpace(targetId)) return HttpNotFound();
+
             using (var db = new QL_VEPHIMEntities())
             {
-                string trimmed = id.Trim();
                 var nv = db.NHANVIENs
                     .Include(n => n.TAIKHOAN.VAITROes)
-                    .FirstOrDefault(n => n.MA_NHANVIEN.Trim() == trimmed);
+                    .Include(n => n.RAPCHIEU)
+                    .FirstOrDefault(n => n.MA_NHANVIEN.Trim() == targetId);
 
                 if (nv == null) return HttpNotFound();
 
+                string rawRole = !string.IsNullOrWhiteSpace(maVaiTro) ? maVaiTro : vaiTro;
+                string targetRole = !string.IsNullOrWhiteSpace(rawRole) ? rawRole.Trim().ToUpperInvariant() : null;
+                string sdtTrim = !string.IsNullOrWhiteSpace(sdt) ? sdt.Trim() : "";
+
+                // Kiểm tra trùng lặp số điện thoại với tài khoản khác
+                if (!string.IsNullOrEmpty(sdtTrim) && db.TAIKHOANs.Any(t => t.SDT.Trim() == sdtTrim && t.MA_TAIKHOAN.Trim() != targetId))
+                {
+                    TempData["Error"] = "Số điện thoại này đã được sử dụng cho một tài khoản khác trong hệ thống.";
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View(nv);
+                }
+
+                // Kiểm tra mức lương không âm
+                if (luong.HasValue && luong.Value < 0)
+                {
+                    TempData["Error"] = "Mức lương cơ bản không thể là số âm.";
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View(nv);
+                }
+
                 if (nv.TAIKHOAN != null)
                 {
-                    nv.TAIKHOAN.HOTEN = hoTen?.Trim() ?? nv.TAIKHOAN.HOTEN;
-                    nv.TAIKHOAN.SDT = sdt?.Trim() ?? nv.TAIKHOAN.SDT;
-                    nv.TAIKHOAN.EMAIL = email?.Trim();
+                    if (!string.IsNullOrWhiteSpace(hoTen))
+                    {
+                        nv.TAIKHOAN.HOTEN = hoTen.Trim();
+                    }
+                    if (!string.IsNullOrWhiteSpace(sdtTrim))
+                    {
+                        nv.TAIKHOAN.SDT = sdtTrim;
+                    }
+                    nv.TAIKHOAN.EMAIL = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+
+                    if (!string.IsNullOrWhiteSpace(trangThai))
+                    {
+                        nv.TAIKHOAN.TRANGTHAI = trangThai.Trim().Equals("Khoa", StringComparison.OrdinalIgnoreCase) ? "Khoa" : "HoatDong";
+                    }
 
                     if (!string.IsNullOrWhiteSpace(matKhauMoi))
                     {
                         nv.TAIKHOAN.MATKHAU = PasswordHelper.HashPassword(matKhauMoi.Trim());
                     }
 
-                    if (!string.IsNullOrWhiteSpace(vaiTro))
+                    if (!string.IsNullOrWhiteSpace(targetRole))
                     {
-                        string targetRole = vaiTro.Trim().ToUpperInvariant();
                         var roleObj = db.VAITROes.FirstOrDefault(v => v.MA_VAITRO.Trim() == targetRole || v.TEN_VAITRO.Trim() == targetRole);
                         if (roleObj == null)
                         {
@@ -1239,15 +1341,28 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                     }
                 }
 
-                nv.LUONG = luong ?? nv.LUONG;
+                if (luong.HasValue && luong.Value >= 0)
+                {
+                    nv.LUONG = luong.Value;
+                }
+
                 if (!string.IsNullOrWhiteSpace(maRap))
                 {
                     nv.MA_RAP = maRap.Trim();
                 }
 
-                db.SaveChanges();
-                TempData["Success"] = "Cập nhật hồ sơ nhân viên thành công!";
-                return RedirectToAction("QuanLyNhanVien");
+                try
+                {
+                    db.SaveChanges();
+                    TempData["Success"] = $"Cập nhật hồ sơ nhân viên [{targetId} - {(nv.TAIKHOAN != null ? nv.TAIKHOAN.HOTEN : "")}] thành công!";
+                    return RedirectToAction("QuanLyNhanVien");
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Lỗi khi lưu dữ liệu cập nhật: " + ex.Message;
+                    PopulateStaffDropdowns(db, maRap, targetRole, asSelectList: true);
+                    return View(nv);
+                }
             }
         }
 
@@ -1261,7 +1376,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 var nv = db.NHANVIENs.Include(n => n.TAIKHOAN).FirstOrDefault(n => n.MA_NHANVIEN.Trim() == trimmed);
                 if (nv == null || nv.TAIKHOAN == null) return Json(new { success = false, message = "Không tìm thấy hồ sơ nhân viên." });
 
-                string currentStatus = nv.TAIKHOAN.TRANGTHAI?.Trim();
+                string currentStatus = nv.TAIKHOAN.TRANGTHAI != null ? nv.TAIKHOAN.TRANGTHAI.Trim() : "HoatDong";
                 string newStatus = (currentStatus == "HoatDong") ? "Khoa" : "HoatDong";
                 nv.TAIKHOAN.TRANGTHAI = newStatus;
                 db.SaveChanges();

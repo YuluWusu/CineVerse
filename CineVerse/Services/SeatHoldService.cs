@@ -50,7 +50,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
         private string BuildKey(string maLichChieu, string maGhe)
         {
-            return $"{maLichChieu?.Trim().ToUpper()}_{maGhe?.Trim().ToUpper()}";
+            return $"{maLichChieu.Trim().ToUpper()}_{maGhe.Trim().ToUpper()}";
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
             if (string.IsNullOrWhiteSpace(maLichChieu)) return;
             maLichChieu = maLichChieu.Trim().ToUpper();
-            currentHolderId = currentHolderId?.Trim() ?? string.Empty;
+            currentHolderId = currentHolderId.Trim() ?? string.Empty;
 
             CleanupExpired();
 
@@ -278,7 +278,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             // Ghế đôi phải chọn theo cặp (nếu số ghế đôi được chọn là số lẻ thì cảnh báo)
             var selectedCoupleSeats = allSeatsInRoom
                 .Where(g => selectedSet.Contains(g.MA_GHE.Trim().ToUpper()) &&
-                            (g.MA_LOAIGHE?.Trim() == "LG03" || (g.LOAIGHE?.TEN_LOAIGHE != null && g.LOAIGHE.TEN_LOAIGHE.Contains("Đôi"))))
+                            (g.MA_LOAIGHE.Trim() == "LG03" || (g.LOAIGHE.TEN_LOAIGHE != null && g.LOAIGHE.TEN_LOAIGHE.Contains("Đôi"))))
                 .ToList();
 
             if (selectedCoupleSeats.Count % 2 != 0)
@@ -315,7 +315,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 if (!isOccupied[0] && isOccupied[1])
                 {
                     // Nếu ghế 0 trống và ghế 1 có người -> Ghế 0 bị mồ côi sát rìa lối đi/tường
-                    string tenGhe = rowSeats[0].SOGHE?.Trim();
+                    string tenGhe = rowSeats[0].SOGHE.Trim();
                     warningMessage = $"Không thể để trống duy nhất 1 ghế sát rìa ({tenGhe}). Vui lòng chọn ghế đó hoặc chọn vị trí khác.";
                     return false;
                 }
@@ -323,7 +323,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 // Kiểm tra ghế trống ở vị trí cuối dãy (ghế n-1 trống, ghế n-2 bị chiếm)
                 if (!isOccupied[n - 1] && isOccupied[n - 2])
                 {
-                    string tenGhe = rowSeats[n - 1].SOGHE?.Trim();
+                    string tenGhe = rowSeats[n - 1].SOGHE.Trim();
                     warningMessage = $"Không thể để trống duy nhất 1 ghế sát rìa ({tenGhe}). Vui lòng chọn ghế đó hoặc chọn vị trí khác.";
                     return false;
                 }
@@ -333,7 +333,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 {
                     if (!isOccupied[i] && isOccupied[i - 1] && isOccupied[i + 1])
                     {
-                        string tenGhe = rowSeats[i].SOGHE?.Trim();
+                        string tenGhe = rowSeats[i].SOGHE.Trim();
                         warningMessage = $"Không thể để trống duy nhất 1 ghế đơn ({tenGhe}) ở giữa các vị trí đã chọn. Vui lòng chọn ghế liền kề hoặc cách từ 2 ghế trở lên.";
                         return false;
                     }

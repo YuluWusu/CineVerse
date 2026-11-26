@@ -413,7 +413,7 @@
 
         .schedule-section {
             padding: 48px 0 60px;
-            background: var(--bg-void);
+            background: linear-gradient(180deg, rgba(15, 15, 26, 0.4) 0%, rgba(20, 22, 38, 0.65) 100%);
         }
 
         .section-title-cv {
@@ -771,12 +771,49 @@
             align-items: center;
             gap: 4px;
         }
+        /* PHIM CÙNG THỂ LOẠI: giữ lớp phủ nằm gọn trong poster của từng thẻ */
+        .related-movies-section .movie-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .25s, border-color .25s;
+        }
+
+            .related-movies-section .movie-card:hover {
+                transform: translateY(-4px);
+                border-color: rgba(232,184,75,.4);
+            }
+
+        .related-movies-section .movie-poster {
+            position: relative;
+            aspect-ratio: 2/3;
+            overflow: hidden;
+        }
+
+            .related-movies-section .movie-poster img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .related-movies-section .poster-overlay {
+            z-index: 1;
+        }
+
+        .related-movies-section .movie-card:hover .poster-overlay {
+            opacity: 1;
+        }
     </style>
 }
 
 @{
     string ageClass = "badge-p";
-    string ageLimit = Model.GIOI_HAN_TUOI.ToUpper() ?? "";
+    string ageLimit = !string.IsNullOrEmpty(Model.GIOI_HAN_TUOI) ? Model.GIOI_HAN_TUOI.Trim().ToUpper() : "";
     if (ageLimit == "T13") { ageClass = "badge-t13"; }
     else if (ageLimit == "T16") { ageClass = "badge-t16"; }
     else if (ageLimit == "T18") { ageClass = "badge-t18"; }
@@ -852,7 +889,7 @@
                         <span>Chi tiết</span>
                     </div>
 
-                    <div class="age-badge @ageClass">@Model.GIOI_HAN_TUOI</div>
+                    <div class="age-badge @ageClass">@(string.IsNullOrWhiteSpace(Model.GIOI_HAN_TUOI) ? "P" : Model.GIOI_HAN_TUOI)</div>
 
                     <h1 class="detail-title">@Model.TEN_PHIM</h1>
 
@@ -934,7 +971,7 @@
                         <!-- XỬ LÝ CHUỖI SPLIT QUY ĐỊNH RẠP CHIẾU (TIÊU CHÍ BAREM) -->
                         <div class="detail-row">
                             <span class="detail-label">Quy định vé</span>
-                            <div@{
+        <div@{
                         string qdStr = @"Khán giả vui lòng có mặt trước giờ chiếu 15 phút để làm thủ tục check-in.
                     Không mang thức ăn, đồ uống từ bên ngoài vào cụm rạp CinéVerse.
                     Trẻ em dưới độ tuổi quy định của phim cần người giám hộ đi kèm.
@@ -945,6 +982,7 @@
                             StringSplitOptions.RemoveEmptyEntries
                         );
                     }
+
                                 <ul style="margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 1.7;">
                                     @foreach (var qd in arrQuyDinh)
                                     {
@@ -1002,17 +1040,20 @@
                         <div class="showtime-date-panel" id="date-@group.Key.ToString("yyyyMMdd")" style="display: @(isFirst ? "block" : "none")">
                             
                             @{
-                                var groupedByCinema = group.GroupBy(l => l.PHONGCHIEU.RAPCHIEU).ToList();
+                                var groupedByCinema = group
+                                    .Where(l => l.PHONGCHIEU != null && l.PHONGCHIEU.RAPCHIEU != null)
+                                    .GroupBy(l => l.PHONGCHIEU.RAPCHIEU)
+                                    .ToList();
                             }
                             
                             @foreach (var cinemaGroup in groupedByCinema)
                             {
                                 <div class="showtime-group">
-                                    <div class="showtime-group-label">@(cinemaGroup.Key.TEN_RAP ?? "Rạp")</div>
+                                    <div class="showtime-group-label">@(cinemaGroup.Key != null && !string.IsNullOrEmpty(cinemaGroup.Key.TEN_RAP) ? cinemaGroup.Key.TEN_RAP.Trim() : "Rạp CinéVerse")</div>
                                     <div class="showtime-grid">
                                         @foreach (var lc in cinemaGroup)
                                         {
-                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU" class="showtime-btn">
+                                            <a href="/Booking/ChonGhe?maLichChieu=@lc.MA_LICHCHIEU.Trim()" class="showtime-btn">
                                                 <span class="showtime-time">@lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm")</span>
                                                 <span class="showtime-type">@lc.PHONGCHIEU.TEN_PHONG</span>
                                                 @if(lc.GIATVE_PHUTROI > 0)
@@ -1191,7 +1232,7 @@
                     {
                         foreach (var dg in danhGias)
                         {
-                            string tenKhach = dg.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khan gia CineVerse";
+                            string tenKhach = dg.KHACHHANG.TAIKHOAN.HOTEN ?? "Khan gia CineVerse";
                             string initial = !string.IsNullOrWhiteSpace(tenKhach) ? tenKhach.Substring(0, 1).ToUpper() : "K";
                             <div class="review-item-card">
                                 <div class="d-flex justify-content-between align-items-start mb-2">

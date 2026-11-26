@@ -16,7 +16,7 @@
 <style>
     .booking-container {
         padding: 40px 0 80px;
-        background: var(--bg-void);
+        background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(232, 184, 75, 0.08) 0%, transparent 70%);
         min-height: 85vh;
     }
 
@@ -393,6 +393,7 @@
 
                     <hr style="border-color: rgba(255,255,255,0.1);" />
 
+<<<<<<< hieu_dev2
                     <!-- Tiền vé -->
                     <div class="summary-row">
                         <span>Ghế đang giữ:</span>
@@ -404,6 +405,19 @@
                         <span>Tổng tiền vé:</span>
                         <strong id="summaryTienVe" data-tienve="@tongTienVe">@tongTienVe.ToString("#,##0") đ</strong>
                     </div>
+=======
+                        <!-- Tiền vé -->
+                        <div class="summary-row">
+                            <span>Ghế đang giữ:</span>
+                            <strong class="text-warning">
+                                @string.Join(", ", danhSachGhe.Select(g => g.SOGHE.Trim()))
+                            </strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tổng tiền vé:</span>
+                            <strong id="summaryTienVe" data-tienve="@tongTienVe">@tongTienVe.ToString("#,##0") đ</strong>
+                        </div>
+>>>>>>> master
 
                     <hr style="border-color: rgba(255,255,255,0.1);" />
 

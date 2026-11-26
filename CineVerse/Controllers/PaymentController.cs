@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
@@ -106,7 +106,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
                 if (checkSignature)
                 {
-                    string maDonHang = vnp_TxnRef?.Trim();
+                    string maDonHang = vnp_TxnRef.Trim();
                     var donHang = _bookingService.GetOrderById(maDonHang);
 
                     if (donHang != null)
@@ -321,13 +321,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 return Json(new { success = false, message = "Mã Check-in không tồn tại trên hệ thống!" }, JsonRequestBehavior.AllowGet);
             }
 
-            bool daSoatVe = string.Equals(donHang.TRANGTHAISOATVE?.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
+            bool daSoatVe = string.Equals(donHang.TRANGTHAISOATVE.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase);
 
             var result = new
             {
                 success = true,
                 maDonHang = donHang.MA_DONHANG.Trim(),
                 maCheckIn = donHang.MACHECKIN.Trim(),
+
                 tenKhachHang = donHang.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khách vãng lai",
                 sdt = donHang.KHACHHANG?.TAIKHOAN?.SDT,
                 tenPhim = donHang.LICHCHIEU?.PHIM?.TEN_PHIM,
@@ -336,6 +337,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 ngayChieu = donHang.LICHCHIEU?.NGAYCHIEU.ToString("dd/MM/yyyy"),
                 gioChieu = donHang.LICHCHIEU?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm"),
                 danhSachGhe = string.Join(", ", donHang.VEs.Select(v => v.GHE?.SOGHE?.Trim()).Where(s => !string.IsNullOrEmpty(s))),
+
                 tongTien = donHang.TONGTIEN.ToString("#,##0") + " đ",
                 trangThaiThanhToan = donHang.TRANGTHAITHANHTOAN,
                 trangThaiSoatVe = daSoatVe ? "Đã soát vé" : "Chưa soát vé",
@@ -365,7 +367,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
                 return Json(new { success = false, message = "Không tìm thấy thông tin đơn vé!" });
             }
 
-            if (string.Equals(donHang.TRANGTHAISOATVE?.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(donHang.TRANGTHAISOATVE.Trim(), "DaSoatVe", StringComparison.OrdinalIgnoreCase))
             {
                 return Json(new
                 {
@@ -435,7 +437,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         {
             if (disposing)
             {
-                _db?.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -73,15 +73,15 @@
                     {
                         foreach (var dg in Model)
                         {
-                            string tenKhach = dg.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khách hàng";
-                            string sdtKhach = dg.KHACHHANG?.TAIKHOAN?.SDT ?? "";
+                            string tenKhach = dg.KHACHHANG.TAIKHOAN.HOTEN ?? "Khách hàng";
+                            string sdtKhach = dg.KHACHHANG.TAIKHOAN.SDT ?? "";
                             bool isHienThi = dg.TRANGTHAI == "HienThi";
                             <tr>
                                 <td>
                                     <span class="font-monospace text-warning small">@dg.MA_DANHGIA</span>
                                 </td>
                                 <td>
-                                    <strong class="text-white">@(dg.PHIM?.TEN_PHIM ?? dg.MA_PHIM)</strong>
+                                    <strong class="text-white">@(dg.PHIM.TEN_PHIM ?? dg.MA_PHIM)</strong>
                                 </td>
                                 <td>
                                     <div><strong>@tenKhach</strong></div>

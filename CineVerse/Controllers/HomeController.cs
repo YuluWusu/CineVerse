@@ -13,7 +13,9 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
 
         public ActionResult TrangChu()
         {
-            List<PHIM> dangChieu = data.PHIMs.Where(p => p.TRANGTHAI == "Đang chiếu").Take(5).ToList();
+            List<PHIM> dangChieu = data.PHIMs
+                .Where(p => p.TRANGTHAI == "Đang chiếu")
+                .Take(5).ToList();
             List<PHIM> sapChieu = data.PHIMs.Where(p => p.TRANGTHAI == "Sắp chiếu").Take(6).ToList();
             List<PHIM> hinhNen = data.PHIMs.Take(3).ToList();
             ViewBag.DangChieu = dangChieu;

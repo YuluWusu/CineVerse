@@ -38,7 +38,13 @@
 
         body {
             font-family: var(--font-body);
-            background: var(--bg-void);
+            background-color: #0b0c14;
+            background-image:
+                radial-gradient(ellipse 75% 50% at 20% 10%, rgba(232, 184, 75, 0.09) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 50% at 85% 30%, rgba(88, 56, 155, 0.13) 0%, transparent 65%),
+                radial-gradient(ellipse 80% 60% at 50% 90%, rgba(28, 70, 145, 0.12) 0%, transparent 65%),
+                linear-gradient(180deg, #0a0b13 0%, #121424 50%, #0c0e1a 100%);
+            background-attachment: fixed;
             color: var(--text-pri);
             overflow-x: hidden;
             font-size: 14px;
@@ -712,7 +718,6 @@
 
     <nav id="sidebar">
         <div class="sb-brand">
-            <div class="sb-brand-dot"></div>
             <div class="sb-brand-name">Ciné<span>Verse</span></div>
             <div class="sb-brand-badge">NHÂN VIÊN</div>
         </div>

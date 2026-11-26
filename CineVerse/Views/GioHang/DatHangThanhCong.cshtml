@@ -103,16 +103,16 @@
                     var lc = Model.LICHCHIEU;
                     <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
                         <div class="fw-bold text-white mb-1">
-                            <i class="bi bi-film me-1 text-warning"></i> @(lc?.PHIM?.TEN_PHIM ?? "Vé xem phim")
+                            <i class="bi bi-film me-1 text-warning"></i> @(lc.PHIM.TEN_PHIM ?? "Vé xem phim")
                         </div>
                         <div class="small text-muted mb-2">
-                            Rạp: @(lc?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP) | Phòng: @(lc?.PHONGCHIEU?.TEN_PHONG) | Suất: @(lc?.NGAYCHIEU.ToString("dd/MM/yyyy")) @(lc?.KHUNGGIO?.GIOBATDAU.ToString(@"hh\:mm"))
+                            Rạp: @(lc.PHONGCHIEU.RAPCHIEU.TEN_RAP) | Phòng: @(lc.PHONGCHIEU.TEN_PHONG) | Suất: @(lc.NGAYCHIEU.ToString("dd/MM/yyyy")) @(lc.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm"))
                         </div>
                         <div class="d-flex flex-wrap gap-2">
                             @foreach (var ve in Model.VEs)
                             {
                                 <span class="badge bg-secondary py-2 px-3" style="font-size: 12px;">
-                                    Ghế @(ve.GHE?.SOGHE ?? ve.MA_GHE) (@(ve.GHE?.LOAIGHE?.TEN_LOAIGHE ?? "Ghế")) - @ve.DONGIA.ToString("N0") đ
+                                    Ghế @(ve.GHE.SOGHE ?? ve.MA_GHE) (@(ve.GHE.LOAIGHE.TEN_LOAIGHE ?? "Ghế")) - @ve.DONGIA.ToString("N0") đ
                                 </span>
                             }
                         </div>
@@ -129,7 +129,7 @@
                         @foreach (var fnb in Model.CHITIET_BAPNUOC)
                         {
                             <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-secondary border-opacity-10">
-                                <span>@fnb.SOLUONG x @(fnb.BAPNUOC?.TEN_SANPHAM ?? fnb.MA_SANPHAM)</span>
+                                <span>@fnb.SOLUONG x @(fnb.BAPNUOC.TEN_SANPHAM ?? fnb.MA_SANPHAM)</span>
                                 <span class="text-white fw-bold">@fnb.THANHTIEN.ToString("N0") đ</span>
                             </div>
                         }

@@ -199,7 +199,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
             }
 
             var sessionKh = Session["KhachHang"] as KHACHHANG;
-            string maTaiKhoan = sessionKh?.MA_KHACHHANG?.Trim() ?? Session["MaTaiKhoan"] as string;
+            string maTaiKhoan = sessionKh.MA_KHACHHANG.Trim() ?? Session["MaTaiKhoan"] as string;
 
             bool success = authService.ChangePassword(maTaiKhoan, matKhauCu, matKhauMoi, out string err);
             if (success)
@@ -386,8 +386,8 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Controllers
         {
             if (disposing)
             {
-                data?.Dispose();
-                authService?.Dispose();
+                data.Dispose();
+                authService.Dispose();
             }
             base.Dispose(disposing);
         }

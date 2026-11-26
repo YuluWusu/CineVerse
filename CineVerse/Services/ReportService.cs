@@ -209,7 +209,7 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
 
                 decimal pRevenue = pOrders.Sum(o => o.TONGTIEN);
                 int pTickets = group.SelectMany(s => s.VEs).Count(v => v.TRANGTHAI != "Đã hủy");
-                int pCapacity = group.Sum(s => s.PHONGCHIEU?.GHEs?.Count ?? 0);
+                int pCapacity = group.Sum(s => s.PHONGCHIEU.GHEs.Count);
 
                 double rate = pCapacity > 0 ? Math.Round(((double)pTickets / pCapacity) * 100, 1) : 0;
 
@@ -227,14 +227,14 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
             result.TopMovies = movieStatsList.OrderByDescending(m => m.DoanhThu).Take(5).ToList();
 
             // Tính Tỷ lệ lấp đầy ghế trung bình
-            int totalCapacityAll = schedules.Sum(s => s.PHONGCHIEU?.GHEs?.Count ?? 0);
+            int totalCapacityAll = schedules.Sum(s => s.PHONGCHIEU.GHEs.Count);
             result.AverageOccupancyRate = totalCapacityAll > 0
                 ? Math.Round(((double)result.TotalTicketsSold / totalCapacityAll) * 100, 1)
                 : 0;
 
             // Biểu đồ 3A: Tỷ trọng doanh thu theo Cụm rạp
             var cinemaGrouped = orders
-                .Where(o => o.LICHCHIEU?.PHONGCHIEU?.RAPCHIEU != null)
+                .Where(o => o.LICHCHIEU.PHONGCHIEU.RAPCHIEU != null)
                 .GroupBy(o => o.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP)
                 .ToList();
 
@@ -332,11 +332,11 @@ namespace DoAn_QuanLyVeXemPhimTrucTiep.Services
                 {
                     MaDonHang = d.MA_DONHANG.Trim(),
                     NgayDat = d.NGAYDAT,
-                    TenKhachHang = d.KHACHHANG?.TAIKHOAN?.HOTEN ?? "Khách vãng lai",
-                    SoDienThoai = d.KHACHHANG?.TAIKHOAN?.SDT ?? "",
-                    TenPhim = d.LICHCHIEU?.PHIM?.TEN_PHIM ?? "",
-                    TenRap = d.LICHCHIEU?.PHONGCHIEU?.RAPCHIEU?.TEN_RAP ?? "",
-                    TenPhong = d.LICHCHIEU?.PHONGCHIEU?.TEN_PHONG ?? "",
+                    TenKhachHang = d.KHACHHANG.TAIKHOAN.HOTEN ?? "Khách vãng lai",
+                    SoDienThoai = d.KHACHHANG.TAIKHOAN.SDT ?? "",
+                    TenPhim = d.LICHCHIEU.PHIM.TEN_PHIM ?? "",
+                    TenRap = d.LICHCHIEU.PHONGCHIEU.RAPCHIEU.TEN_RAP ?? "",
+                    TenPhong = d.LICHCHIEU.PHONGCHIEU.TEN_PHONG ?? "",
                     GioChieu = d.LICHCHIEU != null && d.LICHCHIEU.KHUNGGIO != null ? d.LICHCHIEU.KHUNGGIO.GIOBATDAU.ToString(@"hh\:mm") : "",
                     SoVe = d.VEs.Count,
                     DanhSachGhe = dsGhe,
